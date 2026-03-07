@@ -123,6 +123,7 @@ You are building a minimal end-to-end mobile check deposit system for a brokerag
 3. **Re-submission Support on IQA Failure:** Implement the re-submission flow. The deposit endpoint must accept an optional `retryForTransferId` field. When present, it updates the existing Transfer record rather than creating a new one, advancing it through the validation retry. IQA failure responses must include the `actionableMessage` from the Vendor stub so the UI can display it.
 * *Automated Validation:* Write a `@WebMvcTest` that: (1) submits a deposit triggering IQA Blur, asserts `422` response with `actionableMessage` field present; (2) re-submits with `retryForTransferId`, asserts the existing Transfer is updated (not a new record) and state advances.
 * *Manual Testing:* Use curl to POST a deposit triggering IQA Blur. Confirm the response body contains `actionableMessage`. Re-POST with `retryForTransferId` set. Verify in the database that only one Transfer record exists (no duplicate created).
+* *Future Security:* Attach transfer ownership to the Transfer record so that retries can validate the caller's account (e.g. `X-Account-Id`) matches the transfer's owner before allowing updates.
 
 
 4. **Stub Documentation Artifact:** Produce `/docs/vendor-stub-scenarios.md` documenting each of the 7 supported response scenarios: the trigger mechanism (which account ID or amount triggers which scenario), the expected full response shape (all fields), configuration options, and how to add a new scenario.

@@ -16,12 +16,14 @@ Phase 3 (Vendor Service Stub) is largely complete. The stub is implemented with 
 
 ## Next Steps
 
-1. **Phase 3.3** — Re-submission flow: `retryForTransferId` on deposit endpoint; update existing Transfer on IQA retry
-2. **Phase 3.4** — Create `/docs/vendor-stub-scenarios.md` documenting all 7 scenarios
-3. **Phase 4** — Funding Service: business rules, ledger posting, return notification endpoint
+1. **Phase 4** — Funding Service: business rules, ledger posting, return notification endpoint
 
 ## Active Decisions
 
 - Stub uses account ID for scenario selection (no config file yet)
 - Default scenario when account ID unknown: CLEAN_PASS
 - Mock auth via `X-User-Role` and `X-Account-Id`; no JWT
+
+## Future Considerations
+
+- **Transfer ownership validation:** When implementing `retryForTransferId`, attach ownership (e.g. investor account ID) to the Transfer so retries can validate the caller owns the transfer before allowing updates. See detailed-plan Phase 3.3.

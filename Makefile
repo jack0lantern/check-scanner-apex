@@ -20,6 +20,7 @@ run:
 
 test:
 	./mvnw test
+	./scripts/validate-vendor-stub-docs.sh
 
 pre-commit-install:
 	pre-commit install

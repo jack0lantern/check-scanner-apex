@@ -4,6 +4,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.apexfintech.checkdeposit.config.WebMvcConfig;
+import com.apexfintech.checkdeposit.deposit.DepositService;
 import com.apexfintech.checkdeposit.funding.AccountResolutionService;
 import com.apexfintech.checkdeposit.vendor.VendorService;
 import org.junit.jupiter.api.Test;
@@ -21,6 +22,7 @@ class MockAuthInterceptorTest {
 
   @MockBean private AccountResolutionService accountResolutionService;
   @MockBean private VendorService vendorService;
+  @MockBean private DepositService depositService;
 
   @Test
   void authTest_returns200_whenHeadersPresent() throws Exception {

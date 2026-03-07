@@ -5,8 +5,9 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -19,11 +20,11 @@ public class Transfer {
   @Id
   private UUID id;
 
-  @Lob
+  @JdbcTypeCode(SqlTypes.VARBINARY)
   @Column(name = "front_image_data")
   private byte[] frontImageData;
 
-  @Lob
+  @JdbcTypeCode(SqlTypes.VARBINARY)
   @Column(name = "back_image_data")
   private byte[] backImageData;
 
@@ -207,5 +208,37 @@ public class Transfer {
 
   public Instant getUpdatedAt() {
     return updatedAt;
+  }
+
+  public void setFrontImageData(byte[] frontImageData) {
+    this.frontImageData = frontImageData;
+  }
+
+  public void setBackImageData(byte[] backImageData) {
+    this.backImageData = backImageData;
+  }
+
+  public void setState(TransferState state) {
+    this.state = state;
+  }
+
+  public void setVendorScore(Double vendorScore) {
+    this.vendorScore = vendorScore;
+  }
+
+  public void setMicrData(String micrData) {
+    this.micrData = micrData;
+  }
+
+  public void setMicrConfidence(Double micrConfidence) {
+    this.micrConfidence = micrConfidence;
+  }
+
+  public void setOcrAmount(BigDecimal ocrAmount) {
+    this.ocrAmount = ocrAmount;
+  }
+
+  public void setUpdatedAt(Instant updatedAt) {
+    this.updatedAt = updatedAt;
   }
 }

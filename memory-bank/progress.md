@@ -6,7 +6,7 @@
 |-------|--------|-------|
 | 1. Infrastructure | ✅ | Docker, Makefile, .env.example, Maven, Spotless, DB schema |
 | 2. Domain & State | ✅ | TransferState enum, Transfer/Account entities, AccountResolutionService, MockAuthInterceptor |
-| 3. Vendor Stub | 🟡 | Stub + 7 scenarios + tests done; re-submission + docs pending |
+| 3. Vendor Stub | ✅ | Stub + 7 scenarios + re-submission + vendor-stub-scenarios.md |
 
 ## Implemented
 
@@ -15,12 +15,14 @@
 - **Account resolution:** TEST001, TEST002, etc. → internal number, routing, omnibus
 - **Mock auth:** X-User-Role, X-Account-Id; 401/403 when missing
 - **Vendor stub:** 7 scenarios; trigger by account ID; actionable messages for failures
+- **Deposit endpoint:** POST /deposits with retryForTransferId; 422 with actionableMessage on IQA failure
+- **Re-submission:** retry updates existing Transfer, advances state on success
 
 ## What's Left to Build
 
 | Phase | Items |
 |-------|-------|
-| 3 | Re-submission (`retryForTransferId`), vendor-stub-scenarios.md |
+| 3 | — (complete) |
 | 4 | FundingService, ledger posting, return endpoint, reversal logic |
 | 5 | REST API: POST /deposits, GET /deposits/{id}, operator queue, approve/reject |
 | 6 | EOD batch, settlement file (X9), next-business-day rollover, ack tracking |
@@ -37,6 +39,6 @@
 
 ## Known Issues
 
-- No deposit submission endpoint yet (Phase 5)
+- Deposit endpoint implemented (Phase 3.3); operator queue and approve/reject pending (Phase 5)
 - No operator queue or approve/reject (Phase 5)
 - React frontend not started (Phase 8)
