@@ -21,7 +21,11 @@ import org.springframework.stereotype.Service;
 @Primary
 public class StubVendorService implements VendorService {
 
-  private static final String DEFAULT_MICR = "12345678901234567890";
+  /** MICR with routing 021000021 (matches TEST001) for clean pass scenarios. */
+  private static final String DEFAULT_MICR = "02100002112345678901";
+
+  /** MICR with non-matching routing for routing-mismatch scenario. */
+  private static final String ROUTING_MISMATCH_MICR = "99999999912345678901";
   private static final double DEFAULT_CONFIDENCE = 0.99;
   private static final double DEFAULT_VENDOR_SCORE = 1.0;
   private static final double DEFAULT_RISK_SCORE = 0.0;
@@ -34,6 +38,7 @@ public class StubVendorService implements VendorService {
           Map.entry("micr-fail", VendorScenario.MICR_READ_FAILURE),
           Map.entry("duplicate", VendorScenario.DUPLICATE_DETECTED),
           Map.entry("amount-mismatch", VendorScenario.AMOUNT_MISMATCH),
+          Map.entry("routing-mismatch", VendorScenario.ROUTING_MISMATCH),
           Map.entry("clean-pass", VendorScenario.CLEAN_PASS));
 
   private static final Map<VendorScenario, String> ACTIONABLE_MESSAGES =
@@ -95,6 +100,14 @@ public class StubVendorService implements VendorService {
           DEFAULT_CONFIDENCE,
           enteredAmount,
           actionableMessage,
+          DEFAULT_RISK_SCORE);
+      case ROUTING_MISMATCH -> new VendorAssessmentResult(
+          scenario,
+          DEFAULT_VENDOR_SCORE,
+          ROUTING_MISMATCH_MICR,
+          DEFAULT_CONFIDENCE,
+          enteredAmount,
+          null,
           DEFAULT_RISK_SCORE);
       case CLEAN_PASS -> new VendorAssessmentResult(
           scenario,

@@ -27,6 +27,7 @@ class StubVendorServiceTest {
         Arguments.of("micr-fail", VendorScenario.MICR_READ_FAILURE, true),
         Arguments.of("duplicate", VendorScenario.DUPLICATE_DETECTED, true),
         Arguments.of("amount-mismatch", VendorScenario.AMOUNT_MISMATCH, true),
+        Arguments.of("routing-mismatch", VendorScenario.ROUTING_MISMATCH, false),
         Arguments.of("clean-pass", VendorScenario.CLEAN_PASS, false));
   }
 

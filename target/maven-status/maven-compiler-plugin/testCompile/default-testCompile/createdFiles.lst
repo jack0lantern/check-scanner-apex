@@ -3,6 +3,8 @@ com/apexfintech/checkdeposit/funding/FundingServiceTest.class
 com/apexfintech/checkdeposit/DepositSubmissionTest.class
 com/apexfintech/checkdeposit/DatabaseSchemaTest.class
 com/apexfintech/checkdeposit/TransferEntityDataJpaTest.class
+com/apexfintech/checkdeposit/funding/MicrParserTest.class
+com/apexfintech/checkdeposit/ledger/LedgerPostingServiceTest.class
 com/apexfintech/checkdeposit/TransferStateTest.class
 com/apexfintech/checkdeposit/vendor/StubVendorServiceTest.class
 com/apexfintech/checkdeposit/AccountResolutionServiceTest.class

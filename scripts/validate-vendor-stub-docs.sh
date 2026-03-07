@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Validates that vendor-stub-scenarios.md exists, is non-empty, and contains all 7 scenario names.
+# Validates that vendor-stub-scenarios.md exists, is non-empty, and contains all 8 scenario names.
 # Usage: ./scripts/validate-vendor-stub-docs.sh
 
 set -e
@@ -12,6 +12,7 @@ SCENARIOS=(
   "MICR Read Failure"
   "Duplicate Detected"
   "Amount Mismatch"
+  "Routing Mismatch"
   "Clean Pass"
 )
 
@@ -32,4 +33,4 @@ for scenario in "${SCENARIOS[@]}"; do
   fi
 done
 
-echo "OK: $DOC_PATH exists, is non-empty, and contains all 7 scenario names"
+echo "OK: $DOC_PATH exists, is non-empty, and contains all 8 scenario names"

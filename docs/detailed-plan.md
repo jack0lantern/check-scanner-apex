@@ -137,6 +137,7 @@ You are building a minimal end-to-end mobile check deposit system for a brokerag
 #### Phase 4: Funding Service & Ledger
 
 1. **Business Rules Engine:** Implement a `FundingService` that enforces the following rules in order:
+   - Reject deposits where the check's routing number (extracted from MICR) does not match the deposit account's routing number
    - Reject deposits where `amount > $5,000`
    - Apply contribution type defaults: if the resolved account type is a retirement account, default `contributionType` to `"INDIVIDUAL"`; enforce any contribution cap associated with that account type (in addition to the per-deposit $5k limit)
    - Perform internal duplicate deposit detection: reject if another non-REJECTED Transfer with the same `fromAccountId` + `amount` + `micrData` exists within a configurable time window

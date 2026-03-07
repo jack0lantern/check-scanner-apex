@@ -8,6 +8,9 @@ import com.apexfintech.checkdeposit.dto.IqaFailureResponse;
 import com.apexfintech.checkdeposit.dto.ResolvedAccount;
 import com.apexfintech.checkdeposit.dto.VendorAssessmentResult;
 import com.apexfintech.checkdeposit.funding.AccountResolutionService;
+import com.apexfintech.checkdeposit.funding.FundingService;
+import com.apexfintech.checkdeposit.funding.FundingValidationResult;
+import com.apexfintech.checkdeposit.funding.MicrParser;
 import com.apexfintech.checkdeposit.repository.TransferRepository;
 import com.apexfintech.checkdeposit.vendor.VendorService;
 import java.math.BigDecimal;
@@ -22,14 +25,17 @@ public class DepositService {
   private final AccountResolutionService accountResolutionService;
   private final VendorService vendorService;
   private final TransferRepository transferRepository;
+  private final FundingService fundingService;
 
   public DepositService(
       AccountResolutionService accountResolutionService,
       VendorService vendorService,
-      TransferRepository transferRepository) {
+      TransferRepository transferRepository,
+      FundingService fundingService) {
     this.accountResolutionService = accountResolutionService;
     this.vendorService = vendorService;
     this.transferRepository = transferRepository;
+    this.fundingService = fundingService;
   }
 
   /**
@@ -85,6 +91,17 @@ public class DepositService {
             fromAccountId,
             TransferState.ANALYZING,
             vendorResult);
+
+    FundingValidationResult fundingResult = fundingService.validate(transfer, resolved);
+    if (!fundingResult.passed()) {
+      transferRepository.save(transfer);
+      return new IqaFailureResponse(
+          transfer.getId(),
+          fundingResult.rejectionReason() != null
+              ? fundingResult.rejectionReason()
+              : "Deposit validation failed");
+    }
+
     transferRepository.save(transfer);
     return new DepositResponse(transfer.getId(), transfer.getState());
   }
@@ -120,6 +137,16 @@ public class DepositService {
       return new IqaFailureResponse(transfer.getId(), vendorResult.actionableMessage());
     }
 
+    FundingValidationResult fundingResult = fundingService.validate(transfer, resolved);
+    if (!fundingResult.passed()) {
+      transferRepository.save(transfer);
+      return new IqaFailureResponse(
+          transfer.getId(),
+          fundingResult.rejectionReason() != null
+              ? fundingResult.rejectionReason()
+              : "Deposit validation failed");
+    }
+
     transfer.setState(TransferState.ANALYZING);
     transferRepository.save(transfer);
     return new DepositResponse(transfer.getId(), transfer.getState());
@@ -138,21 +165,24 @@ public class DepositService {
       TransferState state,
       VendorAssessmentResult vendorResult) {
     UUID id = UUID.randomUUID();
-    return new Transfer(
-        id,
-        frontBytes,
-        backBytes,
-        amount,
-        toAccountId,
-        fromAccountId,
-        state,
-        vendorResult.vendorScore(),
-        vendorResult.micrData(),
-        vendorResult.micrConfidence(),
-        vendorResult.ocrAmount(),
-        "INDIVIDUAL",
-        null,
-        null);
+    Transfer transfer =
+        new Transfer(
+            id,
+            frontBytes,
+            backBytes,
+            amount,
+            toAccountId,
+            fromAccountId,
+            state,
+            vendorResult.vendorScore(),
+            vendorResult.micrData(),
+            vendorResult.micrConfidence(),
+            vendorResult.ocrAmount(),
+            "INDIVIDUAL",
+            null,
+            null);
+    populateMicrParsedFields(transfer, vendorResult.micrData());
+    return transfer;
   }
 
   private void updateTransferForRetry(
@@ -166,7 +196,16 @@ public class DepositService {
     transfer.setMicrData(vendorResult.micrData());
     transfer.setMicrConfidence(vendorResult.micrConfidence());
     transfer.setOcrAmount(vendorResult.ocrAmount());
+    populateMicrParsedFields(transfer, vendorResult.micrData());
     transfer.setUpdatedAt(java.time.Instant.now());
+  }
+
+  private static void populateMicrParsedFields(Transfer transfer, String micrData) {
+    if (micrData != null && !micrData.isBlank()) {
+      transfer.setMicrRoutingNumber(MicrParser.extractRoutingNumber(micrData));
+      transfer.setMicrAccountNumber(MicrParser.extractAccountNumber(micrData));
+      transfer.setMicrCheckNumber(MicrParser.extractCheckNumber(micrData));
+    }
   }
 
   private static byte[] decodeBase64(String base64) {

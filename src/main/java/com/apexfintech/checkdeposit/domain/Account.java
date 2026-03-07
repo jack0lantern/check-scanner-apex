@@ -23,6 +23,9 @@ public class Account {
   @Column(name = "routing_number", nullable = false)
   private String routingNumber;
 
+  @Column(name = "micr_account_number")
+  private String micrAccountNumber;
+
   @Column(name = "omnibus_id", nullable = false)
   private String omnibusId;
 
@@ -42,12 +45,14 @@ public class Account {
       String externalId,
       String internalNumber,
       String routingNumber,
+      String micrAccountNumber,
       String omnibusId,
       String accountType) {
     this.id = id;
     this.externalId = externalId;
     this.internalNumber = internalNumber;
     this.routingNumber = routingNumber;
+    this.micrAccountNumber = micrAccountNumber;
     this.omnibusId = omnibusId;
     this.accountType = accountType;
     this.createdAt = Instant.now();
@@ -68,6 +73,10 @@ public class Account {
 
   public String getRoutingNumber() {
     return routingNumber;
+  }
+
+  public String getMicrAccountNumber() {
+    return micrAccountNumber;
   }
 
   public String getOmnibusId() {

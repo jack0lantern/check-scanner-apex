@@ -12,6 +12,7 @@ The `StubVendorService` returns deterministic responses for testing and developm
 | MICR Read Failure | `micr-fail` |
 | Duplicate Detected | `duplicate` |
 | Amount Mismatch | `amount-mismatch` |
+| Routing Mismatch | `routing-mismatch` |
 | Clean Pass | `clean-pass` (or any unknown account ID) |
 
 **Manual testing:** Use `GET /debug/vendor-stub?accountId=<trigger>` to exercise each scenario. For deposit submissions, set `X-Account-Id` to the trigger value.
@@ -22,7 +23,7 @@ All responses include:
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `scenario` | enum | `IQA_PASS`, `IQA_FAIL_BLUR`, `IQA_FAIL_GLARE`, `MICR_READ_FAILURE`, `DUPLICATE_DETECTED`, `AMOUNT_MISMATCH`, `CLEAN_PASS` |
+| `scenario` | enum | `IQA_PASS`, `IQA_FAIL_BLUR`, `IQA_FAIL_GLARE`, `MICR_READ_FAILURE`, `DUPLICATE_DETECTED`, `AMOUNT_MISMATCH`, `ROUTING_MISMATCH`, `CLEAN_PASS` |
 | `vendorScore` | Double | Quality/confidence score (0.0–1.0) |
 | `micrData` | String or null | Extracted MICR line |
 | `micrConfidence` | Double or null | MICR read confidence |
@@ -68,10 +69,16 @@ All responses include:
 - **Description:** Recognized amount differs from entered amount.
 - **Response:** `scenario=AMOUNT_MISMATCH`, `actionableMessage="Recognized amount differs from entered amount — please verify"`, full MICR data.
 
-### 7. Clean Pass
+### 7. Routing Mismatch
+
+- **Trigger:** `accountId=routing-mismatch`
+- **Description:** Check MICR contains a routing number that does not match the deposit account. The stub returns MICR with routing `999999999`. FundingService validates routing at deposit time and returns 422 with an actionable message.
+- **Response:** `scenario=ROUTING_MISMATCH`, full MICR data with non-matching routing, `actionableMessage=null` (validation failure is detected by FundingService, not the vendor).
+
+### 8. Clean Pass
 
 - **Trigger:** `accountId=clean-pass` or any unknown account ID
-- **Description:** Full success; no errors.
+- **Description:** Full success; no errors. MICR data includes routing `021000021` (matches TEST001).
 - **Response:** `scenario=CLEAN_PASS`, full MICR data, `ocrAmount` = entered amount, `actionableMessage=null`.
 
 ## Configuration Options

@@ -65,6 +65,15 @@ public class Transfer {
   @Column(name = "micr_data")
   private String micrData;
 
+  @Column(name = "micr_routing_number")
+  private String micrRoutingNumber;
+
+  @Column(name = "micr_account_number")
+  private String micrAccountNumber;
+
+  @Column(name = "micr_check_number")
+  private String micrCheckNumber;
+
   @Column(name = "micr_confidence")
   private Double micrConfidence;
 
@@ -182,6 +191,18 @@ public class Transfer {
     return micrData;
   }
 
+  public String getMicrRoutingNumber() {
+    return micrRoutingNumber;
+  }
+
+  public String getMicrAccountNumber() {
+    return micrAccountNumber;
+  }
+
+  public String getMicrCheckNumber() {
+    return micrCheckNumber;
+  }
+
   public Double getMicrConfidence() {
     return micrConfidence;
   }
@@ -230,6 +251,18 @@ public class Transfer {
     this.micrData = micrData;
   }
 
+  public void setMicrRoutingNumber(String micrRoutingNumber) {
+    this.micrRoutingNumber = micrRoutingNumber;
+  }
+
+  public void setMicrAccountNumber(String micrAccountNumber) {
+    this.micrAccountNumber = micrAccountNumber;
+  }
+
+  public void setMicrCheckNumber(String micrCheckNumber) {
+    this.micrCheckNumber = micrCheckNumber;
+  }
+
   public void setMicrConfidence(Double micrConfidence) {
     this.micrConfidence = micrConfidence;
   }
@@ -240,5 +273,29 @@ public class Transfer {
 
   public void setUpdatedAt(Instant updatedAt) {
     this.updatedAt = updatedAt;
+  }
+
+  public void setType(String type) {
+    this.type = type;
+  }
+
+  public void setMemo(String memo) {
+    this.memo = memo;
+  }
+
+  public void setSubType(String subType) {
+    this.subType = subType;
+  }
+
+  public void setTransferType(String transferType) {
+    this.transferType = transferType;
+  }
+
+  public void setCurrency(String currency) {
+    this.currency = currency;
+  }
+
+  public void setSourceApplicationId(String sourceApplicationId) {
+    this.sourceApplicationId = sourceApplicationId;
   }
 }

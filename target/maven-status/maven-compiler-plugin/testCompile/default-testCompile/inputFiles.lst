@@ -5,4 +5,6 @@
 /Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/test/java/com/apexfintech/checkdeposit/TransferEntityDataJpaTest.java
 /Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/test/java/com/apexfintech/checkdeposit/TransferStateTest.java
 /Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/test/java/com/apexfintech/checkdeposit/funding/FundingServiceTest.java
+/Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/test/java/com/apexfintech/checkdeposit/funding/MicrParserTest.java
+/Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/test/java/com/apexfintech/checkdeposit/ledger/LedgerPostingServiceTest.java
 /Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/test/java/com/apexfintech/checkdeposit/vendor/StubVendorServiceTest.java

@@ -39,10 +39,47 @@ public class FundingService {
   }
 
   /**
-   * Validates a transfer against business rules in order: (1) amount limit, (2) contribution type
-   * defaults and caps for retirement accounts, (3) internal duplicate detection.
+   * Validates a transfer against business rules in order: (1) MICR extraction (routing, account,
+   * check number), (2) routing and account number match, (3) amount limit, (4) contribution type
+   * defaults and caps for retirement accounts, (5) duplicate detection by check number.
    */
   public FundingValidationResult validate(Transfer transfer, ResolvedAccount resolvedAccount) {
+    if (transfer.getMicrData() == null || transfer.getMicrData().isBlank()) {
+      return FundingValidationResult.reject(
+          "Check routing number could not be read — please try again or deposit at a branch");
+    }
+    String micrRouting = MicrParser.extractRoutingNumber(transfer.getMicrData());
+    if (micrRouting == null) {
+      return FundingValidationResult.reject(
+          "Check routing number could not be parsed — please try again or deposit at a branch");
+    }
+    String micrAccount = MicrParser.extractAccountNumber(transfer.getMicrData());
+    if (micrAccount == null) {
+      return FundingValidationResult.reject(
+          "Check account number could not be read — please try again or deposit at a branch");
+    }
+    String micrCheck = MicrParser.extractCheckNumber(transfer.getMicrData());
+    if (micrCheck == null) {
+      return FundingValidationResult.reject(
+          "Check number could not be read — please try again or deposit at a branch");
+    }
+
+    String accountRouting = resolvedAccount.routingNumber();
+    if (accountRouting == null || !micrRouting.equals(accountRouting.replaceAll("\\D", ""))) {
+      return FundingValidationResult.reject(
+          "Check routing number does not match the selected account — please verify you are depositing to the correct account");
+    }
+
+    String expectedMicrAccount = resolvedAccount.micrAccountNumber();
+    if (expectedMicrAccount != null) {
+      String normalizedExpected = expectedMicrAccount.replaceAll("\\D", "").trim();
+      String normalizedMicr = micrAccount.replaceAll("\\D", "").trim();
+      if (!normalizedMicr.equals(normalizedExpected)) {
+        return FundingValidationResult.reject(
+            "Check account number does not match the selected account — please verify you are depositing to the correct account");
+      }
+    }
+
     if (transfer.getAmount().compareTo(maxDepositAmount) > 0) {
       return FundingValidationResult.reject(
           "Deposit amount exceeds maximum of $" + maxDepositAmount + " per deposit");
@@ -70,20 +107,50 @@ public class FundingService {
 
     Instant windowStart =
         transfer.getCreatedAt().minusSeconds(duplicateWindowHours * 3600L);
-    if (transfer.getMicrData() != null
-        && transferRepository.existsNonRejectedDuplicate(
-            transfer.getFromAccountId(),
-            transfer.getAmount(),
-            transfer.getMicrData(),
-            transfer.getId(),
-            windowStart)) {
+    boolean isDuplicate =
+        isDuplicateByCheckNumber(transfer, micrRouting, micrAccount, micrCheck, windowStart)
+            || isDuplicateByMicrData(transfer, windowStart);
+    if (isDuplicate) {
       return FundingValidationResult.reject(
-          "Duplicate deposit detected: another transfer with same fromAccountId, amount, and MICR data exists");
+          "Duplicate deposit detected: another transfer with same check exists");
     }
 
     return defaultContributionType != null
         ? FundingValidationResult.pass(defaultContributionType)
         : FundingValidationResult.pass();
+  }
+
+  private boolean isDuplicateByCheckNumber(
+      Transfer transfer,
+      String micrRouting,
+      String micrAccount,
+      String micrCheck,
+      Instant windowStart) {
+    if (micrRouting == null || micrAccount == null || micrCheck == null) {
+      return false;
+    }
+    return transferRepository.existsNonRejectedDuplicateByCheckNumber(
+        transfer.getFromAccountId(),
+        micrRouting,
+        micrAccount,
+        micrCheck,
+        transfer.getId(),
+        windowStart);
+  }
+
+  private boolean isDuplicateByMicrData(Transfer transfer, Instant windowStart) {
+    if (transfer.getMicrRoutingNumber() == null
+        || transfer.getMicrAccountNumber() == null
+        || transfer.getMicrCheckNumber() == null) {
+      return transfer.getMicrData() != null
+          && transferRepository.existsNonRejectedDuplicate(
+              transfer.getFromAccountId(),
+              transfer.getAmount(),
+              transfer.getMicrData(),
+              transfer.getId(),
+              windowStart);
+    }
+    return false;
   }
 
   private static boolean isRetirementAccount(String accountType) {

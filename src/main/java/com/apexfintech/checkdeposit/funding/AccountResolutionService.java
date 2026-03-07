@@ -23,6 +23,7 @@ public class AccountResolutionService {
     return new ResolvedAccount(
         account.getInternalNumber(),
         account.getRoutingNumber(),
+        account.getMicrAccountNumber(),
         account.getOmnibusId(),
         account.getAccountType());
   }

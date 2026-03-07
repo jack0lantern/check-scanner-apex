@@ -34,6 +34,7 @@ class AccountResolutionServiceTest {
             "TEST001",
             "INT-12345678",
             "021000021",
+            "12345678",
             "OMN-999",
             "RETIREMENT");
     when(accountRepository.findByExternalId("TEST001")).thenReturn(Optional.of(account));
@@ -42,6 +43,7 @@ class AccountResolutionServiceTest {
 
     assertThat(resolved.internalNumber()).isEqualTo("INT-12345678");
     assertThat(resolved.routingNumber()).isEqualTo("021000021");
+    assertThat(resolved.micrAccountNumber()).isEqualTo("12345678");
     assertThat(resolved.omnibusAccountId()).isEqualTo("OMN-999");
     assertThat(resolved.accountType()).isEqualTo("RETIREMENT");
     verify(accountRepository).findByExternalId("TEST001");

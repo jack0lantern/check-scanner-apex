@@ -1,6 +1,7 @@
 package com.apexfintech.checkdeposit;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -51,6 +52,29 @@ class DepositSubmissionTest {
         .andExpect(jsonPath("$.transferId").exists())
         .andExpect(jsonPath("$.actionableMessage").exists())
         .andExpect(jsonPath("$.actionableMessage").value("Image too blurry — please retake in better lighting"));
+  }
+
+  @Test
+  void submitDeposit_withRoutingMismatch_returns422WithActionableMessage() throws Exception {
+    ResultActions result =
+        mockMvc.perform(
+            post("/deposits")
+                .header("X-User-Role", "INVESTOR")
+                .header("X-Account-Id", "routing-mismatch")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    objectMapper.writeValueAsString(
+                        Map.of(
+                            "frontImage", VALID_BASE64_IMAGE,
+                            "backImage", VALID_BASE64_IMAGE,
+                            "amount", 100.50,
+                            "accountId", "TEST001"))));
+
+    result
+        .andExpect(status().isUnprocessableEntity())
+        .andExpect(jsonPath("$.transferId").exists())
+        .andExpect(jsonPath("$.actionableMessage").exists())
+        .andExpect(jsonPath("$.actionableMessage", containsString("routing")));
   }
 
   @Test
