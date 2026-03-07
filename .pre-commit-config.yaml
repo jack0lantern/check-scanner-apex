@@ -3,6 +3,6 @@ repos:
     hooks:
       - id: maven-test
         name: maven test
-        entry: ./mvnw test
+        entry: bash -c './mvnw test && git add target/surefire-reports/'
         language: system
         pass_filenames: false
