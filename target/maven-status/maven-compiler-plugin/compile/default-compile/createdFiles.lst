@@ -5,6 +5,8 @@ com/apexfintech/checkdeposit/dto/IqaFailureResponse.class
 com/apexfintech/checkdeposit/config/WebMvcConfig.class
 com/apexfintech/checkdeposit/deposit/TransferNotRetryableException.class
 com/apexfintech/checkdeposit/auth/MockAuthInterceptor.class
+com/apexfintech/checkdeposit/funding/FundingService.class
+com/apexfintech/checkdeposit/funding/FundingValidationResult.class
 com/apexfintech/checkdeposit/auth/AuthContextHolder.class
 com/apexfintech/checkdeposit/vendor/VendorService.class
 com/apexfintech/checkdeposit/exception/AccountNotFoundException.class

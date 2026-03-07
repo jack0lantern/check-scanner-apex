@@ -2,21 +2,22 @@
 
 ## Current Work Focus
 
-Phase 3 (Vendor Service Stub) is largely complete. The stub is implemented with 7 scenarios; tests exist. Next steps are re-submission support (Phase 3.3), stub documentation (Phase 3.4), and then Funding Service (Phase 4).
+Phase 4 Step 1 (Funding Service Business Rules) is complete. Next: Phase 4 Step 2 (Transactional Ledger Posting), Step 3 (Return Notification Endpoint), Step 4 (Return/Reversal Handling).
 
 ## Recent Changes
 
-- **VendorService** interface and **StubVendorService** implementation
-- **VendorScenario** enum (IQA_PASS, IQA_FAIL_BLUR, IQA_FAIL_GLARE, MICR_READ_FAILURE, DUPLICATE_DETECTED, AMOUNT_MISMATCH, CLEAN_PASS)
-- **VendorAssessmentResult** DTO with scenario, vendorScore, micrData, micrConfidence, ocrAmount, actionableMessage
-- Trigger via `X-Account-Id`: `iqa-pass`, `iqa-blur`, `iqa-glare`, `micr-fail`, `duplicate`, `amount-mismatch`, `clean-pass`
-- **StubVendorServiceTest** — 7 parameterized tests (one per scenario)
-- **DebugController** — `/debug/account-resolve?accountId=...` for account resolution
-- **WebMvcConfig** — Interceptor registration for mock auth
+- **FundingService** — Business rules engine enforcing: (1) amount ≤ $5,000, (2) retirement account contribution type default + cap, (3) internal duplicate detection (fromAccountId + amount + micrData within configurable window)
+- **FundingValidationResult** — pass/fail + rejectionReason + defaultContributionType
+- **ResolvedAccount** — now includes `accountType` for retirement detection
+- **TransferRepository** — `existsNonRejectedDuplicate`, `sumApprovedContributionsForAccountInYear`
+- **Funding config** — `funding.max-deposit-amount`, `funding.duplicate-window-hours`, `funding.contribution-cap.retirement`
+- **FundingServiceTest** — 6 unit tests: $5k passes, $5,001 fails, retirement default, contribution cap violation, duplicate rejected, non-retirement no default
 
 ## Next Steps
 
-1. **Phase 4** — Funding Service: business rules, ledger posting, return notification endpoint
+1. **Phase 4 Step 2** — Transactional Ledger Posting
+2. **Phase 4 Step 3** — Return Notification Endpoint
+3. **Phase 4 Step 4** — Return/Reversal Handling with Investor Notification
 
 ## Active Decisions
 

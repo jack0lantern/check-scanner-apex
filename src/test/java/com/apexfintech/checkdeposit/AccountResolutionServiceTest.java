@@ -43,6 +43,7 @@ class AccountResolutionServiceTest {
     assertThat(resolved.internalNumber()).isEqualTo("INT-12345678");
     assertThat(resolved.routingNumber()).isEqualTo("021000021");
     assertThat(resolved.omnibusAccountId()).isEqualTo("OMN-999");
+    assertThat(resolved.accountType()).isEqualTo("RETIREMENT");
     verify(accountRepository).findByExternalId("TEST001");
   }
 

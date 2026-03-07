@@ -21,6 +21,9 @@ public class AccountResolutionService {
             .findByExternalId(externalAccountId)
             .orElseThrow(() -> new AccountNotFoundException(externalAccountId));
     return new ResolvedAccount(
-        account.getInternalNumber(), account.getRoutingNumber(), account.getOmnibusId());
+        account.getInternalNumber(),
+        account.getRoutingNumber(),
+        account.getOmnibusId(),
+        account.getAccountType());
   }
 }

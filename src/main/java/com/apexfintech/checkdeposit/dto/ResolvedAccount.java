@@ -1,4 +1,7 @@
 package com.apexfintech.checkdeposit.dto;
 
 public record ResolvedAccount(
-    String internalNumber, String routingNumber, String omnibusAccountId) {}
+    String internalNumber,
+    String routingNumber,
+    String omnibusAccountId,
+    String accountType) {}
