@@ -1,4 +1,4 @@
-.PHONY: dev
+.PHONY: dev test pre-commit-install
 
 dev:
 	@if [ ! -f .env ]; then \
@@ -7,3 +7,9 @@ dev:
 		exit 1; \
 	fi
 	docker compose up
+
+test:
+	./mvnw test
+
+pre-commit-install:
+	pre-commit install

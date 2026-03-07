@@ -25,4 +25,9 @@ public class DebugController {
     ResolvedAccount resolved = accountResolutionService.resolve(accountId);
     return ResponseEntity.ok(resolved);
   }
+
+  @GetMapping("/auth-test")
+  public ResponseEntity<String> authTest() {
+    return ResponseEntity.ok("OK");
+  }
 }

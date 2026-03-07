@@ -127,13 +127,28 @@ Demo scripts exercising all paths are in the project root (when implemented).
 
 ## Tests
 
-Run tests (when implemented):
+Run tests:
 
 ```bash
 mvn clean test
+# or
+make test
 ```
 
 Minimum 10 tests covering: happy path, each Vendor stub scenario, business rules, state machine, reversal posting, settlement file validation.
+
+### Pre-commit Hooks
+
+Tests run automatically before each commit. Install the pre-commit hook:
+
+```bash
+# Install pre-commit (one-time): pip install pre-commit  or  brew install pre-commit
+pre-commit install
+# or
+make pre-commit-install
+```
+
+After installation, `mvn test` runs on every `git commit`. If tests fail, the commit is aborted.
 
 ## Submission Summary
 
