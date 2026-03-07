@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd" version="3.0.2" name="com.apexfintech.checkdeposit.MockAuthInterceptorTest" time="0.421" tests="5" errors="0" skipped="0" failures="0">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd" version="3.0.2" name="com.apexfintech.checkdeposit.vendor.StubVendorServiceTest" time="0.027" tests="14" errors="0" skipped="0" failures="0">
   <properties>
     <property name="java.specification.version" value="21"/>
     <property name="sun.jnu.encoding" value="UTF-8"/>
@@ -64,30 +64,18 @@
     <property name="socksNonProxyHosts" value="local|*.local|169.254/16|*.169.254/16"/>
     <property name="java.class.version" value="65.0"/>
   </properties>
-  <testcase name="authTest_returns401_whenBothHeadersMissing" classname="com.apexfintech.checkdeposit.MockAuthInterceptorTest" time="0.026">
-    <system-out><![CDATA[2026-03-06T19:19:24.943-06:00  INFO 38516 --- [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.apexfintech.checkdeposit.MockAuthInterceptorTest]: MockAuthInterceptorTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
-2026-03-06T19:19:24.947-06:00  INFO 38516 --- [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.apexfintech.checkdeposit.CheckDepositApplication for test class com.apexfintech.checkdeposit.MockAuthInterceptorTest
-2026-03-06T19:19:24.951-06:00  INFO 38516 --- [           main] o.s.b.d.r.RestartApplicationListener     : Restart disabled due to context in which it is running
-
-  .   ____          _            __ _ _
- /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
-( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
- \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
-  '  |____| .__|_| |_|_| |_\__, | / / / /
- =========|_|==============|___/=/_/_/_/
-
- :: Spring Boot ::                (v3.4.0)
-
-2026-03-06T19:19:24.968-06:00  INFO 38516 --- [           main] c.a.c.MockAuthInterceptorTest            : Starting MockAuthInterceptorTest using Java 21.0.10 with PID 38516 (started by jackjiang in /Users/jackjiang/GitHub/partner-projects/check-scanner-apex)
-2026-03-06T19:19:24.968-06:00  INFO 38516 --- [           main] c.a.c.MockAuthInterceptorTest            : No active profile set, falling back to 1 default profile: "default"
-2026-03-06T19:19:25.297-06:00  INFO 38516 --- [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
-2026-03-06T19:19:25.297-06:00  INFO 38516 --- [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
-2026-03-06T19:19:25.298-06:00  INFO 38516 --- [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
-2026-03-06T19:19:25.308-06:00  INFO 38516 --- [           main] c.a.c.MockAuthInterceptorTest            : Started MockAuthInterceptorTest in 0.357 seconds (process running for 3.035)
-]]></system-out>
-  </testcase>
-  <testcase name="authTest_returns200_whenHeadersPresent" classname="com.apexfintech.checkdeposit.MockAuthInterceptorTest" time="0.014"/>
-  <testcase name="authTest_returns401_whenHeadersBlank" classname="com.apexfintech.checkdeposit.MockAuthInterceptorTest" time="0.002"/>
-  <testcase name="authTest_returns401_whenUserRoleMissing" classname="com.apexfintech.checkdeposit.MockAuthInterceptorTest" time="0.003"/>
-  <testcase name="authTest_returns401_whenAccountIdMissing" classname="com.apexfintech.checkdeposit.MockAuthInterceptorTest" time="0.003"/>
+  <testcase name="assessCheck_completesWithinOneSecond(String, VendorScenario, boolean)[1]" classname="com.apexfintech.checkdeposit.vendor.StubVendorServiceTest" time="0.005"/>
+  <testcase name="assessCheck_completesWithinOneSecond(String, VendorScenario, boolean)[2]" classname="com.apexfintech.checkdeposit.vendor.StubVendorServiceTest" time="0.001"/>
+  <testcase name="assessCheck_completesWithinOneSecond(String, VendorScenario, boolean)[3]" classname="com.apexfintech.checkdeposit.vendor.StubVendorServiceTest" time="0.001"/>
+  <testcase name="assessCheck_completesWithinOneSecond(String, VendorScenario, boolean)[4]" classname="com.apexfintech.checkdeposit.vendor.StubVendorServiceTest" time="0.001"/>
+  <testcase name="assessCheck_completesWithinOneSecond(String, VendorScenario, boolean)[5]" classname="com.apexfintech.checkdeposit.vendor.StubVendorServiceTest" time="0.0"/>
+  <testcase name="assessCheck_completesWithinOneSecond(String, VendorScenario, boolean)[6]" classname="com.apexfintech.checkdeposit.vendor.StubVendorServiceTest" time="0.0"/>
+  <testcase name="assessCheck_completesWithinOneSecond(String, VendorScenario, boolean)[7]" classname="com.apexfintech.checkdeposit.vendor.StubVendorServiceTest" time="0.0"/>
+  <testcase name="assessCheck_returnsExpectedScenario_forTriggerAccountId(String, VendorScenario, boolean)[1]" classname="com.apexfintech.checkdeposit.vendor.StubVendorServiceTest" time="0.0"/>
+  <testcase name="assessCheck_returnsExpectedScenario_forTriggerAccountId(String, VendorScenario, boolean)[2]" classname="com.apexfintech.checkdeposit.vendor.StubVendorServiceTest" time="0.0"/>
+  <testcase name="assessCheck_returnsExpectedScenario_forTriggerAccountId(String, VendorScenario, boolean)[3]" classname="com.apexfintech.checkdeposit.vendor.StubVendorServiceTest" time="0.0"/>
+  <testcase name="assessCheck_returnsExpectedScenario_forTriggerAccountId(String, VendorScenario, boolean)[4]" classname="com.apexfintech.checkdeposit.vendor.StubVendorServiceTest" time="0.0"/>
+  <testcase name="assessCheck_returnsExpectedScenario_forTriggerAccountId(String, VendorScenario, boolean)[5]" classname="com.apexfintech.checkdeposit.vendor.StubVendorServiceTest" time="0.001"/>
+  <testcase name="assessCheck_returnsExpectedScenario_forTriggerAccountId(String, VendorScenario, boolean)[6]" classname="com.apexfintech.checkdeposit.vendor.StubVendorServiceTest" time="0.0"/>
+  <testcase name="assessCheck_returnsExpectedScenario_forTriggerAccountId(String, VendorScenario, boolean)[7]" classname="com.apexfintech.checkdeposit.vendor.StubVendorServiceTest" time="0.001"/>
 </testsuite>
