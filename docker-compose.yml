@@ -1,0 +1,39 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: check-scanner-db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-checkuser}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-checkdeposit}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-checkuser} -d ${POSTGRES_DB:-checkdeposit}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    image: eclipse-temurin:17-jre-alpine
+    container_name: check-scanner-backend
+    command: ["sleep", "infinity"]
+    depends_on:
+      db:
+        condition: service_healthy
+    profiles:
+      - full
+    # Placeholder: will be replaced with Spring Boot build in Phase 1 Step 3
+
+  frontend:
+    image: nginx:alpine
+    container_name: check-scanner-frontend
+    command: ["sleep", "infinity"]
+    profiles:
+      - full
+    # Placeholder: will be replaced with React/Vite build in Phase 7
+
+volumes:
+  postgres_data:

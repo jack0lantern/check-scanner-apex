@@ -1,0 +1,5 @@
+com/apexfintech/checkdeposit/MockAuthInterceptorTest.class
+com/apexfintech/checkdeposit/DatabaseSchemaTest.class
+com/apexfintech/checkdeposit/TransferStateTest.class
+com/apexfintech/checkdeposit/AccountResolutionServiceTest.class
+com/apexfintech/checkdeposit/TransferEntityDataJpaTest.class
