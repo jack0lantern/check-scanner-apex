@@ -45,6 +45,7 @@
 /Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/main/java/com/apexfintech/checkdeposit/ledger/LedgerPostingService.java
 /Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/main/java/com/apexfintech/checkdeposit/ledger/LedgerQueryService.java
 /Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/main/java/com/apexfintech/checkdeposit/ledger/ReturnService.java
+/Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/main/java/com/apexfintech/checkdeposit/logging/RequestLoggingFilter.java
 /Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/main/java/com/apexfintech/checkdeposit/operator/InvalidRejectRequestException.java
 /Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/main/java/com/apexfintech/checkdeposit/operator/OperatorService.java
 /Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/main/java/com/apexfintech/checkdeposit/operator/TransferSpecs.java

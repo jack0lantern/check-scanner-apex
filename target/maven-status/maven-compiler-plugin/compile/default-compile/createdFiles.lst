@@ -63,6 +63,7 @@ com/apexfintech/checkdeposit/domain/SettlementBatch$AckStatus.class
 com/apexfintech/checkdeposit/operator/InvalidRejectRequestException.class
 com/apexfintech/checkdeposit/domain/Account.class
 com/apexfintech/checkdeposit/domain/Transfer.class
+com/apexfintech/checkdeposit/logging/RequestLoggingFilter.class
 com/apexfintech/checkdeposit/CheckDepositApplication.class
 com/apexfintech/checkdeposit/operator/OperatorService.class
 com/apexfintech/checkdeposit/vendor/StubVendorService.class

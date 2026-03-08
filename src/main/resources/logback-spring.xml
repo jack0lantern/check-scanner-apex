@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+  <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+
+  <!-- Redact synthetic account numbers and PII-adjacent data from log messages -->
+  <property name="REDACTED_MSG" value="%replace(%replace(%msg){'INT-[0-9]+', '[REDACTED]'}){'TEST[0-9A-Z]+', '[REDACTED]'}"/>
+
+  <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>%d{${LOG_DATEFORMAT_PATTERN:-yyyy-MM-dd HH:mm:ss.SSS}} ${LOG_LEVEL_PATTERN:-%5p} ${PID:- } --- [%15.15t] traceId=%X{traceId} depositSource=%X{depositSource} transferId=%X{transferId} %-40.40logger{39} : ${REDACTED_MSG}%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}</pattern>
+      <charset>${LOG_CHARSET:-UTF-8}</charset>
+    </encoder>
+  </appender>
+
+  <root level="INFO">
+    <appender-ref ref="CONSOLE"/>
+  </root>
+</configuration>
