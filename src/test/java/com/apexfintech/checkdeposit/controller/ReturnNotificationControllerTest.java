@@ -10,6 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.apexfintech.checkdeposit.config.WebMvcConfig;
 import com.apexfintech.checkdeposit.deposit.TransferNotFoundException;
 import com.apexfintech.checkdeposit.ledger.ReturnService;
+import com.apexfintech.checkdeposit.settlement.SettlementAckService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Map;
 import java.util.UUID;
@@ -29,6 +30,7 @@ class ReturnNotificationControllerTest {
   @Autowired private ObjectMapper objectMapper;
 
   @MockBean private ReturnService returnService;
+  @MockBean private SettlementAckService settlementAckService;
 
   @Test
   void processReturn_returns403_withoutOperatorRole() throws Exception {

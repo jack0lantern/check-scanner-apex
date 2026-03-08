@@ -1,7 +1,9 @@
 package com.apexfintech.checkdeposit.settlement;
 
+import com.apexfintech.checkdeposit.domain.SettlementBatch;
 import com.apexfintech.checkdeposit.domain.Transfer;
 import com.apexfintech.checkdeposit.domain.TransferState;
+import com.apexfintech.checkdeposit.repository.SettlementBatchRepository;
 import com.apexfintech.checkdeposit.repository.TransferRepository;
 import java.math.BigDecimal;
 import java.nio.file.Files;
@@ -28,24 +30,29 @@ public class SettlementFileService {
   private static final Logger log = LoggerFactory.getLogger(SettlementFileService.class);
 
   private final TransferRepository transferRepository;
+  private final SettlementBatchRepository settlementBatchRepository;
   private final SettlementDateService settlementDateService;
   private final Path outputDir;
 
   public SettlementFileService(
       TransferRepository transferRepository,
+      SettlementBatchRepository settlementBatchRepository,
       SettlementDateService settlementDateService,
       @Value("${settlement.output-path:./settlement-output}") String outputPath) {
     this.transferRepository = transferRepository;
+    this.settlementBatchRepository = settlementBatchRepository;
     this.settlementDateService = settlementDateService;
     this.outputDir = Path.of(outputPath);
   }
 
   /**
-   * Generates a settlement file for today's APPROVED transfers. Writes the file to disk, then
-   * updates all included transfers to COMPLETED in a single transaction.
+   * Generates a settlement file for today's APPROVED transfers. Writes the file to disk, persists
+   * the batch record for ack tracking, then updates all included transfers to COMPLETED in a
+   * single transaction.
    *
    * @return the path of the generated file, or null if no transfers to settle
    */
+  @Transactional
   public Path generateSettlementFile() {
     LocalDate today = settlementDateService.computeSettlementDateNow();
     List<Transfer> transfers =
@@ -74,6 +81,10 @@ public class SettlementFileService {
           filePath,
           transfers.size(),
           totalAmount);
+
+      SettlementBatch batch =
+          new SettlementBatch(batchId, generationTimestamp, transfers.size(), totalAmount);
+      settlementBatchRepository.save(batch);
 
       markTransfersCompleted(transfers);
       return filePath;

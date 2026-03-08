@@ -91,6 +91,7 @@ Deterministic responses triggered by `X-Account-Id` or `accountId` in request:
 | POST | `/operator/queue/{transferId}/approve` | `X-User-Role: OPERATOR` | `{ contributionTypeOverride?: "ROTH" }` |
 | POST | `/operator/queue/{transferId}/reject` | `X-User-Role: OPERATOR` | `{ "reason": "..." }` |
 | POST | `/internal/returns` | `X-User-Role: OPERATOR` | `{ transferId, returnReason }` |
+| POST | `/internal/settlement/ack` | `X-User-Role: OPERATOR` | `{ batchId, status: "ACCEPTED"\|"REJECTED", details? }` |
 
 ### Debug Endpoints (Development)
 
@@ -117,6 +118,21 @@ curl -X POST http://localhost:8080/debug/batch-settlement-deposits?count=10&acco
   -H "X-User-Role: OPERATOR" \
   -H "X-Account-Id: OP-001"
 ```
+
+### Settlement Bank Acknowledgment
+
+After a settlement file is generated, the batchId is in the JSON file (e.g. `settlement-output/settlement-YYYY-MM-DD-<batchId-prefix>.json`). POST an ack to record bank acceptance:
+
+```bash
+# Get batchId from the generated settlement file, then:
+curl -X POST http://localhost:8080/internal/settlement/ack \
+  -H "Content-Type: application/json" \
+  -H "X-User-Role: OPERATOR" \
+  -H "X-Account-Id: OP-001" \
+  -d '{"batchId": "<uuid-from-settlement-file>", "status": "ACCEPTED", "details": "Batch processed"}'
+```
+
+If no ack is received within `settlement.ack-timeout-minutes` (default 60), the monitor logs a `SETTLEMENT_ACK_TIMEOUT` warning.
 
 ---
 

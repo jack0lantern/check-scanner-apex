@@ -1,3 +1,4 @@
+com/apexfintech/checkdeposit/settlement/SettlementAckIntegrationTest.class
 com/apexfintech/checkdeposit/funding/FundingServiceTest.class
 com/apexfintech/checkdeposit/controller/ReturnNotificationControllerTest.class
 com/apexfintech/checkdeposit/settlement/SettlementRolloverIntegrationTest.class

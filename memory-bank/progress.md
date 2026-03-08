@@ -46,3 +46,7 @@
 
 - Deposit endpoint implemented (Phase 3.3); operator queue and approve/reject implemented (Phase 5)
 - React frontend not started (Phase 8)
+
+## Future Enhancements
+
+- **Automate settlement acknowledgment:** Currently acks are posted manually via `POST /internal/settlement/ack`. Consider automating: e.g. a job that polls for settlement bank status, or an integration that receives webhook/callback from the bank and posts the ack automatically.
