@@ -83,6 +83,9 @@ public class Transfer {
   @Column(name = "contribution_type")
   private String contributionType = "INDIVIDUAL";
 
+  @Column(name = "rejection_reason")
+  private String rejectionReason;
+
   @Column(name = "deposit_source")
   private String depositSource;
 
@@ -215,6 +218,10 @@ public class Transfer {
     return contributionType;
   }
 
+  public String getRejectionReason() {
+    return rejectionReason;
+  }
+
   public String getDepositSource() {
     return depositSource;
   }
@@ -269,6 +276,14 @@ public class Transfer {
 
   public void setOcrAmount(BigDecimal ocrAmount) {
     this.ocrAmount = ocrAmount;
+  }
+
+  public void setContributionType(String contributionType) {
+    this.contributionType = contributionType;
+  }
+
+  public void setRejectionReason(String rejectionReason) {
+    this.rejectionReason = rejectionReason;
   }
 
   public void setUpdatedAt(Instant updatedAt) {

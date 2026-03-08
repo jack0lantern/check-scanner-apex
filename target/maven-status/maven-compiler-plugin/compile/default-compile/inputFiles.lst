@@ -2,10 +2,12 @@
 /Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/main/java/com/apexfintech/checkdeposit/auth/AuthContext.java
 /Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/main/java/com/apexfintech/checkdeposit/auth/AuthContextHolder.java
 /Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/main/java/com/apexfintech/checkdeposit/auth/MockAuthInterceptor.java
+/Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/main/java/com/apexfintech/checkdeposit/auth/OperatorRoleInterceptor.java
 /Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/main/java/com/apexfintech/checkdeposit/config/WebMvcConfig.java
 /Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/main/java/com/apexfintech/checkdeposit/controller/DebugController.java
 /Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/main/java/com/apexfintech/checkdeposit/controller/DepositController.java
 /Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/main/java/com/apexfintech/checkdeposit/controller/InternalController.java
+/Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/main/java/com/apexfintech/checkdeposit/controller/OperatorController.java
 /Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/main/java/com/apexfintech/checkdeposit/deposit/DepositService.java
 /Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/main/java/com/apexfintech/checkdeposit/deposit/TransferNotFoundException.java
 /Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/main/java/com/apexfintech/checkdeposit/deposit/TransferNotRetryableException.java
@@ -15,9 +17,12 @@
 /Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/main/java/com/apexfintech/checkdeposit/domain/LedgerEntry.java
 /Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/main/java/com/apexfintech/checkdeposit/domain/Transfer.java
 /Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/main/java/com/apexfintech/checkdeposit/domain/TransferState.java
+/Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/main/java/com/apexfintech/checkdeposit/dto/ApproveRequest.java
 /Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/main/java/com/apexfintech/checkdeposit/dto/DepositRequest.java
 /Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/main/java/com/apexfintech/checkdeposit/dto/DepositResponse.java
 /Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/main/java/com/apexfintech/checkdeposit/dto/IqaFailureResponse.java
+/Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/main/java/com/apexfintech/checkdeposit/dto/OperatorQueueItem.java
+/Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/main/java/com/apexfintech/checkdeposit/dto/RejectRequest.java
 /Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/main/java/com/apexfintech/checkdeposit/dto/ResolvedAccount.java
 /Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/main/java/com/apexfintech/checkdeposit/dto/ReturnNotificationRequest.java
 /Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/main/java/com/apexfintech/checkdeposit/dto/TransferStatusResponse.java
@@ -30,6 +35,9 @@
 /Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/main/java/com/apexfintech/checkdeposit/funding/MicrParser.java
 /Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/main/java/com/apexfintech/checkdeposit/ledger/LedgerPostingService.java
 /Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/main/java/com/apexfintech/checkdeposit/ledger/ReturnService.java
+/Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/main/java/com/apexfintech/checkdeposit/operator/InvalidRejectRequestException.java
+/Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/main/java/com/apexfintech/checkdeposit/operator/OperatorService.java
+/Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/main/java/com/apexfintech/checkdeposit/operator/TransferSpecs.java
 /Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/main/java/com/apexfintech/checkdeposit/repository/AccountRepository.java
 /Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/main/java/com/apexfintech/checkdeposit/repository/AuditLogRepository.java
 /Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/main/java/com/apexfintech/checkdeposit/repository/LedgerEntryRepository.java

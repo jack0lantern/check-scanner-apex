@@ -3,6 +3,7 @@ package com.apexfintech.checkdeposit.exception;
 import com.apexfintech.checkdeposit.deposit.TransferNotReturnableException;
 import com.apexfintech.checkdeposit.deposit.TransferNotFoundException;
 import com.apexfintech.checkdeposit.deposit.TransferNotRetryableException;
+import com.apexfintech.checkdeposit.operator.InvalidRejectRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -28,6 +29,11 @@ public class GlobalExceptionHandler {
 
   @ExceptionHandler(TransferNotReturnableException.class)
   public ResponseEntity<String> handleTransferNotReturnable(TransferNotReturnableException ex) {
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+  }
+
+  @ExceptionHandler(InvalidRejectRequestException.class)
+  public ResponseEntity<String> handleInvalidRejectRequest(InvalidRejectRequestException ex) {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
   }
 }

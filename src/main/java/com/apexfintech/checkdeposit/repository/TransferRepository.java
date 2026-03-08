@@ -4,12 +4,15 @@ import com.apexfintech.checkdeposit.domain.Transfer;
 import com.apexfintech.checkdeposit.domain.TransferState;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface TransferRepository extends JpaRepository<Transfer, UUID> {
+public interface TransferRepository
+    extends JpaRepository<Transfer, UUID>, JpaSpecificationExecutor<Transfer> {
 
   @Query(
       """

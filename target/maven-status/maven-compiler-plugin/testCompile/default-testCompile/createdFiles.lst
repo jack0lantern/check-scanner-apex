@@ -12,3 +12,4 @@ com/apexfintech/checkdeposit/TransferEntityDataJpaTest.class
 com/apexfintech/checkdeposit/ledger/LedgerPostingServiceTest.class
 com/apexfintech/checkdeposit/ledger/ReturnServiceTest.class
 com/apexfintech/checkdeposit/AccountResolutionServiceTest.class
+com/apexfintech/checkdeposit/controller/OperatorControllerWebMvcTest.class
