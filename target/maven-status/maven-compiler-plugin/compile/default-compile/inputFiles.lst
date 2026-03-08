@@ -53,6 +53,7 @@
 /Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/main/java/com/apexfintech/checkdeposit/repository/TransferRepository.java
 /Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/main/java/com/apexfintech/checkdeposit/settlement/EodSchedulerService.java
 /Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/main/java/com/apexfintech/checkdeposit/settlement/SettlementDateService.java
+/Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/main/java/com/apexfintech/checkdeposit/settlement/SettlementFileService.java
 /Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/main/java/com/apexfintech/checkdeposit/trace/TraceEventService.java
 /Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/main/java/com/apexfintech/checkdeposit/vendor/StubVendorService.java
 /Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/main/java/com/apexfintech/checkdeposit/vendor/VendorScenario.java

@@ -1,0 +1,168 @@
+{
+  "batchId": "731c911f-b338-448b-b6d4-6aff76e4dd08",
+  "generationTimestamp": "2026-03-08T20:27:00.025592Z",
+  "totalRecordCount": 20,
+  "totalAmount": 2110.0000,
+  "records": [
+    {
+      "sequenceNumber": 1,
+      "transferId": "e4c50127-1e4a-44c7-8f7d-760e917f9d8f",
+      "micrData": "02100002112345678001",
+      "frontImageRef": "AQID",
+      "backImageRef": "AQID",
+      "amount": 101.0000
+    },
+    {
+      "sequenceNumber": 2,
+      "transferId": "75404c6b-615f-4bfe-b3e6-0055ef68a5a1",
+      "micrData": "02100002112345678002",
+      "frontImageRef": "AQID",
+      "backImageRef": "AQID",
+      "amount": 102.0000
+    },
+    {
+      "sequenceNumber": 3,
+      "transferId": "04ccd89c-042e-4a79-8cc1-f2717b6e848a",
+      "micrData": "02100002112345678003",
+      "frontImageRef": "AQID",
+      "backImageRef": "AQID",
+      "amount": 103.0000
+    },
+    {
+      "sequenceNumber": 4,
+      "transferId": "98e07786-b4fb-4b81-95b8-5ec8bc87374b",
+      "micrData": "02100002112345678004",
+      "frontImageRef": "AQID",
+      "backImageRef": "AQID",
+      "amount": 104.0000
+    },
+    {
+      "sequenceNumber": 5,
+      "transferId": "848bdad2-380c-4263-8892-32fe3964c5b4",
+      "micrData": "02100002112345678005",
+      "frontImageRef": "AQID",
+      "backImageRef": "AQID",
+      "amount": 105.0000
+    },
+    {
+      "sequenceNumber": 6,
+      "transferId": "7648a8d6-5bf2-401f-9568-4a9f3f84c449",
+      "micrData": "02100002112345678006",
+      "frontImageRef": "AQID",
+      "backImageRef": "AQID",
+      "amount": 106.0000
+    },
+    {
+      "sequenceNumber": 7,
+      "transferId": "6285c7a7-bd78-418d-81f1-59f8172577fe",
+      "micrData": "02100002112345678007",
+      "frontImageRef": "AQID",
+      "backImageRef": "AQID",
+      "amount": 107.0000
+    },
+    {
+      "sequenceNumber": 8,
+      "transferId": "4a92ad15-17c1-4b8c-8e2b-d2139359ef1c",
+      "micrData": "02100002112345678008",
+      "frontImageRef": "AQID",
+      "backImageRef": "AQID",
+      "amount": 108.0000
+    },
+    {
+      "sequenceNumber": 9,
+      "transferId": "f9278827-6aee-4fbd-a69b-1c690622f801",
+      "micrData": "02100002112345678009",
+      "frontImageRef": "AQID",
+      "backImageRef": "AQID",
+      "amount": 109.0000
+    },
+    {
+      "sequenceNumber": 10,
+      "transferId": "c2beb1f9-5432-46cf-a052-da96da9ba944",
+      "micrData": "02100002112345678010",
+      "frontImageRef": "AQID",
+      "backImageRef": "AQID",
+      "amount": 110.0000
+    },
+    {
+      "sequenceNumber": 11,
+      "transferId": "c8427208-9402-4a0e-81d2-3b197ac468b2",
+      "micrData": "02100002112345678001",
+      "frontImageRef": "AQID",
+      "backImageRef": "AQID",
+      "amount": 101.0000
+    },
+    {
+      "sequenceNumber": 12,
+      "transferId": "b002e413-a9d3-4eae-8a18-f8e4e8f8ee82",
+      "micrData": "02100002112345678002",
+      "frontImageRef": "AQID",
+      "backImageRef": "AQID",
+      "amount": 102.0000
+    },
+    {
+      "sequenceNumber": 13,
+      "transferId": "e7a1b28d-edb4-476d-8a40-b87b8c95236c",
+      "micrData": "02100002112345678003",
+      "frontImageRef": "AQID",
+      "backImageRef": "AQID",
+      "amount": 103.0000
+    },
+    {
+      "sequenceNumber": 14,
+      "transferId": "d9a35145-7077-4275-a3dd-2b1170f0b28a",
+      "micrData": "02100002112345678004",
+      "frontImageRef": "AQID",
+      "backImageRef": "AQID",
+      "amount": 104.0000
+    },
+    {
+      "sequenceNumber": 15,
+      "transferId": "626d0f64-2ac1-40d0-a7b4-f6a9ed110afb",
+      "micrData": "02100002112345678005",
+      "frontImageRef": "AQID",
+      "backImageRef": "AQID",
+      "amount": 105.0000
+    },
+    {
+      "sequenceNumber": 16,
+      "transferId": "1f7d3d17-5c7b-4758-8439-dec5bc4f020f",
+      "micrData": "02100002112345678006",
+      "frontImageRef": "AQID",
+      "backImageRef": "AQID",
+      "amount": 106.0000
+    },
+    {
+      "sequenceNumber": 17,
+      "transferId": "98872cdc-bf6e-43b7-8d55-a8a060b59902",
+      "micrData": "02100002112345678007",
+      "frontImageRef": "AQID",
+      "backImageRef": "AQID",
+      "amount": 107.0000
+    },
+    {
+      "sequenceNumber": 18,
+      "transferId": "60da3f02-720b-4d13-80c2-44bac96e0008",
+      "micrData": "02100002112345678008",
+      "frontImageRef": "AQID",
+      "backImageRef": "AQID",
+      "amount": 108.0000
+    },
+    {
+      "sequenceNumber": 19,
+      "transferId": "200ed8cc-0653-4bf9-a0b5-b8fbb40fee60",
+      "micrData": "02100002112345678009",
+      "frontImageRef": "AQID",
+      "backImageRef": "AQID",
+      "amount": 109.0000
+    },
+    {
+      "sequenceNumber": 20,
+      "transferId": "d49d28c9-5458-416b-a483-35882ecf3c9e",
+      "micrData": "02100002112345678010",
+      "frontImageRef": "AQID",
+      "backImageRef": "AQID",
+      "amount": 110.0000
+    }
+  ]
+}

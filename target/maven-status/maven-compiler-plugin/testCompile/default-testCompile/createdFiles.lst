@@ -1,6 +1,7 @@
 com/apexfintech/checkdeposit/funding/FundingServiceTest.class
 com/apexfintech/checkdeposit/controller/ReturnNotificationControllerTest.class
 com/apexfintech/checkdeposit/settlement/SettlementRolloverIntegrationTest.class
+com/apexfintech/checkdeposit/settlement/SettlementFileGenerationIntegrationTest.class
 com/apexfintech/checkdeposit/controller/AccountLedgerControllerTest.class
 com/apexfintech/checkdeposit/funding/MicrParserTest.class
 com/apexfintech/checkdeposit/DepositTraceIntegrationTest.class

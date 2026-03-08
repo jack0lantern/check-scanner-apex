@@ -49,7 +49,9 @@ com/apexfintech/checkdeposit/repository/TraceEventRepository.class
 com/apexfintech/checkdeposit/trace/TraceEventService.class
 com/apexfintech/checkdeposit/domain/LedgerEntry.class
 com/apexfintech/checkdeposit/dto/ResolvedAccount.class
+com/apexfintech/checkdeposit/settlement/SettlementFileService.class
 com/apexfintech/checkdeposit/auth/AuthContext.class
+com/apexfintech/checkdeposit/settlement/SettlementFileService$SettlementFileGenerationException.class
 com/apexfintech/checkdeposit/domain/TransferState.class
 com/apexfintech/checkdeposit/dto/OperatorQueueItem.class
 com/apexfintech/checkdeposit/operator/InvalidRejectRequestException.class

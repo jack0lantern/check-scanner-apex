@@ -100,10 +100,25 @@ Deterministic responses triggered by `X-Account-Id` or `accountId` in request:
 | GET | `/debug/auth-test` | Test auth headers |
 | GET | `/debug/vendor-stub?accountId=<trigger>` | Exercise Vendor stub directly |
 | POST | `/debug/ledger-post?transferId=<id>` | Manually trigger ledger posting |
+| POST | `/debug/batch-settlement-deposits?count=10` | Create and approve N deposits with settlementDate = today |
 
 ---
 
 ## Demo Flows
+
+### Batch Settlement Deposits (Settlement File Testing)
+
+```bash
+# Create 10 approved deposits with settlementDate = today (run before 6:30 PM CT)
+./scripts/batch-settlement-deposits.sh 10
+
+# Or via curl:
+curl -X POST http://localhost:8080/debug/batch-settlement-deposits?count=10&accountId=TEST001 \
+  -H "X-User-Role: OPERATOR" \
+  -H "X-Account-Id: OP-001"
+```
+
+---
 
 ### Happy Path (Clean Pass)
 
