@@ -14,9 +14,11 @@ com/apexfintech/checkdeposit/ledger/LedgerPostingService.class
 com/apexfintech/checkdeposit/controller/OperatorController.class
 com/apexfintech/checkdeposit/vendor/VendorScenario.class
 com/apexfintech/checkdeposit/exception/GlobalExceptionHandler.class
+com/apexfintech/checkdeposit/controller/AccountLedgerController.class
 com/apexfintech/checkdeposit/funding/AccountResolutionService.class
 com/apexfintech/checkdeposit/dto/VendorAssessmentResult.class
 com/apexfintech/checkdeposit/dto/DepositResponse.class
+com/apexfintech/checkdeposit/dto/LedgerEntryResponse.class
 com/apexfintech/checkdeposit/controller/DebugController.class
 com/apexfintech/checkdeposit/dto/OperatorQueueItem$RiskIndicators.class
 com/apexfintech/checkdeposit/dto/ReturnNotificationRequest.class
@@ -32,9 +34,11 @@ com/apexfintech/checkdeposit/vendor/VendorService.class
 com/apexfintech/checkdeposit/funding/MicrParser.class
 com/apexfintech/checkdeposit/exception/AccountNotFoundException.class
 com/apexfintech/checkdeposit/deposit/TransferNotFoundException.class
+com/apexfintech/checkdeposit/ledger/LedgerQueryService.class
 com/apexfintech/checkdeposit/domain/AuditLog.class
 com/apexfintech/checkdeposit/deposit/DepositService.class
 com/apexfintech/checkdeposit/dto/DepositRequest.class
+com/apexfintech/checkdeposit/dto/BalanceResponse.class
 com/apexfintech/checkdeposit/domain/LedgerEntry.class
 com/apexfintech/checkdeposit/dto/ResolvedAccount.class
 com/apexfintech/checkdeposit/auth/AuthContext.class

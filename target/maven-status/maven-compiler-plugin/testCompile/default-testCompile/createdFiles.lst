@@ -1,5 +1,6 @@
 com/apexfintech/checkdeposit/funding/FundingServiceTest.class
 com/apexfintech/checkdeposit/controller/ReturnNotificationControllerTest.class
+com/apexfintech/checkdeposit/controller/AccountLedgerControllerTest.class
 com/apexfintech/checkdeposit/funding/MicrParserTest.class
 com/apexfintech/checkdeposit/TransferStateTest.class
 com/apexfintech/checkdeposit/vendor/StubVendorServiceTest.class

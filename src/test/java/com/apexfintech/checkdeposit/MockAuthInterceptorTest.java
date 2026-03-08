@@ -7,6 +7,7 @@ import com.apexfintech.checkdeposit.config.WebMvcConfig;
 import com.apexfintech.checkdeposit.deposit.DepositService;
 import com.apexfintech.checkdeposit.funding.AccountResolutionService;
 import com.apexfintech.checkdeposit.ledger.LedgerPostingService;
+import com.apexfintech.checkdeposit.ledger.LedgerQueryService;
 import com.apexfintech.checkdeposit.ledger.ReturnService;
 import com.apexfintech.checkdeposit.operator.OperatorService;
 import com.apexfintech.checkdeposit.vendor.VendorService;
@@ -27,6 +28,7 @@ class MockAuthInterceptorTest {
   @MockBean private VendorService vendorService;
   @MockBean private DepositService depositService;
   @MockBean private LedgerPostingService ledgerPostingService;
+  @MockBean private LedgerQueryService ledgerQueryService;
   @MockBean private ReturnService returnService;
   @MockBean private OperatorService operatorService;
 
