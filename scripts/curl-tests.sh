@@ -47,3 +47,8 @@ echo
 echo "=== Vendor Stub: Clean Pass ==="
 curl_req "$BASE/debug/vendor-stub?accountId=clean-pass&amount=100.00"
 echo
+
+echo "=== Return Notification (OPERATOR only) ==="
+echo "Prereq: Create an APPROVED transfer via deposit + POST /debug/ledger-post?transferId=<uuid>"
+echo "Example: curl -s -w '\nHTTP %{http_code}\n' -X POST -H 'X-User-Role: OPERATOR' -H 'X-Account-Id: OP-001' -H 'Content-Type: application/json' -d '{\"transferId\":\"<YOUR_TRANSFER_ID>\",\"returnReason\":\"NSF\"}' $BASE/internal/returns"
+echo

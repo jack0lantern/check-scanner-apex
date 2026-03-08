@@ -7,6 +7,7 @@ import com.apexfintech.checkdeposit.config.WebMvcConfig;
 import com.apexfintech.checkdeposit.deposit.DepositService;
 import com.apexfintech.checkdeposit.funding.AccountResolutionService;
 import com.apexfintech.checkdeposit.ledger.LedgerPostingService;
+import com.apexfintech.checkdeposit.ledger.ReturnService;
 import com.apexfintech.checkdeposit.vendor.VendorService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,7 @@ class MockAuthInterceptorTest {
   @MockBean private VendorService vendorService;
   @MockBean private DepositService depositService;
   @MockBean private LedgerPostingService ledgerPostingService;
+  @MockBean private ReturnService returnService;
 
   @Test
   void authTest_returns200_whenHeadersPresent() throws Exception {

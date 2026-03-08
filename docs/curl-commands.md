@@ -27,3 +27,16 @@ curl -H "X-User-Role: INVESTOR" -H "X-Account-Id: TEST001" "http://localhost:808
 | Duplicate Detected | `duplicate` | `curl -H "X-User-Role: INVESTOR" -H "X-Account-Id: TEST001" "http://localhost:8080/debug/vendor-stub?accountId=duplicate&amount=150.00"` |
 | Amount Mismatch | `amount-mismatch` | `curl -H "X-User-Role: INVESTOR" -H "X-Account-Id: TEST001" "http://localhost:8080/debug/vendor-stub?accountId=amount-mismatch&amount=150.00"` |
 | Clean Pass | `clean-pass` | `curl -H "X-User-Role: INVESTOR" -H "X-Account-Id: TEST001" "http://localhost:8080/debug/vendor-stub?accountId=clean-pass&amount=100.00"` |
+
+### Return Notification (OPERATOR only)
+
+Requires an APPROVED transfer. First create one via deposit submission + `POST /debug/ledger-post?transferId=<uuid>`.
+
+```bash
+curl -X POST -H "X-User-Role: OPERATOR" -H "X-Account-Id: OP-001" \
+  -H "Content-Type: application/json" \
+  -d '{"transferId":"<YOUR_TRANSFER_ID>","returnReason":"NSF"}' \
+  http://localhost:8080/internal/returns
+```
+
+Verify: 3 new `ledger_entries`, transfer `state = RETURNED`, `INVESTOR_NOTIFIED` in `audit_logs` with `feeAmount=30`.

@@ -31,3 +31,4 @@ Phase 4 Step 2 (Transactional Ledger Posting) is complete. Next: Phase 4 Step 3 
 ## Future Considerations
 
 - **Transfer ownership validation:** When implementing `retryForTransferId`, attach ownership (e.g. investor account ID) to the Transfer so retries can validate the caller owns the transfer before allowing updates. See detailed-plan Phase 3.3.
+- **Payer name:** Add payer/check-writer name extraction (e.g. via Vendor OCR) and storage on Transfer; currently only MICR data (routing, account, check number) is tracked, not the payer's name.
