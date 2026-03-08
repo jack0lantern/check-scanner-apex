@@ -85,7 +85,8 @@ Deterministic responses triggered by `X-Account-Id` or `accountId` in request:
 | Method | Endpoint | Headers | Body |
 |--------|----------|---------|------|
 | POST | `/deposits` | `X-User-Role: INVESTOR`, `X-Account-Id: <trigger>` | `{ frontImage, backImage, amount, accountId, retryForTransferId? }` |
-| GET | `/deposits/{transferId}` | — | — |
+| GET | `/deposits/{transferId}` | `X-User-Role`, `X-Account-Id` | — |
+| GET | `/deposits/{transferId}/trace` | `X-User-Role`, `X-Account-Id` | — |
 | GET | `/operator/queue` | `X-User-Role: OPERATOR` | Query: status, dateFrom, dateTo, accountId, minAmount, maxAmount |
 | POST | `/operator/queue/{transferId}/approve` | `X-User-Role: OPERATOR` | `{ contributionTypeOverride?: "ROTH" }` |
 | POST | `/operator/queue/{transferId}/reject` | `X-User-Role: OPERATOR` | `{ "reason": "..." }` |
@@ -123,6 +124,11 @@ curl -X POST http://localhost:8080/operator/queue/{transferId}/approve \
   -H "X-User-Role: OPERATOR" \
   -H "X-Account-Id: op1" \
   -d '{}'
+
+# 4. View decision trace
+curl http://localhost:8080/deposits/{transferId}/trace \
+  -H "X-User-Role: INVESTOR" \
+  -H "X-Account-Id: TEST001"
 ```
 
 ### IQA Failure → Re-submission

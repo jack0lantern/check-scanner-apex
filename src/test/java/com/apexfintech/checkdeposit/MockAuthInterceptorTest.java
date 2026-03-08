@@ -10,6 +10,7 @@ import com.apexfintech.checkdeposit.ledger.LedgerPostingService;
 import com.apexfintech.checkdeposit.ledger.LedgerQueryService;
 import com.apexfintech.checkdeposit.ledger.ReturnService;
 import com.apexfintech.checkdeposit.operator.OperatorService;
+import com.apexfintech.checkdeposit.trace.TraceEventService;
 import com.apexfintech.checkdeposit.vendor.VendorService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,7 @@ class MockAuthInterceptorTest {
   @MockBean private LedgerQueryService ledgerQueryService;
   @MockBean private ReturnService returnService;
   @MockBean private OperatorService operatorService;
+  @MockBean private TraceEventService traceEventService;
 
   @Test
   void authTest_returns200_whenHeadersPresent() throws Exception {

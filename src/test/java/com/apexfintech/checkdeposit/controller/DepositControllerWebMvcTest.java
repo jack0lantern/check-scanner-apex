@@ -11,6 +11,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.apexfintech.checkdeposit.config.WebMvcConfig;
 import com.apexfintech.checkdeposit.deposit.DepositService;
+import com.apexfintech.checkdeposit.trace.TraceEventService;
 import com.apexfintech.checkdeposit.exception.GlobalExceptionHandler;
 import com.apexfintech.checkdeposit.deposit.TransferNotFoundException;
 import com.apexfintech.checkdeposit.domain.TransferState;
@@ -42,6 +43,7 @@ class DepositControllerWebMvcTest {
   @Autowired private ObjectMapper objectMapper;
 
   @MockBean private DepositService depositService;
+  @MockBean private TraceEventService traceEventService;
 
   @Test
   void submitDeposit_returns201_onValidSubmission() throws Exception {

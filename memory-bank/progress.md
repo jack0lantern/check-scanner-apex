@@ -21,6 +21,7 @@
 - **Operator queue:** GET /operator/queue returns flagged deposits with full detail; filters: status, dateFrom, dateTo, accountId, minAmount, maxAmount
 - **Operator approve:** POST /operator/queue/{transferId}/approve with optional contributionTypeOverride; persists override, posts to ledger, audit log
 - **Operator reject:** POST /operator/queue/{transferId}/reject with required reason; 403 without OPERATOR role
+- **Per-deposit decision trace:** GET /deposits/{transferId}/trace returns chronological TraceEvents (SUBMISSION, VENDOR_RESULT, BUSINESS_RULE, OPERATOR_ACTION, SETTLEMENT, RETURN); all components record trace events
 
 ## What's Left to Build
 
@@ -30,7 +31,7 @@
 | 4 | FundingService, ledger posting, return endpoint, reversal logic |
 | 5 | REST API: POST /deposits ✅, GET /deposits/{id} ✅, operator queue ✅, approve/reject ✅ |
 | 6 | EOD batch, settlement file (X9), next-business-day rollover, ack tracking |
-| 7 | Structured logging, trace events, monitors |
+| 7 | Structured logging ✅ trace events, monitors |
 | 8 | React frontend (investor form, operator queue, ledger view) |
 | 9 | Demo scripts |
 | 10 | E2E tests, full test suite |

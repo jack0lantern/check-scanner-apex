@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -23,6 +24,7 @@ import org.springframework.test.web.servlet.ResultActions;
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 class DepositSubmissionTest {
 
   private static final String VALID_BASE64_IMAGE = Base64.getEncoder().encodeToString(new byte[] {0x01, 0x02, 0x03});

@@ -2,12 +2,14 @@ package com.apexfintech.checkdeposit.ledger;
 
 import com.apexfintech.checkdeposit.domain.AuditLog;
 import com.apexfintech.checkdeposit.domain.LedgerEntry;
+import com.apexfintech.checkdeposit.domain.TraceStage;
 import com.apexfintech.checkdeposit.domain.Transfer;
 import com.apexfintech.checkdeposit.domain.TransferState;
 import com.apexfintech.checkdeposit.deposit.TransferNotReturnableException;
 import com.apexfintech.checkdeposit.deposit.TransferNotFoundException;
 import com.apexfintech.checkdeposit.repository.AuditLogRepository;
 import com.apexfintech.checkdeposit.repository.LedgerEntryRepository;
+import com.apexfintech.checkdeposit.trace.TraceEventService;
 import com.apexfintech.checkdeposit.repository.TransferRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -33,6 +35,7 @@ public class ReturnService {
   private final TransferRepository transferRepository;
   private final LedgerEntryRepository ledgerEntryRepository;
   private final AuditLogRepository auditLogRepository;
+  private final TraceEventService traceEventService;
   private final BigDecimal returnFeeAmount;
   private final ObjectMapper objectMapper;
 
@@ -40,11 +43,13 @@ public class ReturnService {
       TransferRepository transferRepository,
       LedgerEntryRepository ledgerEntryRepository,
       AuditLogRepository auditLogRepository,
+      TraceEventService traceEventService,
       @Value("${return.fee-amount:30}") BigDecimal returnFeeAmount,
       ObjectMapper objectMapper) {
     this.transferRepository = transferRepository;
     this.ledgerEntryRepository = ledgerEntryRepository;
     this.auditLogRepository = auditLogRepository;
+    this.traceEventService = traceEventService;
     this.returnFeeAmount = returnFeeAmount;
     this.objectMapper = objectMapper;
   }
@@ -136,6 +141,11 @@ public class ReturnService {
             detail,
             now);
     auditLogRepository.save(auditEntry);
+    traceEventService.record(
+        transferId,
+        TraceStage.RETURN,
+        "RETURNED",
+        Map.of("returnReason", returnReason, "feeAmount", returnFeeAmount));
   }
 
   /** Net investor impact = original amount + fee (both are debits = deductions). */

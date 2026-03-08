@@ -11,8 +11,10 @@ import com.apexfintech.checkdeposit.dto.RejectRequest;
 import com.apexfintech.checkdeposit.ledger.LedgerPostingService;
 import com.apexfintech.checkdeposit.deposit.TransferNotFoundException;
 import com.apexfintech.checkdeposit.repository.AccountRepository;
+import com.apexfintech.checkdeposit.domain.TraceStage;
 import com.apexfintech.checkdeposit.repository.AuditLogRepository;
 import com.apexfintech.checkdeposit.repository.TransferRepository;
+import com.apexfintech.checkdeposit.trace.TraceEventService;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Base64;
@@ -32,16 +34,19 @@ public class OperatorService {
   private final AccountRepository accountRepository;
   private final LedgerPostingService ledgerPostingService;
   private final AuditLogRepository auditLogRepository;
+  private final TraceEventService traceEventService;
 
   public OperatorService(
       TransferRepository transferRepository,
       AccountRepository accountRepository,
       LedgerPostingService ledgerPostingService,
-      AuditLogRepository auditLogRepository) {
+      AuditLogRepository auditLogRepository,
+      TraceEventService traceEventService) {
     this.transferRepository = transferRepository;
     this.accountRepository = accountRepository;
     this.ledgerPostingService = ledgerPostingService;
     this.auditLogRepository = auditLogRepository;
+    this.traceEventService = traceEventService;
   }
 
   /**
@@ -101,6 +106,17 @@ public class OperatorService {
             transferId,
             request != null ? "{}" : "{}",
             java.time.Instant.now()));
+    traceEventService.record(
+        transferId,
+        TraceStage.OPERATOR_ACTION,
+        "APPROVE",
+        java.util.Map.of(
+            "operatorId",
+            operatorId,
+            "contributionTypeOverride",
+            request != null && request.contributionTypeOverride() != null
+                ? request.contributionTypeOverride()
+                : ""));
   }
 
   @Transactional
@@ -132,6 +148,11 @@ public class OperatorService {
             transferId,
             "{\"reason\":\"" + escapeJson(request.reason()) + "\"}",
             java.time.Instant.now()));
+    traceEventService.record(
+        transferId,
+        TraceStage.OPERATOR_ACTION,
+        "REJECT",
+        java.util.Map.of("operatorId", operatorId, "reason", request.reason().trim()));
   }
 
   private OperatorQueueItem toQueueItem(Transfer t) {

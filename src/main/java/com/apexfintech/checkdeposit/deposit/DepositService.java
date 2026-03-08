@@ -1,5 +1,6 @@
 package com.apexfintech.checkdeposit.deposit;
 
+import com.apexfintech.checkdeposit.domain.TraceStage;
 import com.apexfintech.checkdeposit.domain.Transfer;
 import com.apexfintech.checkdeposit.domain.TransferState;
 import com.apexfintech.checkdeposit.dto.DepositRequest;
@@ -14,6 +15,7 @@ import com.apexfintech.checkdeposit.funding.FundingValidationResult;
 import com.apexfintech.checkdeposit.funding.MicrParser;
 import com.apexfintech.checkdeposit.repository.AccountRepository;
 import com.apexfintech.checkdeposit.repository.TransferRepository;
+import com.apexfintech.checkdeposit.trace.TraceEventService;
 import com.apexfintech.checkdeposit.vendor.VendorService;
 import java.math.BigDecimal;
 import java.util.Base64;
@@ -29,18 +31,21 @@ public class DepositService {
   private final TransferRepository transferRepository;
   private final FundingService fundingService;
   private final AccountRepository accountRepository;
+  private final TraceEventService traceEventService;
 
   public DepositService(
       AccountResolutionService accountResolutionService,
       VendorService vendorService,
       TransferRepository transferRepository,
       FundingService fundingService,
-      AccountRepository accountRepository) {
+      AccountRepository accountRepository,
+      TraceEventService traceEventService) {
     this.accountResolutionService = accountResolutionService;
     this.vendorService = vendorService;
     this.transferRepository = transferRepository;
     this.fundingService = fundingService;
     this.accountRepository = accountRepository;
+    this.traceEventService = traceEventService;
   }
 
   /** Returns full transfer status for status polling. */
@@ -111,6 +116,13 @@ public class DepositService {
               TransferState.VALIDATING,
               vendorResult);
       transferRepository.save(transfer);
+      traceEventService.record(
+          transfer.getId(), TraceStage.SUBMISSION, "CREATED", java.util.Map.of("state", "VALIDATING"));
+      traceEventService.record(
+          transfer.getId(),
+          TraceStage.VENDOR_RESULT,
+          "FAIL",
+          java.util.Map.of("actionableMessage", vendorResult.actionableMessage()));
       return new IqaFailureResponse(transfer.getId(), vendorResult.actionableMessage());
     }
 
@@ -124,9 +136,28 @@ public class DepositService {
             TransferState.ANALYZING,
             vendorResult);
 
+    transferRepository.save(transfer);
+    traceEventService.record(
+        transfer.getId(), TraceStage.SUBMISSION, "CREATED", java.util.Map.of("state", "ANALYZING"));
+    traceEventService.record(
+        transfer.getId(),
+        TraceStage.VENDOR_RESULT,
+        "PASS",
+        java.util.Map.of(
+            "vendorScore", vendorResult.vendorScore() != null ? vendorResult.vendorScore() : 0,
+            "micrData", vendorResult.micrData() != null ? vendorResult.micrData() : ""));
+
     FundingValidationResult fundingResult = fundingService.validate(transfer, resolved);
     if (!fundingResult.passed()) {
-      transferRepository.save(transfer);
+      traceEventService.record(
+          transfer.getId(),
+          TraceStage.BUSINESS_RULE,
+          "FAIL",
+          java.util.Map.of(
+              "reason",
+              fundingResult.rejectionReason() != null
+                  ? fundingResult.rejectionReason()
+                  : "Deposit validation failed"));
       return new IqaFailureResponse(
           transfer.getId(),
           fundingResult.rejectionReason() != null
@@ -134,7 +165,11 @@ public class DepositService {
               : "Deposit validation failed");
     }
 
-    transferRepository.save(transfer);
+    traceEventService.record(
+        transfer.getId(),
+        TraceStage.BUSINESS_RULE,
+        "PASS",
+        java.util.Map.of("contributionType", fundingResult.defaultContributionType() != null ? fundingResult.defaultContributionType() : "INDIVIDUAL"));
     return new DepositResponse(transfer.getId(), transfer.getState());
   }
 
@@ -166,18 +201,46 @@ public class DepositService {
 
     if (vendorResult.actionableMessage() != null) {
       transferRepository.save(transfer);
+      traceEventService.record(
+          transfer.getId(),
+          TraceStage.VENDOR_RESULT,
+          "FAIL",
+          java.util.Map.of("actionableMessage", vendorResult.actionableMessage()));
       return new IqaFailureResponse(transfer.getId(), vendorResult.actionableMessage());
     }
+
+    traceEventService.record(
+        transfer.getId(),
+        TraceStage.VENDOR_RESULT,
+        "PASS",
+        java.util.Map.of(
+            "vendorScore", vendorResult.vendorScore() != null ? vendorResult.vendorScore() : 0,
+            "micrData", vendorResult.micrData() != null ? vendorResult.micrData() : ""));
 
     FundingValidationResult fundingResult = fundingService.validate(transfer, resolved);
     if (!fundingResult.passed()) {
       transferRepository.save(transfer);
+      traceEventService.record(
+          transfer.getId(),
+          TraceStage.BUSINESS_RULE,
+          "FAIL",
+          java.util.Map.of(
+              "reason",
+              fundingResult.rejectionReason() != null
+                  ? fundingResult.rejectionReason()
+                  : "Deposit validation failed"));
       return new IqaFailureResponse(
           transfer.getId(),
           fundingResult.rejectionReason() != null
               ? fundingResult.rejectionReason()
               : "Deposit validation failed");
     }
+
+    traceEventService.record(
+        transfer.getId(),
+        TraceStage.BUSINESS_RULE,
+        "PASS",
+        java.util.Map.of("contributionType", fundingResult.defaultContributionType() != null ? fundingResult.defaultContributionType() : "INDIVIDUAL"));
 
     transfer.setState(TransferState.ANALYZING);
     transferRepository.save(transfer);
