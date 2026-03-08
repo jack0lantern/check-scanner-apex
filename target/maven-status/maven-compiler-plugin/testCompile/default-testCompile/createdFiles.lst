@@ -5,6 +5,7 @@ com/apexfintech/checkdeposit/funding/MicrParserTest.class
 com/apexfintech/checkdeposit/DepositTraceIntegrationTest.class
 com/apexfintech/checkdeposit/TransferStateTest.class
 com/apexfintech/checkdeposit/vendor/StubVendorServiceTest.class
+com/apexfintech/checkdeposit/settlement/EodSchedulerServiceTest.class
 com/apexfintech/checkdeposit/controller/DepositControllerWebMvcTest.class
 com/apexfintech/checkdeposit/MockAuthInterceptorTest.class
 com/apexfintech/checkdeposit/DepositSubmissionTest.class

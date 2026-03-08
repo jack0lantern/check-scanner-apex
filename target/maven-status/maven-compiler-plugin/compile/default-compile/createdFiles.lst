@@ -4,6 +4,7 @@ com/apexfintech/checkdeposit/repository/AuditLogRepository.class
 com/apexfintech/checkdeposit/deposit/TransferNotRetryableException.class
 com/apexfintech/checkdeposit/auth/MockAuthInterceptor.class
 com/apexfintech/checkdeposit/ledger/ReturnService.class
+com/apexfintech/checkdeposit/settlement/EodSchedulerService.class
 com/apexfintech/checkdeposit/funding/FundingService.class
 com/apexfintech/checkdeposit/deposit/TransferNotReturnableException.class
 com/apexfintech/checkdeposit/controller/InternalController.class
