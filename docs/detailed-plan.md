@@ -451,7 +451,6 @@ You are building a minimal end-to-end mobile check deposit system for a brokerag
    - Confirm all required documentation files exist and are non-empty: `README.md`, `SUBMISSION.md`, `/docs/architecture.md`, `/docs/decision_log.md`, `/docs/vendor-stub-scenarios.md`, `/docs/writeup.md` (or equivalent section), `.env.example`
 * *Manual Testing:* Walk through the entire system manually — deposit submission through the React UI → vendor validation → operator review → approve → ledger view → EOD settlement → return/reversal → trace endpoint. Confirm every view renders correctly and all audit/trace records are present in the database.
 
----
 
 **Gap Coverage Summary (vs. Apex Fintech Challenger Projects spec):**
 

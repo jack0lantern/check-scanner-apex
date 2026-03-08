@@ -1,4 +1,5 @@
 com/apexfintech/checkdeposit/repository/TransferRepository.class
+com/apexfintech/checkdeposit/dto/TransferStatusResponse.class
 com/apexfintech/checkdeposit/vendor/StubVendorService$1.class
 com/apexfintech/checkdeposit/controller/DepositController.class
 com/apexfintech/checkdeposit/dto/IqaFailureResponse.class

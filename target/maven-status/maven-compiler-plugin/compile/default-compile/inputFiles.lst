@@ -20,6 +20,7 @@
 /Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/main/java/com/apexfintech/checkdeposit/dto/IqaFailureResponse.java
 /Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/main/java/com/apexfintech/checkdeposit/dto/ResolvedAccount.java
 /Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/main/java/com/apexfintech/checkdeposit/dto/ReturnNotificationRequest.java
+/Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/main/java/com/apexfintech/checkdeposit/dto/TransferStatusResponse.java
 /Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/main/java/com/apexfintech/checkdeposit/dto/VendorAssessmentResult.java
 /Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/main/java/com/apexfintech/checkdeposit/exception/AccountNotFoundException.java
 /Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/main/java/com/apexfintech/checkdeposit/exception/GlobalExceptionHandler.java

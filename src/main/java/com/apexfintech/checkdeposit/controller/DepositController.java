@@ -5,8 +5,12 @@ import com.apexfintech.checkdeposit.deposit.DepositService;
 import com.apexfintech.checkdeposit.dto.DepositRequest;
 import com.apexfintech.checkdeposit.dto.DepositResponse;
 import com.apexfintech.checkdeposit.dto.IqaFailureResponse;
+import com.apexfintech.checkdeposit.dto.TransferStatusResponse;
+import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,5 +37,10 @@ public class DepositController {
       return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(failure);
     }
     return ResponseEntity.status(HttpStatus.CREATED).body((DepositResponse) result);
+  }
+
+  @GetMapping("/{transferId}")
+  public ResponseEntity<TransferStatusResponse> getStatus(@PathVariable UUID transferId) {
+    return ResponseEntity.ok(depositService.getStatus(transferId));
   }
 }

@@ -5,12 +5,14 @@ import com.apexfintech.checkdeposit.domain.TransferState;
 import com.apexfintech.checkdeposit.dto.DepositRequest;
 import com.apexfintech.checkdeposit.dto.DepositResponse;
 import com.apexfintech.checkdeposit.dto.IqaFailureResponse;
+import com.apexfintech.checkdeposit.dto.TransferStatusResponse;
 import com.apexfintech.checkdeposit.dto.ResolvedAccount;
 import com.apexfintech.checkdeposit.dto.VendorAssessmentResult;
 import com.apexfintech.checkdeposit.funding.AccountResolutionService;
 import com.apexfintech.checkdeposit.funding.FundingService;
 import com.apexfintech.checkdeposit.funding.FundingValidationResult;
 import com.apexfintech.checkdeposit.funding.MicrParser;
+import com.apexfintech.checkdeposit.repository.AccountRepository;
 import com.apexfintech.checkdeposit.repository.TransferRepository;
 import com.apexfintech.checkdeposit.vendor.VendorService;
 import java.math.BigDecimal;
@@ -26,16 +28,46 @@ public class DepositService {
   private final VendorService vendorService;
   private final TransferRepository transferRepository;
   private final FundingService fundingService;
+  private final AccountRepository accountRepository;
 
   public DepositService(
       AccountResolutionService accountResolutionService,
       VendorService vendorService,
       TransferRepository transferRepository,
-      FundingService fundingService) {
+      FundingService fundingService,
+      AccountRepository accountRepository) {
     this.accountResolutionService = accountResolutionService;
     this.vendorService = vendorService;
     this.transferRepository = transferRepository;
     this.fundingService = fundingService;
+    this.accountRepository = accountRepository;
+  }
+
+  /** Returns full transfer status for status polling. */
+  public TransferStatusResponse getStatus(UUID transferId) {
+    Transfer transfer =
+        transferRepository
+            .findById(transferId)
+            .orElseThrow(() -> new TransferNotFoundException(transferId));
+
+    String accountId =
+        accountRepository
+            .findByInternalNumber(transfer.getToAccountId())
+            .map(a -> a.getExternalId())
+            .orElse(transfer.getToAccountId());
+
+    return new TransferStatusResponse(
+        transfer.getId(),
+        transfer.getState(),
+        transfer.getAmount(),
+        accountId,
+        transfer.getCreatedAt(),
+        transfer.getUpdatedAt(),
+        transfer.getVendorScore(),
+        transfer.getMicrData(),
+        transfer.getMicrConfidence(),
+        transfer.getOcrAmount(),
+        null);
   }
 
   /**

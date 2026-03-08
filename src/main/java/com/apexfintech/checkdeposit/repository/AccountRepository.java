@@ -8,4 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface AccountRepository extends JpaRepository<Account, UUID> {
 
   Optional<Account> findByExternalId(String externalId);
+
+  Optional<Account> findByInternalNumber(String internalNumber);
 }

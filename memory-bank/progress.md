@@ -16,6 +16,7 @@
 - **Mock auth:** X-User-Role, X-Account-Id; 401/403 when missing
 - **Vendor stub:** 7 scenarios; trigger by account ID; actionable messages for failures
 - **Deposit endpoint:** POST /deposits with retryForTransferId; 422 with actionableMessage on IQA failure
+- **Deposit status:** GET /deposits/{transferId} returns full Transfer record (state, timestamps, vendor data)
 - **Re-submission:** retry updates existing Transfer, advances state on success
 
 ## What's Left to Build
@@ -24,7 +25,7 @@
 |-------|-------|
 | 3 | — (complete) |
 | 4 | FundingService, ledger posting, return endpoint, reversal logic |
-| 5 | REST API: POST /deposits, GET /deposits/{id}, operator queue, approve/reject |
+| 5 | REST API: POST /deposits ✅, GET /deposits/{id} ✅, operator queue, approve/reject |
 | 6 | EOD batch, settlement file (X9), next-business-day rollover, ack tracking |
 | 7 | Structured logging, trace events, monitors |
 | 8 | React frontend (investor form, operator queue, ledger view) |
