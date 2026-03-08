@@ -19,11 +19,13 @@ import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.test.web.servlet.ResultActions;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
+@Transactional
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 class DepositSubmissionTest {
 
@@ -130,5 +132,32 @@ class DepositSubmissionTest {
 
     var transfer = transferRepository.findById(java.util.UUID.fromString(transferId)).orElseThrow();
     assertThat(transfer.getState()).isEqualTo(TransferState.ANALYZING);
+  }
+
+  @Test
+  void submitDeposit_setsSettlementDate() throws Exception {
+    // Use distinct amount to avoid duplicate detection from other tests
+    String response =
+        mockMvc
+            .perform(
+                post("/deposits")
+                    .header("X-User-Role", "INVESTOR")
+                    .header("X-Account-Id", "clean-pass")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        objectMapper.writeValueAsString(
+                            Map.of(
+                                "frontImage", VALID_BASE64_IMAGE,
+                                "backImage", VALID_BASE64_IMAGE,
+                                "amount", 100.50,
+                                "accountId", "TEST001"))))
+            .andExpect(status().isCreated())
+            .andReturn()
+            .getResponse()
+            .getContentAsString();
+
+    String transferId = objectMapper.readTree(response).get("transferId").asText();
+    var transfer = transferRepository.findById(java.util.UUID.fromString(transferId)).orElseThrow();
+    assertThat(transfer.getSettlementDate()).isNotNull();
   }
 }

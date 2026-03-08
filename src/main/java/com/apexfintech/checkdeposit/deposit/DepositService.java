@@ -15,9 +15,11 @@ import com.apexfintech.checkdeposit.funding.FundingValidationResult;
 import com.apexfintech.checkdeposit.funding.MicrParser;
 import com.apexfintech.checkdeposit.repository.AccountRepository;
 import com.apexfintech.checkdeposit.repository.TransferRepository;
+import com.apexfintech.checkdeposit.settlement.SettlementDateService;
 import com.apexfintech.checkdeposit.trace.TraceEventService;
 import com.apexfintech.checkdeposit.vendor.VendorService;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Base64;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
@@ -32,6 +34,7 @@ public class DepositService {
   private final FundingService fundingService;
   private final AccountRepository accountRepository;
   private final TraceEventService traceEventService;
+  private final SettlementDateService settlementDateService;
 
   public DepositService(
       AccountResolutionService accountResolutionService,
@@ -39,13 +42,15 @@ public class DepositService {
       TransferRepository transferRepository,
       FundingService fundingService,
       AccountRepository accountRepository,
-      TraceEventService traceEventService) {
+      TraceEventService traceEventService,
+      SettlementDateService settlementDateService) {
     this.accountResolutionService = accountResolutionService;
     this.vendorService = vendorService;
     this.transferRepository = transferRepository;
     this.fundingService = fundingService;
     this.accountRepository = accountRepository;
     this.traceEventService = traceEventService;
+    this.settlementDateService = settlementDateService;
   }
 
   /** Returns full transfer status for status polling. */
@@ -106,6 +111,7 @@ public class DepositService {
         vendorService.assessCheck(frontBytes, backBytes, amount, scenarioAccountId);
 
     if (vendorResult.actionableMessage() != null) {
+      LocalDate settlementDate = settlementDateService.computeSettlementDateNow();
       Transfer transfer =
           createTransfer(
               frontBytes,
@@ -114,7 +120,8 @@ public class DepositService {
               toAccountId,
               fromAccountId,
               TransferState.VALIDATING,
-              vendorResult);
+              vendorResult,
+              settlementDate);
       transferRepository.save(transfer);
       traceEventService.record(
           transfer.getId(), TraceStage.SUBMISSION, "CREATED", java.util.Map.of("state", "VALIDATING"));
@@ -126,6 +133,7 @@ public class DepositService {
       return new IqaFailureResponse(transfer.getId(), vendorResult.actionableMessage());
     }
 
+    LocalDate settlementDate = settlementDateService.computeSettlementDateNow();
     Transfer transfer =
         createTransfer(
             frontBytes,
@@ -134,7 +142,8 @@ public class DepositService {
             toAccountId,
             fromAccountId,
             TransferState.ANALYZING,
-            vendorResult);
+            vendorResult,
+            settlementDate);
 
     transferRepository.save(transfer);
     traceEventService.record(
@@ -198,6 +207,7 @@ public class DepositService {
         vendorService.assessCheck(frontBytes, backBytes, amount, scenarioAccountId);
 
     updateTransferForRetry(transfer, frontBytes, backBytes, vendorResult);
+    transfer.setSettlementDate(settlementDateService.computeSettlementDateNow());
 
     if (vendorResult.actionableMessage() != null) {
       transferRepository.save(transfer);
@@ -258,7 +268,8 @@ public class DepositService {
       String toAccountId,
       String fromAccountId,
       TransferState state,
-      VendorAssessmentResult vendorResult) {
+      VendorAssessmentResult vendorResult,
+      LocalDate settlementDate) {
     UUID id = UUID.randomUUID();
     Transfer transfer =
         new Transfer(
@@ -275,7 +286,7 @@ public class DepositService {
             vendorResult.ocrAmount(),
             "INDIVIDUAL",
             null,
-            null);
+            settlementDate);
     populateMicrParsedFields(transfer, vendorResult.micrData());
     return transfer;
   }

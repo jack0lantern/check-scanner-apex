@@ -4,6 +4,7 @@ import com.apexfintech.checkdeposit.domain.Transfer;
 import com.apexfintech.checkdeposit.domain.TransferState;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -63,4 +64,10 @@ public interface TransferRepository
       @Param("states") java.util.List<TransferState> states,
       @Param("yearStart") Instant yearStart,
       @Param("yearEnd") Instant yearEnd);
+
+  /**
+   * Returns APPROVED transfers with the given settlement date for EOD batch processing. The batch
+   * must only include transfers where settlementDate = today.
+   */
+  List<Transfer> findByStateAndSettlementDate(TransferState state, LocalDate settlementDate);
 }

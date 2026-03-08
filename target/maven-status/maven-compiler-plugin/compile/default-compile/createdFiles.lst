@@ -1,7 +1,9 @@
 com/apexfintech/checkdeposit/vendor/StubVendorService$1.class
+com/apexfintech/checkdeposit/settlement/SettlementDateService.class
 com/apexfintech/checkdeposit/dto/IqaFailureResponse.class
 com/apexfintech/checkdeposit/repository/AuditLogRepository.class
 com/apexfintech/checkdeposit/deposit/TransferNotRetryableException.class
+com/apexfintech/checkdeposit/config/ClockConfig.class
 com/apexfintech/checkdeposit/auth/MockAuthInterceptor.class
 com/apexfintech/checkdeposit/ledger/ReturnService.class
 com/apexfintech/checkdeposit/settlement/EodSchedulerService.class

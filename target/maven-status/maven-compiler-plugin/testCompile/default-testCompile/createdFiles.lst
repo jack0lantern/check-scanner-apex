@@ -1,5 +1,6 @@
 com/apexfintech/checkdeposit/funding/FundingServiceTest.class
 com/apexfintech/checkdeposit/controller/ReturnNotificationControllerTest.class
+com/apexfintech/checkdeposit/settlement/SettlementRolloverIntegrationTest.class
 com/apexfintech/checkdeposit/controller/AccountLedgerControllerTest.class
 com/apexfintech/checkdeposit/funding/MicrParserTest.class
 com/apexfintech/checkdeposit/DepositTraceIntegrationTest.class
@@ -8,6 +9,7 @@ com/apexfintech/checkdeposit/vendor/StubVendorServiceTest.class
 com/apexfintech/checkdeposit/settlement/EodSchedulerServiceTest.class
 com/apexfintech/checkdeposit/controller/DepositControllerWebMvcTest.class
 com/apexfintech/checkdeposit/MockAuthInterceptorTest.class
+com/apexfintech/checkdeposit/settlement/SettlementDateServiceTest.class
 com/apexfintech/checkdeposit/DepositSubmissionTest.class
 com/apexfintech/checkdeposit/DatabaseSchemaTest.class
 com/apexfintech/checkdeposit/ledger/ReturnHandlingIntegrationTest.class

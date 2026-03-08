@@ -313,4 +313,8 @@ public class Transfer {
   public void setSourceApplicationId(String sourceApplicationId) {
     this.sourceApplicationId = sourceApplicationId;
   }
+
+  public void setSettlementDate(LocalDate settlementDate) {
+    this.settlementDate = settlementDate;
+  }
 }
