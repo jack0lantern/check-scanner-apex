@@ -1,10 +1,12 @@
 package com.apexfintech.checkdeposit.settlement;
 
 import com.apexfintech.checkdeposit.domain.SettlementBatch;
+import com.apexfintech.checkdeposit.domain.TraceStage;
 import com.apexfintech.checkdeposit.domain.Transfer;
 import com.apexfintech.checkdeposit.domain.TransferState;
 import com.apexfintech.checkdeposit.repository.SettlementBatchRepository;
 import com.apexfintech.checkdeposit.repository.TransferRepository;
+import com.apexfintech.checkdeposit.trace.TraceEventService;
 import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -32,16 +34,19 @@ public class SettlementFileService {
   private final TransferRepository transferRepository;
   private final SettlementBatchRepository settlementBatchRepository;
   private final SettlementDateService settlementDateService;
+  private final TraceEventService traceEventService;
   private final Path outputDir;
 
   public SettlementFileService(
       TransferRepository transferRepository,
       SettlementBatchRepository settlementBatchRepository,
       SettlementDateService settlementDateService,
+      TraceEventService traceEventService,
       @Value("${settlement.output-path:./settlement-output}") String outputPath) {
     this.transferRepository = transferRepository;
     this.settlementBatchRepository = settlementBatchRepository;
     this.settlementDateService = settlementDateService;
+    this.traceEventService = traceEventService;
     this.outputDir = Path.of(outputPath);
   }
 
@@ -86,7 +91,7 @@ public class SettlementFileService {
           new SettlementBatch(batchId, generationTimestamp, transfers.size(), totalAmount);
       settlementBatchRepository.save(batch);
 
-      markTransfersCompleted(transfers);
+      markTransfersCompleted(transfers, batchId);
       return filePath;
     } catch (Exception e) {
       log.error("Failed to write settlement file for batch {}", batchId, e);
@@ -140,11 +145,16 @@ public class SettlementFileService {
   }
 
   @Transactional
-  protected void markTransfersCompleted(List<Transfer> transfers) {
+  protected void markTransfersCompleted(List<Transfer> transfers, UUID batchId) {
     Instant now = Instant.now();
     for (Transfer t : transfers) {
       t.setState(TransferState.COMPLETED);
       t.setUpdatedAt(now);
+      traceEventService.record(
+          t.getId(),
+          TraceStage.SETTLEMENT,
+          "INCLUDED",
+          java.util.Map.of("batchId", batchId.toString()));
     }
     transferRepository.saveAll(transfers);
   }
