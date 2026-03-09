@@ -3,7 +3,11 @@ import { submitDeposit } from '../api/depositApi'
 import type { DepositRequest } from '../api/depositApi'
 import { fileToBase64 } from '../utils/fileToBase64'
 
-export function InvestorView() {
+interface InvestorViewProps {
+  onNavigateToLedger?: (accountId: string) => void
+}
+
+export function InvestorView({ onNavigateToLedger }: InvestorViewProps) {
   const [amount, setAmount] = useState('')
   const [accountId, setAccountId] = useState('')
   const [frontFile, setFrontFile] = useState<File | null>(null)
@@ -122,7 +126,17 @@ export function InvestorView() {
 
       {success && (
         <div className="success-message" role="status">
-          Deposit submitted. Transfer ID: {success.transferId}, State: {success.state}
+          <p>Deposit submitted. Transfer ID: {success.transferId}, State: {success.state}</p>
+          {onNavigateToLedger && (
+            <button
+              type="button"
+              onClick={() => onNavigateToLedger(accountId)}
+              className="view-ledger-btn"
+              style={{ marginTop: '0.5rem' }}
+            >
+              View Ledger
+            </button>
+          )}
         </div>
       )}
 

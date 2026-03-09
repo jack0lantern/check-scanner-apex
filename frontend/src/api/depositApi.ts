@@ -71,3 +71,60 @@ export async function submitDeposit(
 
   return data as DepositResponse
 }
+
+export interface TransferStatusResponse {
+  transferId: string
+  state: string
+  amount: number
+  accountId: string
+  createdAt: string
+  updatedAt: string
+  vendorScore?: number
+  micrData?: string
+  micrConfidence?: number
+  ocrAmount?: number
+  vendorMessage?: string
+}
+
+export interface TraceEventResponse {
+  stage: string
+  outcome: string
+  detail?: unknown
+  timestamp: string
+}
+
+export async function getDepositStatus(
+  transferId: string
+): Promise<TransferStatusResponse> {
+  const res = await fetch(`${API_BASE}/deposits/${transferId}`, {
+    headers: {
+      'X-User-Role': 'INVESTOR',
+      'X-Account-Id': 'TEST001',
+    },
+  })
+  if (!res.ok) {
+    if (res.status === 404) {
+      throw new Error('Transfer not found')
+    }
+    throw new Error('Failed to fetch deposit status')
+  }
+  return res.json()
+}
+
+export async function getDepositTrace(
+  transferId: string
+): Promise<TraceEventResponse[]> {
+  const res = await fetch(`${API_BASE}/deposits/${transferId}/trace`, {
+    headers: {
+      'X-User-Role': 'INVESTOR',
+      'X-Account-Id': 'TEST001',
+    },
+  })
+  if (!res.ok) {
+    if (res.status === 404) {
+      throw new Error('Transfer not found')
+    }
+    throw new Error('Failed to fetch deposit trace')
+  }
+  return res.json()
+}

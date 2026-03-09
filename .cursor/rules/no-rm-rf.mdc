@@ -1,0 +1,20 @@
+---
+description: Ask before using rm -rf; avoid destructive shell commands without confirmation
+alwaysApply: true
+---
+
+# rm -rf: Ask First
+
+Never suggest, generate, or run `rm -rf` or equivalent destructive commands without explicitly asking the user first.
+
+## Rule
+
+- **Always ask** before proposing or executing `rm -rf`
+- If the user confirms, it may be acceptable in their context
+- Prefer safer alternatives when possible
+
+## Safer Alternatives (suggest these first)
+
+- **Delete specific files**: Use the Delete tool or `rm <file>` for known paths
+- **Clear a directory**: Use `find . -type f -delete` or similar with explicit paths
+- **Clean build artifacts**: Use project-specific commands (e.g. `make clean`, `npm run clean`)
