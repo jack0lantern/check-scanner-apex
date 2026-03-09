@@ -1,0 +1,419 @@
+import { useState, useEffect, useCallback } from 'react'
+import {
+  getOperatorQueue,
+  approveDeposit,
+  rejectDeposit,
+  type OperatorQueueItem,
+  type OperatorQueueFilters,
+} from '../api/operatorApi'
+
+const CONTRIBUTION_TYPES = ['INDIVIDUAL', 'ROTH', 'TRADITIONAL'] as const
+
+function formatAmount(n: number | null | undefined): string {
+  if (n == null) return '—'
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+  }).format(n)
+}
+
+function formatPercent(n: number | null | undefined): string {
+  if (n == null) return '—'
+  return `${Math.round(n * 100)}%`
+}
+
+function VendorScoreBadge({ score }: { score: number | null | undefined }) {
+  if (score == null) return <span className="vendor-badge vendor-badge--unknown">—</span>
+  if (score >= 0.8) return <span className="vendor-badge vendor-badge--green">{formatPercent(score)}</span>
+  if (score >= 0.5) return <span className="vendor-badge vendor-badge--yellow">{formatPercent(score)}</span>
+  return <span className="vendor-badge vendor-badge--red">{formatPercent(score)}</span>
+}
+
+function QueueCard({
+  item,
+  onApprove,
+  onReject,
+}: {
+  item: OperatorQueueItem
+  onApprove: (item: OperatorQueueItem) => void
+  onReject: (item: OperatorQueueItem) => void
+}) {
+  const amountMismatch =
+    item.ocrAmount != null &&
+    item.enteredAmount != null &&
+    item.ocrAmount !== item.enteredAmount
+
+  return (
+    <article className="operator-card" data-transfer-id={item.transferId}>
+      <header className="operator-card__header">
+        <span className="operator-card__transfer-id">{item.transferId}</span>
+        <span className="operator-card__state">{item.state}</span>
+      </header>
+
+      <div className="operator-card__body">
+        <div className="operator-card__row">
+          <span className="operator-card__label">Investor Account</span>
+          <span>{item.investorAccountId}</span>
+        </div>
+
+        <div className="operator-card__row">
+          <span className="operator-card__label">Entered Amount</span>
+          <span>{formatAmount(item.enteredAmount)}</span>
+        </div>
+
+        <div className="operator-card__row">
+          <span className="operator-card__label">OCR Amount</span>
+          <span
+            className={amountMismatch ? 'ocr-amount-mismatch' : undefined}
+            data-testid="ocr-amount"
+          >
+            {formatAmount(item.ocrAmount)}
+          </span>
+        </div>
+
+        <div className="operator-card__row">
+          <span className="operator-card__label">MICR Data</span>
+          <span className="operator-card__mono">{item.micrData ?? '—'}</span>
+        </div>
+
+        <div className="operator-card__row">
+          <span className="operator-card__label">MICR Confidence</span>
+          <span>{formatPercent(item.micrConfidence)}</span>
+        </div>
+
+        <div className="operator-card__row">
+          <span className="operator-card__label">Vendor Risk Score</span>
+          <VendorScoreBadge score={item.vendorScore} />
+        </div>
+
+        {(item.riskIndicators.amountMismatch || item.riskIndicators.lowVendorScore) && (
+          <div className="operator-card__flags">
+            {item.riskIndicators.amountMismatch && (
+              <span className="risk-flag risk-flag--amount">Amount Mismatch</span>
+            )}
+            {item.riskIndicators.lowVendorScore && (
+              <span className="risk-flag risk-flag--vendor">Low Vendor Score</span>
+            )}
+          </div>
+        )}
+
+        {(item.frontImage ?? item.backImage) && (
+          <div className="operator-card__images">
+            {item.frontImage && (
+              <div className="operator-card__image">
+                <span className="operator-card__label">Front</span>
+                <img
+                  src={`data:image/png;base64,${item.frontImage}`}
+                  alt="Check front"
+                  className="operator-card__img"
+                />
+              </div>
+            )}
+            {item.backImage && (
+              <div className="operator-card__image">
+                <span className="operator-card__label">Back</span>
+                <img
+                  src={`data:image/png;base64,${item.backImage}`}
+                  alt="Check back"
+                  className="operator-card__img"
+                />
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      <footer className="operator-card__actions">
+        <button
+          type="button"
+          className="operator-card__btn operator-card__btn--approve"
+          onClick={() => onApprove(item)}
+        >
+          Approve
+        </button>
+        <button
+          type="button"
+          className="operator-card__btn operator-card__btn--reject"
+          onClick={() => onReject(item)}
+        >
+          Reject
+        </button>
+      </footer>
+    </article>
+  )
+}
+
+export function OperatorView() {
+  const [queue, setQueue] = useState<OperatorQueueItem[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [filters, setFilters] = useState<OperatorQueueFilters>({})
+  const [approveModal, setApproveModal] = useState<OperatorQueueItem | null>(null)
+  const [rejectModal, setRejectModal] = useState<OperatorQueueItem | null>(null)
+  const [rejectReason, setRejectReason] = useState('')
+  const [contributionOverride, setContributionOverride] = useState<string>('')
+  const [actionLoading, setActionLoading] = useState(false)
+
+  const fetchQueue = useCallback(async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      const items = await getOperatorQueue(filters)
+      setQueue(items)
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to load queue')
+    } finally {
+      setLoading(false)
+    }
+  }, [filters])
+
+  useEffect(() => {
+    fetchQueue()
+  }, [fetchQueue])
+
+  function handleFilterChange(key: keyof OperatorQueueFilters, value: string | number | undefined) {
+    setFilters((prev) => {
+      const next = { ...prev }
+      if (value === '' || value === undefined) {
+        delete next[key]
+      } else {
+        ;(next as Record<string, unknown>)[key] = value
+      }
+      return next
+    })
+  }
+
+  async function handleApprove(item: OperatorQueueItem) {
+    setApproveModal(item)
+    setContributionOverride('')
+  }
+
+  async function handleApproveConfirm() {
+    const item = approveModal
+    if (!item) return
+    setActionLoading(true)
+    try {
+      await approveDeposit(
+        item.transferId,
+        contributionOverride.trim() || undefined
+      )
+      setQueue((prev) => prev.filter((i) => i.transferId !== item.transferId))
+      setApproveModal(null)
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Approve failed')
+    } finally {
+      setActionLoading(false)
+    }
+  }
+
+  async function handleReject(item: OperatorQueueItem) {
+    setRejectModal(item)
+    setRejectReason('')
+  }
+
+  async function handleRejectConfirm() {
+    const item = rejectModal
+    if (!item || !rejectReason.trim()) return
+    setActionLoading(true)
+    try {
+      await rejectDeposit(item.transferId, rejectReason.trim())
+      setQueue((prev) => prev.filter((i) => i.transferId !== item.transferId))
+      setRejectModal(null)
+      setRejectReason('')
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Reject failed')
+    } finally {
+      setActionLoading(false)
+    }
+  }
+
+  return (
+    <div className="operator-view">
+      <h1>Operator Queue</h1>
+
+      <div className="operator-filters">
+        <div className="operator-filters__field">
+          <label htmlFor="filter-status">Status</label>
+          <select
+            id="filter-status"
+            value={filters.status ?? ''}
+            onChange={(e) => handleFilterChange('status', e.target.value || undefined)}
+          >
+            <option value="">All</option>
+            <option value="ANALYZING">ANALYZING</option>
+            <option value="REQUESTED">REQUESTED</option>
+            <option value="VALIDATING">VALIDATING</option>
+            <option value="APPROVED">APPROVED</option>
+            <option value="REJECTED">REJECTED</option>
+          </select>
+        </div>
+        <div className="operator-filters__field">
+          <label htmlFor="filter-dateFrom">Date From</label>
+          <input
+            id="filter-dateFrom"
+            type="date"
+            value={filters.dateFrom ?? ''}
+            onChange={(e) => handleFilterChange('dateFrom', e.target.value || undefined)}
+          />
+        </div>
+        <div className="operator-filters__field">
+          <label htmlFor="filter-dateTo">Date To</label>
+          <input
+            id="filter-dateTo"
+            type="date"
+            value={filters.dateTo ?? ''}
+            onChange={(e) => handleFilterChange('dateTo', e.target.value || undefined)}
+          />
+        </div>
+        <div className="operator-filters__field">
+          <label htmlFor="filter-accountId">Account ID</label>
+          <input
+            id="filter-accountId"
+            type="text"
+            placeholder="Account ID"
+            value={filters.accountId ?? ''}
+            onChange={(e) => handleFilterChange('accountId', e.target.value || undefined)}
+          />
+        </div>
+        <div className="operator-filters__field">
+          <label htmlFor="filter-minAmount">Min Amount</label>
+          <input
+            id="filter-minAmount"
+            type="number"
+            step="0.01"
+            min="0"
+            placeholder="Min"
+            value={filters.minAmount ?? ''}
+            onChange={(e) =>
+              handleFilterChange(
+                'minAmount',
+                e.target.value ? parseFloat(e.target.value) : undefined
+              )
+            }
+          />
+        </div>
+        <div className="operator-filters__field">
+          <label htmlFor="filter-maxAmount">Max Amount</label>
+          <input
+            id="filter-maxAmount"
+            type="number"
+            step="0.01"
+            min="0"
+            placeholder="Max"
+            value={filters.maxAmount ?? ''}
+            onChange={(e) =>
+              handleFilterChange(
+                'maxAmount',
+                e.target.value ? parseFloat(e.target.value) : undefined
+              )
+            }
+          />
+        </div>
+      </div>
+
+      {error && (
+        <div className="operator-error" role="alert">
+          {error}
+        </div>
+      )}
+
+      {loading ? (
+        <p>Loading queue…</p>
+      ) : (
+        <div className="operator-queue">
+          {queue.length === 0 ? (
+            <p className="operator-empty">No deposits in queue.</p>
+          ) : (
+            queue.map((item) => (
+              <QueueCard
+                key={item.transferId}
+                item={item}
+                onApprove={handleApprove}
+                onReject={handleReject}
+              />
+            ))
+          )}
+        </div>
+      )}
+
+      {approveModal && (
+        <div className="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="approve-title">
+          <div className="modal">
+            <h2 id="approve-title">Approve Deposit</h2>
+            <p>Transfer ID: {approveModal.transferId}</p>
+            <div className="modal__field">
+              <label htmlFor="contributionOverride">Override Contribution Type (optional)</label>
+              <select
+                id="contributionOverride"
+                value={contributionOverride}
+                onChange={(e) => setContributionOverride(e.target.value)}
+              >
+                <option value="">— No override —</option>
+                {CONTRIBUTION_TYPES.map((t) => (
+                  <option key={t} value={t}>
+                    {t}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="modal__actions">
+              <button
+                type="button"
+                onClick={handleApproveConfirm}
+                disabled={actionLoading}
+              >
+                {actionLoading ? 'Approving…' : 'Approve'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setApproveModal(null)}
+                disabled={actionLoading}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {rejectModal && (
+        <div className="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="reject-title">
+          <div className="modal">
+            <h2 id="reject-title">Reject Deposit</h2>
+            <p>Transfer ID: {rejectModal.transferId}</p>
+            <div className="modal__field">
+              <label htmlFor="rejectReason">Reason (required)</label>
+              <textarea
+                id="rejectReason"
+                value={rejectReason}
+                onChange={(e) => setRejectReason(e.target.value)}
+                placeholder="Enter rejection reason"
+                rows={3}
+                required
+              />
+            </div>
+            <div className="modal__actions">
+              <button
+                type="button"
+                onClick={handleRejectConfirm}
+                disabled={actionLoading || !rejectReason.trim()}
+              >
+                {actionLoading ? 'Rejecting…' : 'Reject'}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setRejectModal(null)
+                  setRejectReason('')
+                }}
+                disabled={actionLoading}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
