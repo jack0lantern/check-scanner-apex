@@ -17,20 +17,32 @@ services:
       retries: 5
 
   backend:
-    image: eclipse-temurin:17-jre-alpine
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: check-scanner-backend
-    command: ["sleep", "infinity"]
+    environment:
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: ${POSTGRES_USER:-checkuser}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-checkdeposit}
+    ports:
+      - "8080:8080"
+    volumes:
+      - settlement_output:/app/settlement-output
     depends_on:
       db:
         condition: service_healthy
     profiles:
       - full
-    # Placeholder: will be replaced with Spring Boot build in Phase 1 Step 3
 
   frontend:
     image: node:20-alpine
     container_name: check-scanner-frontend
     working_dir: /app
+    environment:
+      VITE_PROXY_TARGET: http://backend:8080
     volumes:
       - ./frontend:/app
       - frontend_node_modules:/app/node_modules
@@ -43,3 +55,4 @@ services:
 volumes:
   postgres_data:
   frontend_node_modules:
+  settlement_output:

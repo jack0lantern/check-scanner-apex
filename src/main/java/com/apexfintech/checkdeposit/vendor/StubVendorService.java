@@ -3,6 +3,7 @@ package com.apexfintech.checkdeposit.vendor;
 import com.apexfintech.checkdeposit.dto.VendorAssessmentResult;
 import java.math.BigDecimal;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
@@ -21,8 +22,16 @@ import org.springframework.stereotype.Service;
 @Primary
 public class StubVendorService implements VendorService {
 
-  /** MICR with routing 021000021 (matches TEST001) for clean pass scenarios. */
-  private static final String DEFAULT_MICR = "02100002112345678901";
+  /** MICR base: routing (9) + account (8). Check number (3) appended per-request for uniqueness. */
+  private static final String DEFAULT_MICR_BASE = "02100002112345678";
+  private static final AtomicInteger checkNumberCounter = new AtomicInteger(100);
+
+  /** Returns unique MICR per call so repeated test deposits are not flagged as duplicates. */
+  private static String nextDefaultMicr() {
+    int n = checkNumberCounter.getAndIncrement();
+    int checkNum = (n % 900) + 100; // 100–999
+    return DEFAULT_MICR_BASE + String.format("%03d", checkNum);
+  }
 
   /** MICR with non-matching routing for routing-mismatch scenario. */
   private static final String ROUTING_MISMATCH_MICR = "99999999912345678901";
@@ -72,7 +81,7 @@ public class StubVendorService implements VendorService {
       case IQA_PASS -> new VendorAssessmentResult(
           scenario,
           DEFAULT_VENDOR_SCORE,
-          DEFAULT_MICR,
+          nextDefaultMicr(),
           DEFAULT_CONFIDENCE,
           enteredAmount,
           null,
@@ -96,7 +105,7 @@ public class StubVendorService implements VendorService {
       case DUPLICATE_DETECTED, AMOUNT_MISMATCH -> new VendorAssessmentResult(
           scenario,
           DEFAULT_VENDOR_SCORE,
-          DEFAULT_MICR,
+          nextDefaultMicr(),
           DEFAULT_CONFIDENCE,
           enteredAmount,
           actionableMessage,
@@ -112,7 +121,7 @@ public class StubVendorService implements VendorService {
       case CLEAN_PASS -> new VendorAssessmentResult(
           scenario,
           DEFAULT_VENDOR_SCORE,
-          DEFAULT_MICR,
+          nextDefaultMicr(),
           DEFAULT_CONFIDENCE,
           enteredAmount,
           null,

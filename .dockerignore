@@ -1,0 +1,9 @@
+target/
+frontend/
+.git/
+.gitignore
+*.md
+.env
+.env.*
+settlement-output/
+node_modules/
