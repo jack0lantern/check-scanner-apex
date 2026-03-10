@@ -1,7 +1,3 @@
-Got it. Your choices make a lot of sense—Java and PostgreSQL via Docker give you a robust, enterprise-grade foundation that's still easy to spin up locally, and a React frontend will make for a clean, impressive demo.
-
-Here is the finalized Pre-Search Architecture Document with all of your decisions integrated.
-
 ### ---
 
 **Phase 1: Context & Constraints**

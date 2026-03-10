@@ -7,6 +7,7 @@ import com.apexfintech.checkdeposit.dto.VendorAssessmentResult;
 import com.apexfintech.checkdeposit.funding.AccountResolutionService;
 import com.apexfintech.checkdeposit.funding.MicrParser;
 import com.apexfintech.checkdeposit.ledger.LedgerPostingService;
+import com.apexfintech.checkdeposit.repository.AuditLogRepository;
 import com.apexfintech.checkdeposit.repository.TransferRepository;
 import com.apexfintech.checkdeposit.settlement.SettlementDateService;
 import com.apexfintech.checkdeposit.vendor.VendorService;
@@ -35,18 +36,21 @@ public class DebugController {
   private final LedgerPostingService ledgerPostingService;
   private final TransferRepository transferRepository;
   private final SettlementDateService settlementDateService;
+  private final AuditLogRepository auditLogRepository;
 
   public DebugController(
       AccountResolutionService accountResolutionService,
       VendorService vendorService,
       LedgerPostingService ledgerPostingService,
       TransferRepository transferRepository,
-      SettlementDateService settlementDateService) {
+      SettlementDateService settlementDateService,
+      AuditLogRepository auditLogRepository) {
     this.accountResolutionService = accountResolutionService;
     this.vendorService = vendorService;
     this.ledgerPostingService = ledgerPostingService;
     this.transferRepository = transferRepository;
     this.settlementDateService = settlementDateService;
+    this.auditLogRepository = auditLogRepository;
   }
 
   @GetMapping("/account-resolve")
@@ -92,6 +96,27 @@ public class DebugController {
    *
    * <p>Use: POST /debug/batch-settlement-deposits?count=10&accountId=TEST001
    */
+  /**
+   * Checks if an audit log entry exists for the given transfer and action. Use for demo script
+   * validation. Returns 200 if found, 404 if not.
+   *
+   * <p>Use: GET /debug/audit-check?transferId=<uuid>&action=INVESTOR_NOTIFIED
+   */
+  @GetMapping("/audit-check")
+  public ResponseEntity<Map<String, Object>> auditCheck(
+      @RequestParam("transferId") UUID transferId,
+      @RequestParam("action") String action) {
+    var entries = auditLogRepository.findByTransferIdAndAction(transferId, action);
+    if (entries.isEmpty()) {
+      return ResponseEntity.notFound().build();
+    }
+    return ResponseEntity.ok(
+        Map.of(
+            "transferId", transferId.toString(),
+            "action", action,
+            "count", entries.size()));
+  }
+
   @PostMapping("/batch-settlement-deposits")
   public ResponseEntity<Map<String, Object>> batchSettlementDeposits(
       @RequestParam(value = "count", defaultValue = "10") int count,

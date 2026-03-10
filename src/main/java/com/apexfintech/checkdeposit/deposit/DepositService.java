@@ -17,6 +17,7 @@ import com.apexfintech.checkdeposit.repository.AccountRepository;
 import com.apexfintech.checkdeposit.repository.TransferRepository;
 import com.apexfintech.checkdeposit.settlement.SettlementDateService;
 import com.apexfintech.checkdeposit.trace.TraceEventService;
+import com.apexfintech.checkdeposit.vendor.VendorScenario;
 import com.apexfintech.checkdeposit.vendor.VendorService;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -110,7 +111,14 @@ public class DepositService {
     VendorAssessmentResult vendorResult =
         vendorService.assessCheck(frontBytes, backBytes, amount, scenarioAccountId);
 
-    if (vendorResult.actionableMessage() != null) {
+    // IQA failures (blur, glare) and duplicate: return 422 for immediate retry or final rejection.
+    // MICR_READ_FAILURE and AMOUNT_MISMATCH: proceed to ANALYZING for operator review.
+    boolean return422 =
+        vendorResult.actionableMessage() != null
+            && vendorResult.scenario() != VendorScenario.MICR_READ_FAILURE
+            && vendorResult.scenario() != VendorScenario.AMOUNT_MISMATCH;
+
+    if (return422) {
       LocalDate settlementDate = settlementDateService.computeSettlementDateNow();
       Transfer transfer =
           createTransfer(
@@ -155,6 +163,11 @@ public class DepositService {
         java.util.Map.of(
             "vendorScore", vendorResult.vendorScore() != null ? vendorResult.vendorScore() : 0,
             "micrData", vendorResult.micrData() != null ? vendorResult.micrData() : ""));
+
+    // MICR_READ_FAILURE: skip funding (no micrData); transfer stays in ANALYZING for operator review
+    if (vendorResult.scenario() == VendorScenario.MICR_READ_FAILURE) {
+      return new DepositResponse(transfer.getId(), transfer.getState());
+    }
 
     FundingValidationResult fundingResult = fundingService.validate(transfer, resolved);
     if (!fundingResult.passed()) {

@@ -10,6 +10,7 @@ import com.apexfintech.checkdeposit.ledger.LedgerPostingService;
 import com.apexfintech.checkdeposit.ledger.LedgerQueryService;
 import com.apexfintech.checkdeposit.ledger.ReturnService;
 import com.apexfintech.checkdeposit.operator.OperatorService;
+import com.apexfintech.checkdeposit.repository.AuditLogRepository;
 import com.apexfintech.checkdeposit.repository.TransferRepository;
 import com.apexfintech.checkdeposit.settlement.SettlementAckService;
 import com.apexfintech.checkdeposit.settlement.SettlementDateService;
@@ -38,6 +39,7 @@ class MockAuthInterceptorTest {
   @MockBean private OperatorService operatorService;
   @MockBean private TraceEventService traceEventService;
   @MockBean private TransferRepository transferRepository;
+  @MockBean private AuditLogRepository auditLogRepository;
   @MockBean private SettlementDateService settlementDateService;
 
   @Test
