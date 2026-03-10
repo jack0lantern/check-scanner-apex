@@ -33,7 +33,10 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
 
   private static final String HEADER_USER_ROLE = "X-User-Role";
 
-  /** UUID pattern for extracting transferId from paths like /deposits/{uuid} or /operator/queue/{uuid}/approve */
+  /**
+   * UUID pattern for extracting transferId from paths like /deposits/{uuid} or
+   * /operator/queue/{uuid}/approve
+   */
   private static final Pattern UUID_IN_PATH =
       Pattern.compile(
           "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}");

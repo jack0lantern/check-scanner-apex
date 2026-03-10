@@ -19,8 +19,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -29,7 +29,8 @@ import org.springframework.test.web.servlet.ResultActions;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 class DepositSubmissionTest {
 
-  private static final String VALID_BASE64_IMAGE = Base64.getEncoder().encodeToString(new byte[] {0x01, 0x02, 0x03});
+  private static final String VALID_BASE64_IMAGE =
+      Base64.getEncoder().encodeToString(new byte[] {0x01, 0x02, 0x03});
 
   @Autowired private MockMvc mockMvc;
   @Autowired private TransferRepository transferRepository;
@@ -46,16 +47,22 @@ class DepositSubmissionTest {
                 .content(
                     objectMapper.writeValueAsString(
                         Map.of(
-                            "frontImage", VALID_BASE64_IMAGE,
-                            "backImage", VALID_BASE64_IMAGE,
-                            "amount", 100.50,
-                            "accountId", "TEST001"))));
+                            "frontImage",
+                            VALID_BASE64_IMAGE,
+                            "backImage",
+                            VALID_BASE64_IMAGE,
+                            "amount",
+                            100.50,
+                            "accountId",
+                            "TEST001"))));
 
     result
         .andExpect(status().isUnprocessableEntity())
         .andExpect(jsonPath("$.transferId").exists())
         .andExpect(jsonPath("$.actionableMessage").exists())
-        .andExpect(jsonPath("$.actionableMessage").value("Image too blurry — please retake in better lighting"));
+        .andExpect(
+            jsonPath("$.actionableMessage")
+                .value("Image too blurry — please retake in better lighting"));
   }
 
   @Test
@@ -69,10 +76,14 @@ class DepositSubmissionTest {
                 .content(
                     objectMapper.writeValueAsString(
                         Map.of(
-                            "frontImage", VALID_BASE64_IMAGE,
-                            "backImage", VALID_BASE64_IMAGE,
-                            "amount", 100.50,
-                            "accountId", "TEST001"))));
+                            "frontImage",
+                            VALID_BASE64_IMAGE,
+                            "backImage",
+                            VALID_BASE64_IMAGE,
+                            "amount",
+                            100.50,
+                            "accountId",
+                            "TEST001"))));
 
     result
         .andExpect(status().isUnprocessableEntity())
@@ -82,7 +93,8 @@ class DepositSubmissionTest {
   }
 
   @Test
-  void retryDeposit_withRetryForTransferId_updatesExistingTransferAndAdvancesState() throws Exception {
+  void retryDeposit_withRetryForTransferId_updatesExistingTransferAndAdvancesState()
+      throws Exception {
     // 1. Submit deposit triggering IQA Blur -> 422
     String firstResponse =
         mockMvc
@@ -94,10 +106,14 @@ class DepositSubmissionTest {
                     .content(
                         objectMapper.writeValueAsString(
                             Map.of(
-                                "frontImage", VALID_BASE64_IMAGE,
-                                "backImage", VALID_BASE64_IMAGE,
-                                "amount", 100.50,
-                                "accountId", "TEST001"))))
+                                "frontImage",
+                                VALID_BASE64_IMAGE,
+                                "backImage",
+                                VALID_BASE64_IMAGE,
+                                "amount",
+                                100.50,
+                                "accountId",
+                                "TEST001"))))
             .andExpect(status().isUnprocessableEntity())
             .andExpect(jsonPath("$.transferId").exists())
             .andExpect(jsonPath("$.actionableMessage").exists())
@@ -147,10 +163,14 @@ class DepositSubmissionTest {
                     .content(
                         objectMapper.writeValueAsString(
                             Map.of(
-                                "frontImage", VALID_BASE64_IMAGE,
-                                "backImage", VALID_BASE64_IMAGE,
-                                "amount", 100.50,
-                                "accountId", "TEST001"))))
+                                "frontImage",
+                                VALID_BASE64_IMAGE,
+                                "backImage",
+                                VALID_BASE64_IMAGE,
+                                "amount",
+                                100.50,
+                                "accountId",
+                                "TEST001"))))
             .andExpect(status().isCreated())
             .andReturn()
             .getResponse()

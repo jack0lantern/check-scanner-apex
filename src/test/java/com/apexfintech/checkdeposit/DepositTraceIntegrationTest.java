@@ -17,11 +17,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.http.MediaType;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Integration test: walks a deposit through submission → vendor validation → funding service →
@@ -57,10 +57,14 @@ class DepositTraceIntegrationTest {
                     .content(
                         objectMapper.writeValueAsString(
                             Map.of(
-                                "frontImage", VALID_BASE64_IMAGE,
-                                "backImage", VALID_BASE64_IMAGE,
-                                "amount", 100.00,
-                                "accountId", "TEST001"))))
+                                "frontImage",
+                                VALID_BASE64_IMAGE,
+                                "backImage",
+                                VALID_BASE64_IMAGE,
+                                "amount",
+                                100.00,
+                                "accountId",
+                                "TEST001"))))
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.transferId").exists())
             .andExpect(jsonPath("$.state").value("ANALYZING"))
@@ -149,10 +153,14 @@ class DepositTraceIntegrationTest {
                     .content(
                         objectMapper.writeValueAsString(
                             Map.of(
-                                "frontImage", VALID_BASE64_IMAGE,
-                                "backImage", VALID_BASE64_IMAGE,
-                                "amount", 100.00,
-                                "accountId", "TEST001"))))
+                                "frontImage",
+                                VALID_BASE64_IMAGE,
+                                "backImage",
+                                VALID_BASE64_IMAGE,
+                                "amount",
+                                100.00,
+                                "accountId",
+                                "TEST001"))))
             .andExpect(status().isCreated())
             .andReturn()
             .getResponse()

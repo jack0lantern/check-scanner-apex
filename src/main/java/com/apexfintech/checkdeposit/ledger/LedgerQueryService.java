@@ -45,10 +45,7 @@ public class LedgerQueryService {
     }
     try {
       UUID uuid = UUID.fromString(accountId);
-      return accountRepository
-          .findById(uuid)
-          .map(Account::getInternalNumber)
-          .orElse(accountId);
+      return accountRepository.findById(uuid).map(Account::getInternalNumber).orElse(accountId);
     } catch (IllegalArgumentException ignored) {
       // Not a UUID, use as-is (e.g. omnibus_id like OMN-999)
       return accountId;

@@ -74,10 +74,7 @@ class MockAuthInterceptorTest {
   @Test
   void authTest_returns401_whenHeadersBlank() throws Exception {
     mockMvc
-        .perform(
-            get("/debug/auth-test")
-                .header("X-User-Role", "   ")
-                .header("X-Account-Id", ""))
+        .perform(get("/debug/auth-test").header("X-User-Role", "   ").header("X-Account-Id", ""))
         .andExpect(status().isUnauthorized());
   }
 }

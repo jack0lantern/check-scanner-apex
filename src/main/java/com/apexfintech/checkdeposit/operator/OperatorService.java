@@ -1,7 +1,9 @@
 package com.apexfintech.checkdeposit.operator;
 
+import com.apexfintech.checkdeposit.deposit.TransferNotFoundException;
 import com.apexfintech.checkdeposit.domain.Account;
 import com.apexfintech.checkdeposit.domain.AuditLog;
+import com.apexfintech.checkdeposit.domain.TraceStage;
 import com.apexfintech.checkdeposit.domain.Transfer;
 import com.apexfintech.checkdeposit.domain.TransferState;
 import com.apexfintech.checkdeposit.dto.ApproveRequest;
@@ -9,9 +11,7 @@ import com.apexfintech.checkdeposit.dto.OperatorQueueItem;
 import com.apexfintech.checkdeposit.dto.OperatorQueueItem.RiskIndicators;
 import com.apexfintech.checkdeposit.dto.RejectRequest;
 import com.apexfintech.checkdeposit.ledger.LedgerPostingService;
-import com.apexfintech.checkdeposit.deposit.TransferNotFoundException;
 import com.apexfintech.checkdeposit.repository.AccountRepository;
-import com.apexfintech.checkdeposit.domain.TraceStage;
 import com.apexfintech.checkdeposit.repository.AuditLogRepository;
 import com.apexfintech.checkdeposit.repository.TransferRepository;
 import com.apexfintech.checkdeposit.trace.TraceEventService;
@@ -71,8 +71,7 @@ public class OperatorService {
             effectiveStatus, from, to, internalAccountId, minAmount, maxAmount);
 
     List<Transfer> transfers =
-        transferRepository.findAll(
-            spec, Sort.by(Sort.Direction.DESC, "createdAt"));
+        transferRepository.findAll(spec, Sort.by(Sort.Direction.DESC, "createdAt"));
 
     return transfers.stream().map(this::toQueueItem).toList();
   }
@@ -84,7 +83,9 @@ public class OperatorService {
             .findById(transferId)
             .orElseThrow(() -> new TransferNotFoundException(transferId));
 
-    if (request != null && request.contributionTypeOverride() != null && !request.contributionTypeOverride().isBlank()) {
+    if (request != null
+        && request.contributionTypeOverride() != null
+        && !request.contributionTypeOverride().isBlank()) {
       transfer.setContributionType(request.contributionTypeOverride().trim());
       transferRepository.save(transfer);
       auditLogRepository.save(

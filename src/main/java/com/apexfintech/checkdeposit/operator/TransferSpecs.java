@@ -69,10 +69,7 @@ final class TransferSpecs {
       return null;
     }
     try {
-      return LocalDate.parse(dateStr)
-          .plusDays(1)
-          .atStartOfDay(ZoneOffset.UTC)
-          .toInstant();
+      return LocalDate.parse(dateStr).plusDays(1).atStartOfDay(ZoneOffset.UTC).toInstant();
     } catch (Exception e) {
       return null;
     }

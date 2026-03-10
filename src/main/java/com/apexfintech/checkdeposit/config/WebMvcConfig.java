@@ -18,8 +18,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
   private String allowedOrigins;
 
   public WebMvcConfig(
-      MockAuthInterceptor mockAuthInterceptor,
-      OperatorRoleInterceptor operatorRoleInterceptor) {
+      MockAuthInterceptor mockAuthInterceptor, OperatorRoleInterceptor operatorRoleInterceptor) {
     this.mockAuthInterceptor = mockAuthInterceptor;
     this.operatorRoleInterceptor = operatorRoleInterceptor;
   }
@@ -40,8 +39,6 @@ public class WebMvcConfig implements WebMvcConfigurer {
         .addInterceptor(mockAuthInterceptor)
         .addPathPatterns("/**")
         .excludePathPatterns("/actuator/**");
-    registry
-        .addInterceptor(operatorRoleInterceptor)
-        .addPathPatterns("/operator/**");
+    registry.addInterceptor(operatorRoleInterceptor).addPathPatterns("/operator/**");
   }
 }

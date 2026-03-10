@@ -6,8 +6,8 @@ import com.apexfintech.checkdeposit.domain.TransferState;
 import com.apexfintech.checkdeposit.dto.DepositRequest;
 import com.apexfintech.checkdeposit.dto.DepositResponse;
 import com.apexfintech.checkdeposit.dto.IqaFailureResponse;
-import com.apexfintech.checkdeposit.dto.TransferStatusResponse;
 import com.apexfintech.checkdeposit.dto.ResolvedAccount;
+import com.apexfintech.checkdeposit.dto.TransferStatusResponse;
 import com.apexfintech.checkdeposit.dto.VendorAssessmentResult;
 import com.apexfintech.checkdeposit.funding.AccountResolutionService;
 import com.apexfintech.checkdeposit.funding.FundingService;
@@ -93,7 +93,13 @@ public class DepositService {
     String accountId = request.accountId();
 
     if (request.retryForTransferId() != null) {
-      return handleRetry(request.retryForTransferId(), frontBytes, backBytes, amount, accountId, scenarioAccountId);
+      return handleRetry(
+          request.retryForTransferId(),
+          frontBytes,
+          backBytes,
+          amount,
+          accountId,
+          scenarioAccountId);
     }
     return handleNewDeposit(frontBytes, backBytes, amount, accountId, scenarioAccountId);
   }
@@ -132,7 +138,10 @@ public class DepositService {
               settlementDate);
       transferRepository.save(transfer);
       traceEventService.record(
-          transfer.getId(), TraceStage.SUBMISSION, "CREATED", java.util.Map.of("state", "VALIDATING"));
+          transfer.getId(),
+          TraceStage.SUBMISSION,
+          "CREATED",
+          java.util.Map.of("state", "VALIDATING"));
       traceEventService.record(
           transfer.getId(),
           TraceStage.VENDOR_RESULT,
@@ -164,7 +173,8 @@ public class DepositService {
             "vendorScore", vendorResult.vendorScore() != null ? vendorResult.vendorScore() : 0,
             "micrData", vendorResult.micrData() != null ? vendorResult.micrData() : ""));
 
-    // MICR_READ_FAILURE: skip funding (no micrData); transfer stays in ANALYZING for operator review
+    // MICR_READ_FAILURE: skip funding (no micrData); transfer stays in ANALYZING for operator
+    // review
     if (vendorResult.scenario() == VendorScenario.MICR_READ_FAILURE) {
       return new DepositResponse(transfer.getId(), transfer.getState());
     }
@@ -191,7 +201,11 @@ public class DepositService {
         transfer.getId(),
         TraceStage.BUSINESS_RULE,
         "PASS",
-        java.util.Map.of("contributionType", fundingResult.defaultContributionType() != null ? fundingResult.defaultContributionType() : "INDIVIDUAL"));
+        java.util.Map.of(
+            "contributionType",
+            fundingResult.defaultContributionType() != null
+                ? fundingResult.defaultContributionType()
+                : "INDIVIDUAL"));
     return new DepositResponse(transfer.getId(), transfer.getState());
   }
 
@@ -263,7 +277,11 @@ public class DepositService {
         transfer.getId(),
         TraceStage.BUSINESS_RULE,
         "PASS",
-        java.util.Map.of("contributionType", fundingResult.defaultContributionType() != null ? fundingResult.defaultContributionType() : "INDIVIDUAL"));
+        java.util.Map.of(
+            "contributionType",
+            fundingResult.defaultContributionType() != null
+                ? fundingResult.defaultContributionType()
+                : "INDIVIDUAL"));
 
     transfer.setState(TransferState.ANALYZING);
     transferRepository.save(transfer);
@@ -305,10 +323,7 @@ public class DepositService {
   }
 
   private void updateTransferForRetry(
-      Transfer transfer,
-      byte[] frontBytes,
-      byte[] backBytes,
-      VendorAssessmentResult vendorResult) {
+      Transfer transfer, byte[] frontBytes, byte[] backBytes, VendorAssessmentResult vendorResult) {
     transfer.setFrontImageData(frontBytes);
     transfer.setBackImageData(backBytes);
     transfer.setVendorScore(vendorResult.vendorScore());

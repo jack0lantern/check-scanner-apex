@@ -11,14 +11,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.apexfintech.checkdeposit.config.WebMvcConfig;
 import com.apexfintech.checkdeposit.deposit.DepositService;
-import com.apexfintech.checkdeposit.trace.TraceEventService;
-import com.apexfintech.checkdeposit.exception.GlobalExceptionHandler;
 import com.apexfintech.checkdeposit.deposit.TransferNotFoundException;
 import com.apexfintech.checkdeposit.domain.TransferState;
 import com.apexfintech.checkdeposit.dto.DepositRequest;
 import com.apexfintech.checkdeposit.dto.DepositResponse;
 import com.apexfintech.checkdeposit.dto.IqaFailureResponse;
 import com.apexfintech.checkdeposit.dto.TransferStatusResponse;
+import com.apexfintech.checkdeposit.exception.GlobalExceptionHandler;
+import com.apexfintech.checkdeposit.trace.TraceEventService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -60,10 +60,14 @@ class DepositControllerWebMvcTest {
                 .content(
                     objectMapper.writeValueAsString(
                         Map.of(
-                            "frontImage", VALID_BASE64_IMAGE,
-                            "backImage", VALID_BASE64_IMAGE,
-                            "amount", 100.50,
-                            "accountId", "TEST001"))))
+                            "frontImage",
+                            VALID_BASE64_IMAGE,
+                            "backImage",
+                            VALID_BASE64_IMAGE,
+                            "amount",
+                            100.50,
+                            "accountId",
+                            "TEST001"))))
         .andExpect(status().isCreated())
         .andExpect(jsonPath("$.transferId").value(transferId.toString()))
         .andExpect(jsonPath("$.state").value("ANALYZING"));
@@ -88,13 +92,19 @@ class DepositControllerWebMvcTest {
                 .content(
                     objectMapper.writeValueAsString(
                         Map.of(
-                            "frontImage", VALID_BASE64_IMAGE,
-                            "backImage", VALID_BASE64_IMAGE,
-                            "amount", 100.50,
-                            "accountId", "TEST001"))))
+                            "frontImage",
+                            VALID_BASE64_IMAGE,
+                            "backImage",
+                            VALID_BASE64_IMAGE,
+                            "amount",
+                            100.50,
+                            "accountId",
+                            "TEST001"))))
         .andExpect(status().isUnprocessableEntity())
         .andExpect(jsonPath("$.transferId").value(transferId.toString()))
-        .andExpect(jsonPath("$.actionableMessage").value("Image too blurry — please retake in better lighting"));
+        .andExpect(
+            jsonPath("$.actionableMessage")
+                .value("Image too blurry — please retake in better lighting"));
 
     verify(depositService).submit(any(DepositRequest.class), eq("iqa-blur"));
   }

@@ -11,9 +11,9 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 /**
- * Scheduled task representing the 6:30 PM CT End-of-Day cutoff. Runs daily at the configured
- * time. Triggers settlement file generation for APPROVED transfers with settlementDate = today.
- * If file generation fails while APPROVED transfers exist, logs a structured SETTLEMENT_FILE_MISSING
+ * Scheduled task representing the 6:30 PM CT End-of-Day cutoff. Runs daily at the configured time.
+ * Triggers settlement file generation for APPROVED transfers with settlementDate = today. If file
+ * generation fails while APPROVED transfers exist, logs a structured SETTLEMENT_FILE_MISSING
  * warning.
  */
 @Service
@@ -36,9 +36,7 @@ public class EodSchedulerService {
     this.settlementDateService = settlementDateService;
   }
 
-  @Scheduled(
-      cron = "${eod.cron:0 30 18 * * *}",
-      zone = "${eod.zone:America/Chicago}")
+  @Scheduled(cron = "${eod.cron:0 30 18 * * *}", zone = "${eod.zone:America/Chicago}")
   public void runEodBatch() {
     executionCount.incrementAndGet();
     log.info("EOD batch triggered (6:30 PM CT cutoff)");
@@ -62,9 +60,7 @@ public class EodSchedulerService {
     }
   }
 
-  /**
-   * Returns the number of times the EOD batch has been triggered. Used for test verification.
-   */
+  /** Returns the number of times the EOD batch has been triggered. Used for test verification. */
   public int getExecutionCount() {
     return executionCount.get();
   }

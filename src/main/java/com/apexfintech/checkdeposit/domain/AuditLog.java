@@ -11,8 +11,7 @@ import java.util.UUID;
 @Table(name = "audit_logs")
 public class AuditLog {
 
-  @Id
-  private UUID id;
+  @Id private UUID id;
 
   @Column(name = "operator_id")
   private String operatorId;
@@ -31,7 +30,13 @@ public class AuditLog {
 
   protected AuditLog() {}
 
-  public AuditLog(UUID id, String operatorId, String action, UUID transferId, String detail, Instant createdAt) {
+  public AuditLog(
+      UUID id,
+      String operatorId,
+      String action,
+      UUID transferId,
+      String detail,
+      Instant createdAt) {
     this.id = id;
     this.operatorId = operatorId;
     this.action = action;

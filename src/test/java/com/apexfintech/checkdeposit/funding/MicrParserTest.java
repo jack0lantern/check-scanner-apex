@@ -8,14 +8,12 @@ class MicrParserTest {
 
   @Test
   void extractRoutingNumber_returnsFirst9Digits() {
-    assertThat(MicrParser.extractRoutingNumber("02100002112345678901"))
-        .isEqualTo("021000021");
+    assertThat(MicrParser.extractRoutingNumber("02100002112345678901")).isEqualTo("021000021");
   }
 
   @Test
   void extractRoutingNumber_ignoresNonDigits() {
-    assertThat(MicrParser.extractRoutingNumber("021-000-021-1234"))
-        .isEqualTo("021000021");
+    assertThat(MicrParser.extractRoutingNumber("021-000-021-1234")).isEqualTo("021000021");
   }
 
   @Test
@@ -40,8 +38,7 @@ class MicrParserTest {
 
   @Test
   void extractAccountNumber_ignoresNonDigits() {
-    assertThat(MicrParser.extractAccountNumber("021-000-021-1234-5678-901"))
-        .isEqualTo("12345678");
+    assertThat(MicrParser.extractAccountNumber("021-000-021-1234-5678-901")).isEqualTo("12345678");
   }
 
   @Test

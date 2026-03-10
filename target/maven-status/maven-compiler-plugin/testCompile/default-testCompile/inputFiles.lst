@@ -2,9 +2,12 @@
 /Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/test/java/com/apexfintech/checkdeposit/DatabaseSchemaTest.java
 /Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/test/java/com/apexfintech/checkdeposit/DepositSubmissionTest.java
 /Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/test/java/com/apexfintech/checkdeposit/DepositTraceIntegrationTest.java
+/Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/test/java/com/apexfintech/checkdeposit/EndToEndHappyPathTest.java
 /Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/test/java/com/apexfintech/checkdeposit/MockAuthInterceptorTest.java
+/Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/test/java/com/apexfintech/checkdeposit/PerformanceBenchmarkTest.java
 /Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/test/java/com/apexfintech/checkdeposit/TransferEntityDataJpaTest.java
 /Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/test/java/com/apexfintech/checkdeposit/TransferStateTest.java
+/Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/test/java/com/apexfintech/checkdeposit/TransferStateTransitionTest.java
 /Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/test/java/com/apexfintech/checkdeposit/controller/AccountLedgerControllerTest.java
 /Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/test/java/com/apexfintech/checkdeposit/controller/DepositControllerWebMvcTest.java
 /Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/test/java/com/apexfintech/checkdeposit/controller/OperatorControllerWebMvcTest.java

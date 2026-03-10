@@ -85,7 +85,8 @@ class ReturnHandlingIntegrationTest {
   void processReturn_writesInvestorNotifiedAuditLog() {
     returnService.processReturn(transfer.getId(), RETURN_REASON);
 
-    List<AuditLog> auditLogs = auditLogRepository.findByTransferIdAndAction(transfer.getId(), "INVESTOR_NOTIFIED");
+    List<AuditLog> auditLogs =
+        auditLogRepository.findByTransferIdAndAction(transfer.getId(), "INVESTOR_NOTIFIED");
     assertThat(auditLogs).hasSize(1);
 
     AuditLog entry = auditLogs.get(0);
@@ -94,6 +95,28 @@ class ReturnHandlingIntegrationTest {
     assertThat(entry.getDetail()).contains(RETURN_REASON);
     assertThat(entry.getDetail()).contains("30");
     assertThat(entry.getCreatedAt()).isNotNull();
+  }
+
+  @Test
+  void processReturn_investorDebitedOriginalPlusFee_stateReturned_investorNotifiedAuditLog() {
+    returnService.processReturn(transfer.getId(), RETURN_REASON);
+
+    Transfer updated = transferRepository.findById(transfer.getId()).orElseThrow();
+    assertThat(updated.getState()).isEqualTo(TransferState.RETURNED);
+
+    List<LedgerEntry> investorDebits =
+        ledgerEntryRepository.findAll().stream()
+            .filter(e -> TO_ACCOUNT_ID.equals(e.getAccountId()) && "DEBIT".equals(e.getType()))
+            .toList();
+    assertThat(investorDebits).hasSize(2);
+    var amounts = investorDebits.stream().map(LedgerEntry::getAmount).toList();
+    assertThat(amounts).anyMatch(a -> a.compareTo(AMOUNT) == 0);
+    assertThat(amounts).anyMatch(a -> a.compareTo(new BigDecimal("30")) == 0);
+
+    List<AuditLog> auditLogs =
+        auditLogRepository.findByTransferIdAndAction(transfer.getId(), "INVESTOR_NOTIFIED");
+    assertThat(auditLogs).hasSize(1);
+    assertThat(auditLogs.get(0).getDetail()).contains(RETURN_REASON).contains("30");
   }
 
   @Test

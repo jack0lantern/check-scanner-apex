@@ -1,9 +1,7 @@
 package com.apexfintech.checkdeposit.funding;
 
 public record FundingValidationResult(
-    boolean passed,
-    String rejectionReason,
-    String defaultContributionType) {
+    boolean passed, String rejectionReason, String defaultContributionType) {
 
   public static FundingValidationResult pass(String defaultContributionType) {
     return new FundingValidationResult(true, null, defaultContributionType);

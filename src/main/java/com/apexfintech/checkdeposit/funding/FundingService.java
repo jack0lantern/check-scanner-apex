@@ -33,7 +33,8 @@ public class FundingService {
       @Value("${funding.contribution-cap.retirement:7000}") BigDecimal retirementContributionCap) {
     this.transferRepository = transferRepository;
     this.maxDepositAmount = maxDepositAmount != null ? maxDepositAmount : MAX_DEPOSIT_DEFAULT;
-    this.duplicateWindowHours = duplicateWindowHours > 0 ? duplicateWindowHours : DUPLICATE_WINDOW_HOURS_DEFAULT;
+    this.duplicateWindowHours =
+        duplicateWindowHours > 0 ? duplicateWindowHours : DUPLICATE_WINDOW_HOURS_DEFAULT;
     this.retirementContributionCap =
         retirementContributionCap != null ? retirementContributionCap : RETIREMENT_CAP_DEFAULT;
   }
@@ -105,8 +106,7 @@ public class FundingService {
       }
     }
 
-    Instant windowStart =
-        transfer.getCreatedAt().minusSeconds(duplicateWindowHours * 3600L);
+    Instant windowStart = transfer.getCreatedAt().minusSeconds(duplicateWindowHours * 3600L);
     boolean isDuplicate =
         isDuplicateByCheckNumber(transfer, micrRouting, micrAccount, micrCheck, windowStart)
             || isDuplicateByMicrData(transfer, windowStart);
@@ -164,6 +164,12 @@ public class FundingService {
 
   private static Instant yearEnd(Instant instant) {
     ZonedDateTime zdt = instant.atZone(ZoneId.systemDefault());
-    return zdt.plusYears(1).withDayOfYear(1).withHour(0).withMinute(0).withSecond(0).withNano(0).toInstant();
+    return zdt.plusYears(1)
+        .withDayOfYear(1)
+        .withHour(0)
+        .withMinute(0)
+        .withSecond(0)
+        .withNano(0)
+        .toInstant();
   }
 }

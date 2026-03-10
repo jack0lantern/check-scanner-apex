@@ -1,7 +1,6 @@
 package com.apexfintech.checkdeposit.settlement;
 
 import com.apexfintech.checkdeposit.domain.SettlementBatch;
-import com.apexfintech.checkdeposit.domain.SettlementBatch.AckStatus;
 import com.apexfintech.checkdeposit.dto.SettlementAckRequest;
 import com.apexfintech.checkdeposit.repository.SettlementBatchRepository;
 import java.time.Instant;

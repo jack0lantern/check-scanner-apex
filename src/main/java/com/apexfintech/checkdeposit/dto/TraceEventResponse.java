@@ -6,7 +6,4 @@ import java.time.Instant;
 
 /** Response DTO for a trace event in GET /deposits/{transferId}/trace. */
 public record TraceEventResponse(
-    TraceStage stage,
-    String outcome,
-    JsonNode detail,
-    Instant timestamp) {}
+    TraceStage stage, String outcome, JsonNode detail, Instant timestamp) {}

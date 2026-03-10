@@ -56,7 +56,8 @@ class SettlementAckIntegrationTest {
   void postAckWithAccepted_updatesBatchRecordAckStatus() {
     LocalDate today = settlementDateService.computeSettlementDateNow();
     Transfer t =
-        createApprovedTransfer(today, new BigDecimal("100.00"), PLACEHOLDER_IMAGE, PLACEHOLDER_IMAGE);
+        createApprovedTransfer(
+            today, new BigDecimal("100.00"), PLACEHOLDER_IMAGE, PLACEHOLDER_IMAGE);
     transferRepository.save(t);
 
     settlementFileService.generateSettlementFile();
@@ -93,15 +94,15 @@ class SettlementAckIntegrationTest {
     UUID batchId = UUID.randomUUID();
     SettlementBatch batch =
         new SettlementBatch(
-            batchId,
-            Instant.now().minus(Duration.ofHours(2)),
-            3,
-            new BigDecimal("500.00"));
+            batchId, Instant.now().minus(Duration.ofHours(2)), 3, new BigDecimal("500.00"));
     settlementBatchRepository.save(batch);
 
-    var listAppender = new ch.qos.logback.core.read.ListAppender<ch.qos.logback.classic.spi.ILoggingEvent>();
+    var listAppender =
+        new ch.qos.logback.core.read.ListAppender<ch.qos.logback.classic.spi.ILoggingEvent>();
     listAppender.start();
-    var logger = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(SettlementAckMonitor.class);
+    var logger =
+        (ch.qos.logback.classic.Logger)
+            org.slf4j.LoggerFactory.getLogger(SettlementAckMonitor.class);
     logger.addAppender(listAppender);
 
     try {
@@ -112,7 +113,8 @@ class SettlementAckIntegrationTest {
               .anyMatch(
                   e ->
                       ch.qos.logback.classic.Level.WARN.equals(e.getLevel())
-                          && e.getFormattedMessage().contains(SettlementAckMonitor.SETTLEMENT_ACK_TIMEOUT));
+                          && e.getFormattedMessage()
+                              .contains(SettlementAckMonitor.SETTLEMENT_ACK_TIMEOUT));
       assertThat(hasTimeoutLog).isTrue();
     } finally {
       logger.detachAppender(listAppender);

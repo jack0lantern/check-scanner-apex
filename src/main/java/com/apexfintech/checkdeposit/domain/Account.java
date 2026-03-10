@@ -11,8 +11,7 @@ import java.util.UUID;
 @Table(name = "accounts")
 public class Account {
 
-  @Id
-  private UUID id;
+  @Id private UUID id;
 
   @Column(name = "external_id", nullable = false, unique = true)
   private String externalId;

@@ -36,7 +36,10 @@ public class InternalController {
     if (auth == null || !OPERATOR.equals(auth.userRole())) {
       return ResponseEntity.status(403).build();
     }
-    if (request == null || request.transferId() == null || request.returnReason() == null || request.returnReason().isBlank()) {
+    if (request == null
+        || request.transferId() == null
+        || request.returnReason() == null
+        || request.returnReason().isBlank()) {
       return ResponseEntity.badRequest().build();
     }
 

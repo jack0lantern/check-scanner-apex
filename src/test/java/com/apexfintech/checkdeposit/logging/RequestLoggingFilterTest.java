@@ -46,8 +46,7 @@ class RequestLoggingFilterTest {
   void setUp() {
     listAppender = new ListAppender<>();
     listAppender.start();
-    requestLoggingLogger =
-        (Logger) LoggerFactory.getLogger(RequestLoggingFilter.class);
+    requestLoggingLogger = (Logger) LoggerFactory.getLogger(RequestLoggingFilter.class);
     requestLoggingLogger.addAppender(listAppender);
     requestLoggingLogger.setLevel(Level.INFO);
   }
@@ -71,10 +70,14 @@ class RequestLoggingFilterTest {
                     .content(
                         objectMapper.writeValueAsString(
                             Map.of(
-                                "frontImage", VALID_BASE64_IMAGE,
-                                "backImage", VALID_BASE64_IMAGE,
-                                "amount", 100.50,
-                                "accountId", "TEST001"))))
+                                "frontImage",
+                                VALID_BASE64_IMAGE,
+                                "backImage",
+                                VALID_BASE64_IMAGE,
+                                "amount",
+                                100.50,
+                                "accountId",
+                                "TEST001"))))
             .andExpect(status().isCreated())
             .andReturn()
             .getResponse()
@@ -116,9 +119,7 @@ class RequestLoggingFilterTest {
 
     mockMvc
         .perform(
-            get("/operator/queue")
-                .header("X-User-Role", "OPERATOR")
-                .header("X-Account-Id", "op1"))
+            get("/operator/queue").header("X-User-Role", "OPERATOR").header("X-Account-Id", "op1"))
         .andExpect(status().isOk());
 
     assertThat(listAppender.list).isNotEmpty();
@@ -132,10 +133,7 @@ class RequestLoggingFilterTest {
 
     // Request without X-User-Role (will get 401 from auth, but filter runs first)
     mockMvc
-        .perform(
-            post("/deposits")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("{}"))
+        .perform(post("/deposits").contentType(MediaType.APPLICATION_JSON).content("{}"))
         .andExpect(status().isUnauthorized());
 
     assertThat(listAppender.list).isNotEmpty();

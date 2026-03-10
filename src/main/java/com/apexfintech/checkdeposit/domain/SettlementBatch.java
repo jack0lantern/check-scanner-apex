@@ -48,10 +48,7 @@ public class SettlementBatch {
   protected SettlementBatch() {}
 
   public SettlementBatch(
-      UUID batchId,
-      Instant generationTimestamp,
-      int totalRecordCount,
-      BigDecimal totalAmount) {
+      UUID batchId, Instant generationTimestamp, int totalRecordCount, BigDecimal totalAmount) {
     this.batchId = batchId;
     this.generationTimestamp = generationTimestamp;
     this.totalRecordCount = totalRecordCount;

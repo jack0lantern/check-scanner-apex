@@ -10,7 +10,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
@@ -21,10 +20,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
 /**
- * Integration test for settlement file generation. Creates 3 approved transfers with
- * settlementDate = today, triggers the service, and asserts: (1) file created on disk, (2) file
- * contains exactly 3 records, (3) each record has non-null micrData and image references, (4) batch
- * totalAmount equals sum of the 3 amounts, (5) all 3 transfers are in COMPLETED state.
+ * Integration test for settlement file generation. Creates 3 approved transfers with settlementDate
+ * = today, triggers the service, and asserts: (1) file created on disk, (2) file contains exactly 3
+ * records, (3) each record has non-null micrData and image references, (4) batch totalAmount equals
+ * sum of the 3 amounts, (5) all 3 transfers are in COMPLETED state.
  */
 @SpringBootTest(properties = "spring.task.scheduling.enabled=false")
 @ActiveProfiles("test")

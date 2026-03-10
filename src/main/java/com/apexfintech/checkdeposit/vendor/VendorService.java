@@ -23,8 +23,5 @@ public interface VendorService {
    *     message
    */
   VendorAssessmentResult assessCheck(
-      byte[] frontImageData,
-      byte[] backImageData,
-      BigDecimal enteredAmount,
-      String accountId);
+      byte[] frontImageData, byte[] backImageData, BigDecimal enteredAmount, String accountId);
 }

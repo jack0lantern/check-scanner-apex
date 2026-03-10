@@ -38,25 +38,16 @@ public class TraceEventService {
   public void record(UUID transferId, TraceStage stage, String outcome, Object detail) {
     String detailJson = serializeDetail(detail);
     TraceEvent event =
-        new TraceEvent(
-            UUID.randomUUID(),
-            transferId,
-            stage,
-            outcome,
-            detailJson,
-            Instant.now());
+        new TraceEvent(UUID.randomUUID(), transferId, stage, outcome, detailJson, Instant.now());
     traceEventRepository.save(event);
   }
 
-  /**
-   * Returns chronological trace events for a transfer. Throws if transfer does not exist.
-   */
+  /** Returns chronological trace events for a transfer. Throws if transfer does not exist. */
   public List<TraceEventResponse> getTrace(UUID transferId) {
     if (!transferRepository.existsById(transferId)) {
       throw new com.apexfintech.checkdeposit.deposit.TransferNotFoundException(transferId);
     }
-    List<TraceEvent> events =
-        traceEventRepository.findByTransferIdOrderByCreatedAtAsc(transferId);
+    List<TraceEvent> events = traceEventRepository.findByTransferIdOrderByCreatedAtAsc(transferId);
     return events.stream().map(this::toResponse).toList();
   }
 

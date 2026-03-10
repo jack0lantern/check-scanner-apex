@@ -13,8 +13,7 @@ import java.util.UUID;
 @Table(name = "trace_events")
 public class TraceEvent {
 
-  @Id
-  private UUID id;
+  @Id private UUID id;
 
   @Column(name = "transfer_id", nullable = false)
   private UUID transferId;
@@ -35,7 +34,12 @@ public class TraceEvent {
   protected TraceEvent() {}
 
   public TraceEvent(
-      UUID id, UUID transferId, TraceStage stage, String outcome, String detail, Instant createdAt) {
+      UUID id,
+      UUID transferId,
+      TraceStage stage,
+      String outcome,
+      String detail,
+      Instant createdAt) {
     this.id = id;
     this.transferId = transferId;
     this.stage = stage;

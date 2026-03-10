@@ -52,8 +52,8 @@ public class SettlementFileService {
 
   /**
    * Generates a settlement file for today's APPROVED transfers. Writes the file to disk, persists
-   * the batch record for ack tracking, then updates all included transfers to COMPLETED in a
-   * single transaction.
+   * the batch record for ack tracking, then updates all included transfers to COMPLETED in a single
+   * transaction.
    *
    * @return the path of the generated file, or null if no transfers to settle
    */
@@ -100,10 +100,7 @@ public class SettlementFileService {
   }
 
   private String buildSettlementJson(
-      List<Transfer> transfers,
-      UUID batchId,
-      Instant generationTimestamp,
-      BigDecimal totalAmount) {
+      List<Transfer> transfers, UUID batchId, Instant generationTimestamp, BigDecimal totalAmount) {
     StringBuilder sb = new StringBuilder();
     sb.append("{\n");
     sb.append("  \"batchId\": \"").append(batchId).append("\",\n");

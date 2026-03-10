@@ -1,6 +1,5 @@
 package com.apexfintech.checkdeposit.controller;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
@@ -42,9 +41,7 @@ class ReturnNotificationControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                     objectMapper.writeValueAsString(
-                        Map.of(
-                            "transferId", UUID.randomUUID().toString(),
-                            "returnReason", "NSF"))))
+                        Map.of("transferId", UUID.randomUUID().toString(), "returnReason", "NSF"))))
         .andExpect(status().isForbidden());
   }
 
@@ -61,9 +58,7 @@ class ReturnNotificationControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                     objectMapper.writeValueAsString(
-                        Map.of(
-                            "transferId", transferId.toString(),
-                            "returnReason", "NSF"))))
+                        Map.of("transferId", transferId.toString(), "returnReason", "NSF"))))
         .andExpect(status().isOk());
   }
 
@@ -82,9 +77,7 @@ class ReturnNotificationControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                     objectMapper.writeValueAsString(
-                        Map.of(
-                            "transferId", unknownTransferId.toString(),
-                            "returnReason", "NSF"))))
+                        Map.of("transferId", unknownTransferId.toString(), "returnReason", "NSF"))))
         .andExpect(status().isNotFound());
   }
 }

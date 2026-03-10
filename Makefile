@@ -1,4 +1,4 @@
-.PHONY: dev run test pre-commit-install
+.PHONY: dev run test test-report pre-commit-install
 
 dev:
 	@if [ ! -f .env ]; then \
@@ -21,6 +21,11 @@ run:
 test:
 	./mvnw test
 	./scripts/validate-vendor-stub-docs.sh
+
+test-report:
+	./mvnw clean test jacoco:report
+	./scripts/validate-vendor-stub-docs.sh
+	./scripts/verify_reports.sh
 
 pre-commit-install:
 	pre-commit install

@@ -29,8 +29,7 @@ public class AccountLedgerController {
 
   @GetMapping("/{accountId}/ledger")
   public ResponseEntity<Page<LedgerEntryResponse>> getLedger(
-      @PathVariable String accountId,
-      @PageableDefault(size = 20) Pageable pageable) {
+      @PathVariable String accountId, @PageableDefault(size = 20) Pageable pageable) {
     return ResponseEntity.ok(ledgerQueryService.getLedgerEntries(accountId, pageable));
   }
 }

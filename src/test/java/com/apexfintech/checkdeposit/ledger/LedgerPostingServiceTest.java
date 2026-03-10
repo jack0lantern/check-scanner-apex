@@ -3,10 +3,10 @@ package com.apexfintech.checkdeposit.ledger;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.apexfintech.checkdeposit.deposit.TransferNotFoundException;
 import com.apexfintech.checkdeposit.domain.LedgerEntry;
 import com.apexfintech.checkdeposit.domain.Transfer;
 import com.apexfintech.checkdeposit.domain.TransferState;
-import com.apexfintech.checkdeposit.deposit.TransferNotFoundException;
 import com.apexfintech.checkdeposit.repository.LedgerEntryRepository;
 import com.apexfintech.checkdeposit.repository.TransferRepository;
 import java.math.BigDecimal;

@@ -12,8 +12,7 @@ import java.util.UUID;
 @Table(name = "ledger_entries")
 public class LedgerEntry {
 
-  @Id
-  private UUID id;
+  @Id private UUID id;
 
   @Column(name = "account_id", nullable = false)
   private String accountId;

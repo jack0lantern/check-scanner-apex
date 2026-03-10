@@ -23,8 +23,8 @@ import org.springframework.test.context.ActiveProfiles;
 
 /**
  * Integration test for Missing Settlement File Monitor. When file generation fails but APPROVED
- * transfers exist for settlementDate = today, the EOD run must log a structured SETTLEMENT_FILE_MISSING
- * warning.
+ * transfers exist for settlementDate = today, the EOD run must log a structured
+ * SETTLEMENT_FILE_MISSING warning.
  */
 @SpringBootTest(properties = "spring.task.scheduling.enabled=false")
 @ActiveProfiles("test")
@@ -47,7 +47,8 @@ class SettlementFileMissingIntegrationTest {
   void eodBatch_whenFileGenerationFailsButApprovedTransfersExist_logsSettlementFileMissing() {
     LocalDate today = settlementDateService.computeSettlementDateNow();
     Transfer t =
-        createApprovedTransfer(today, new BigDecimal("100.00"), PLACEHOLDER_IMAGE, PLACEHOLDER_IMAGE);
+        createApprovedTransfer(
+            today, new BigDecimal("100.00"), PLACEHOLDER_IMAGE, PLACEHOLDER_IMAGE);
     transferRepository.save(t);
 
     when(settlementFileService.generateSettlementFile())

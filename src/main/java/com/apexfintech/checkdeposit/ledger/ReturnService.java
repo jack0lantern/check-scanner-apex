@@ -1,16 +1,16 @@
 package com.apexfintech.checkdeposit.ledger;
 
+import com.apexfintech.checkdeposit.deposit.TransferNotFoundException;
+import com.apexfintech.checkdeposit.deposit.TransferNotReturnableException;
 import com.apexfintech.checkdeposit.domain.AuditLog;
 import com.apexfintech.checkdeposit.domain.LedgerEntry;
 import com.apexfintech.checkdeposit.domain.TraceStage;
 import com.apexfintech.checkdeposit.domain.Transfer;
 import com.apexfintech.checkdeposit.domain.TransferState;
-import com.apexfintech.checkdeposit.deposit.TransferNotReturnableException;
-import com.apexfintech.checkdeposit.deposit.TransferNotFoundException;
 import com.apexfintech.checkdeposit.repository.AuditLogRepository;
 import com.apexfintech.checkdeposit.repository.LedgerEntryRepository;
-import com.apexfintech.checkdeposit.trace.TraceEventService;
 import com.apexfintech.checkdeposit.repository.TransferRepository;
+import com.apexfintech.checkdeposit.trace.TraceEventService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.math.BigDecimal;
@@ -72,8 +72,7 @@ public class ReturnService {
             .orElseThrow(() -> new TransferNotFoundException(transferId));
 
     if (transfer.getState() != TransferState.APPROVED) {
-      throw new TransferNotReturnableException(
-          transferId, "transfer is not in APPROVED state");
+      throw new TransferNotReturnableException(transferId, "transfer is not in APPROVED state");
     }
 
     Instant now = Instant.now();
@@ -133,13 +132,7 @@ public class ReturnService {
     }
 
     AuditLog auditEntry =
-        new AuditLog(
-            UUID.randomUUID(),
-            null,
-            INVESTOR_NOTIFIED,
-            transferId,
-            detail,
-            now);
+        new AuditLog(UUID.randomUUID(), null, INVESTOR_NOTIFIED, transferId, detail, now);
     auditLogRepository.save(auditEntry);
     traceEventService.record(
         transferId,

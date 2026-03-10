@@ -72,8 +72,7 @@ class OperatorControllerWebMvcTest {
             BACK_BASE64,
             submittedAt);
 
-    when(operatorService.getQueue(
-            isNull(), isNull(), isNull(), isNull(), isNull(), isNull()))
+    when(operatorService.getQueue(isNull(), isNull(), isNull(), isNull(), isNull(), isNull()))
         .thenReturn(List.of(item));
 
     mockMvc
@@ -90,8 +89,7 @@ class OperatorControllerWebMvcTest {
         .andExpect(jsonPath("$[0].backImage").value(BACK_BASE64))
         .andExpect(jsonPath("$[0].ocrAmount").value(100.50));
 
-    verify(operatorService)
-        .getQueue(isNull(), isNull(), isNull(), isNull(), isNull(), isNull());
+    verify(operatorService).getQueue(isNull(), isNull(), isNull(), isNull(), isNull(), isNull());
   }
 
   @Test
@@ -124,8 +122,9 @@ class OperatorControllerWebMvcTest {
                 .header("X-User-Role", "OPERATOR")
                 .header("X-Account-Id", "OP001")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(
-                    java.util.Map.of("contributionTypeOverride", "ROTH"))))
+                .content(
+                    objectMapper.writeValueAsString(
+                        java.util.Map.of("contributionTypeOverride", "ROTH"))))
         .andExpect(status().isOk());
 
     verify(operatorService).approve(eq(transferId), any(), eq("OP001"));
@@ -169,8 +168,9 @@ class OperatorControllerWebMvcTest {
                 .header("X-User-Role", "OPERATOR")
                 .header("X-Account-Id", "OP001")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(
-                    java.util.Map.of("reason", "Suspicious activity"))))
+                .content(
+                    objectMapper.writeValueAsString(
+                        java.util.Map.of("reason", "Suspicious activity"))))
         .andExpect(status().isOk());
 
     verify(operatorService).reject(eq(transferId), any(), eq("OP001"));

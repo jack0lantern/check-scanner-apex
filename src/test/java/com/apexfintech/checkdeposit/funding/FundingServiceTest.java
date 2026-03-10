@@ -28,6 +28,7 @@ class FundingServiceTest {
   private static final String OMNIBUS_ID = "OMN-999";
   private static final String TO_ACCOUNT_ID = "INT-12345678";
   private static final String MICR_ACCOUNT = "12345678";
+
   /** MICR with routing 021000021, account 12345678, check 901 (matches TEST001). */
   private static final String MICR_DATA = "02100002112345678901";
 

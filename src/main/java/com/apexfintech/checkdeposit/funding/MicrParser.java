@@ -8,8 +8,10 @@ package com.apexfintech.checkdeposit.funding;
 public final class MicrParser {
 
   private static final int US_ROUTING_NUMBER_LENGTH = 9;
+
   /** Minimum digits for full parse: 9 routing + 8 account + 3 check. */
   private static final int MIN_DIGITS_FOR_ACCOUNT_AND_CHECK = 20;
+
   private static final int CHECK_NUMBER_LENGTH = 3;
 
   private MicrParser() {}
@@ -34,8 +36,8 @@ public final class MicrParser {
   }
 
   /**
-   * Extracts the account number from the MICR line. Heuristic: digits between routing (first 9)
-   * and check number (last 3). Requires at least 20 digits total.
+   * Extracts the account number from the MICR line. Heuristic: digits between routing (first 9) and
+   * check number (last 3). Requires at least 20 digits total.
    *
    * @param micrData raw MICR line from the check, or null
    * @return the account number as a string, or null if unparseable

@@ -104,8 +104,7 @@ public class DebugController {
    */
   @GetMapping("/audit-check")
   public ResponseEntity<Map<String, Object>> auditCheck(
-      @RequestParam("transferId") UUID transferId,
-      @RequestParam("action") String action) {
+      @RequestParam("transferId") UUID transferId, @RequestParam("action") String action) {
     var entries = auditLogRepository.findByTransferIdAndAction(transferId, action);
     if (entries.isEmpty()) {
       return ResponseEntity.notFound().build();

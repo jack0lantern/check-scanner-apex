@@ -33,7 +33,8 @@ class SettlementDateServiceTest {
   void atCutoff_returnsNextBusinessDay() {
     // Friday March 7, 2025 at exactly 6:30 PM CT
     ZonedDateTime atCutoff = ZonedDateTime.of(2025, 3, 7, 18, 30, 0, 0, CT);
-    SettlementDateService service = new SettlementDateService(Clock.fixed(atCutoff.toInstant(), CT));
+    SettlementDateService service =
+        new SettlementDateService(Clock.fixed(atCutoff.toInstant(), CT));
 
     LocalDate result = service.computeSettlementDateNow();
 

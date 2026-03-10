@@ -13,8 +13,8 @@ import org.springframework.stereotype.Service;
 
 /**
  * Computes settlement date for deposits based on the 6:30 PM CT cutoff. Deposits submitted before
- * cutoff settle today; deposits at or after cutoff roll to the next business day (skipping
- * weekends and US federal holidays).
+ * cutoff settle today; deposits at or after cutoff roll to the next business day (skipping weekends
+ * and US federal holidays).
  */
 @Service
 public class SettlementDateService {
@@ -43,9 +43,7 @@ public class SettlementDateService {
     return nextBusinessDay(today);
   }
 
-  /**
-   * Returns the settlement date for a deposit submitted now (uses the service's clock).
-   */
+  /** Returns the settlement date for a deposit submitted now (uses the service's clock). */
   public LocalDate computeSettlementDateNow() {
     return computeSettlementDate(clock.instant());
   }
