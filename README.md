@@ -13,22 +13,23 @@ This solution handles the full lifecycle—capture, validation, compliance gatin
 ### Prerequisites
 
 - Docker and Docker Compose
-- Java 17+ (for local Maven builds)
+- Java 17+ and Maven (or use `./mvnw` wrapper)
 - Node.js 18+ (for local frontend builds)
 
 ### One-Command Setup
 
 ```bash
-# Copy environment variables
 cp .env.example .env
-
 # Edit .env and set POSTGRES_PASSWORD (required)
 
-# Start the database (required for backend)
-docker compose up -d db
-
-# Start full stack (database + backend + frontend)
+# Option A: Full stack (db + backend + frontend)
 docker compose --profile full up -d
+
+# Option B: make dev (db only, foreground)
+make dev
+
+# Option C: make run (db + backend via Maven)
+make run
 ```
 
 ### Alternative: Database Only
@@ -103,13 +104,27 @@ The stub supports these deterministic response scenarios (selectable via test ac
 
 ## How to Demo
 
-1. **Submit a deposit** — Use the investor form (amount, account ID, mock images) with `X-User-Role: INVESTOR` and `X-Account-Id` headers.
-2. **Trigger validation** — Deposit flows through Vendor stub → Funding Service → state transitions.
-3. **Operator review** — Flagged deposits appear in the review queue; approve/reject with `X-User-Role: OPERATOR`.
-4. **Settlement** — EOD batch generates X9 ICL file; approved deposits move to `Completed`.
-5. **Return/reversal** — Simulate a bounced check; verify reversal posting with $30 fee and `Returned` state.
+Automated demo scripts exercise all four flows. Start the backend first (`docker compose up -d db` and `./mvnw spring-boot:run`, or `docker compose --profile full up -d`), then run:
 
-Demo scripts exercising all paths are in the project root (when implemented).
+```bash
+bash tests/demo_happy_path.sh      # Clean pass → approve → completed
+bash tests/demo_rejection.sh       # IQA failure, duplicate, or routing mismatch
+bash tests/demo_manual_review.sh   # MICR failure → operator approve/reject
+bash tests/demo_return_reversal.sh # Bounced check → reversal + $30 fee
+```
+
+Manual flow: submit deposit via investor form → Vendor stub validation → Funding Service → operator review (if flagged) → ledger posting → EOD settlement → return/reversal.
+
+## Data Flow (Happy Path End-to-End)
+
+1. **Investor submits** — POST `/deposits` with front/back images, amount, account ID.
+2. **Vendor stub** — IQA/MICR/OCR validation; returns extracted data or actionable error.
+3. **Funding Service** — Enforces routing match, $5k limit, duplicate window, contribution caps.
+4. **State transitions** — `REQUESTED` → `VALIDATING` → `ANALYZING` → `APPROVED` (or flagged for operator).
+5. **Operator review** — If flagged (e.g. MICR failure), approve or reject via `/operator/queue/{id}/approve` or `/reject`.
+6. **Ledger posting** — Debit omnibus, credit investor; state → `FUNDS_POSTED`.
+7. **EOD settlement** — Cron (6:30 PM CT) generates X9 ICL file; state → `COMPLETED`.
+8. **Return (optional)** — POST `/internal/returns` reverses credit and posts $30 fee; state → `RETURNED`.
 
 ## Project Structure
 
@@ -130,10 +145,20 @@ Demo scripts exercising all paths are in the project root (when implemented).
 Run tests:
 
 ```bash
-mvn clean test
-# or
 make test
+# or
+./mvnw test
 ```
+
+Generate coverage and reports (JaCoCo + Surefire):
+
+```bash
+make test-report
+# or
+./mvnw clean test jacoco:report
+```
+
+View reports: open `reports/index.html` in a browser for test execution and coverage.
 
 Minimum 10 tests covering: happy path, each Vendor stub scenario, business rules, state machine, reversal posting, settlement file validation.
 
