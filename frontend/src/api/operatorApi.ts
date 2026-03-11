@@ -33,12 +33,14 @@ export async function getOperatorQueue(
   filters: OperatorQueueFilters = {}
 ): Promise<OperatorQueueItem[]> {
   const params = new URLSearchParams()
-  if (filters.status) params.set('status', filters.status)
+  if (filters.status && filters.status.trim()) params.set('status', filters.status.trim())
   if (filters.dateFrom) params.set('dateFrom', filters.dateFrom)
   if (filters.dateTo) params.set('dateTo', filters.dateTo)
   if (filters.accountId) params.set('accountId', filters.accountId)
-  if (filters.minAmount != null) params.set('minAmount', String(filters.minAmount))
-  if (filters.maxAmount != null) params.set('maxAmount', String(filters.maxAmount))
+  const min = filters.minAmount
+  if (min != null && Number.isFinite(min)) params.set('minAmount', String(min))
+  const max = filters.maxAmount
+  if (max != null && Number.isFinite(max)) params.set('maxAmount', String(max))
 
   const query = params.toString()
   const url = `${API_BASE}/operator/queue${query ? `?${query}` : ''}`
@@ -51,7 +53,9 @@ export async function getOperatorQueue(
   })
 
   if (!res.ok) {
-    throw new Error(`Failed to fetch queue: ${res.status}`)
+    const body = await res.text()
+    const msg = body ? `${res.status}: ${body}` : String(res.status)
+    throw new Error(`Failed to fetch queue: ${msg}`)
   }
 
   return res.json() as Promise<OperatorQueueItem[]>

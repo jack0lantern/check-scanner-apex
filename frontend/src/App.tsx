@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { InvestorView } from './views/InvestorView'
 import { OperatorView } from './views/OperatorView'
 import { LedgerView } from './views/LedgerView'
@@ -10,62 +10,91 @@ type View = 'investor' | 'operator' | 'ledger' | 'status'
 function App() {
   const [view, setView] = useState<View>('investor')
   const [ledgerAccountId, setLedgerAccountId] = useState<string>('')
+  const [navOpen, setNavOpen] = useState(false)
 
   const handleNavigateToLedger = (accountId: string) => {
     setLedgerAccountId(accountId)
     setView('ledger')
+    setNavOpen(false)
   }
 
+  const goTo = (v: View) => {
+    setView(v)
+    if (v === 'ledger') setLedgerAccountId('')
+    setNavOpen(false)
+  }
+
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setNavOpen(false)
+    }
+    if (navOpen) {
+      document.addEventListener('keydown', onKeyDown)
+      return () => document.removeEventListener('keydown', onKeyDown)
+    }
+  }, [navOpen])
+
+  const navItems: { id: View; label: string }[] = [
+    { id: 'investor', label: 'Investor' },
+    { id: 'operator', label: 'Operator Queue' },
+    { id: 'ledger', label: 'Ledger' },
+    { id: 'status', label: 'Transfer Status' },
+  ]
+
   return (
-    <main>
-      <nav className="app-nav" aria-label="Main navigation">
-        <a
-          href="#investor"
-          className={view === 'investor' ? 'active' : undefined}
-          onClick={(e) => {
-            e.preventDefault()
-            setView('investor')
-          }}
+    <div className="app">
+      <header className="app-header">
+        <h1 className="app-title">Check Scanner</h1>
+        <button
+          type="button"
+          className={`nav-toggle ${navOpen ? 'nav-toggle--open' : ''}`}
+          onClick={() => setNavOpen((o) => !o)}
+          aria-expanded={navOpen}
+          aria-controls="app-nav"
+          aria-label={navOpen ? 'Close menu' : 'Open menu'}
         >
-          Investor
-        </a>
-        <a
-          href="#operator"
-          className={view === 'operator' ? 'active' : undefined}
-          onClick={(e) => {
-            e.preventDefault()
-            setView('operator')
-          }}
-        >
-          Operator Queue
-        </a>
-        <a
-          href="#ledger"
-          className={view === 'ledger' ? 'active' : undefined}
-          onClick={(e) => {
-            e.preventDefault()
-            setLedgerAccountId('') // Reset account ID when clicking the tab
-            setView('ledger')
-          }}
-        >
-          Ledger
-        </a>
-        <a
-          href="#status"
-          className={view === 'status' ? 'active' : undefined}
-          onClick={(e) => {
-            e.preventDefault()
-            setView('status')
-          }}
-        >
-          Transfer Status
-        </a>
+          <span className="nav-toggle__bar" />
+          <span className="nav-toggle__bar" />
+          <span className="nav-toggle__bar" />
+        </button>
+      </header>
+
+      <nav
+        id="app-nav"
+        className={`app-nav ${navOpen ? 'app-nav--open' : ''}`}
+        aria-label="Main navigation"
+      >
+        {navItems.map(({ id, label }) => (
+          <a
+            key={id}
+            href={`#${id}`}
+            className={view === id ? 'active' : undefined}
+            onClick={(e) => {
+              e.preventDefault()
+              goTo(id)
+            }}
+          >
+            {label}
+          </a>
+        ))}
       </nav>
-      {view === 'investor' && <InvestorView onNavigateToLedger={handleNavigateToLedger} />}
-      {view === 'operator' && <OperatorView />}
-      {view === 'ledger' && <LedgerView accountId={ledgerAccountId} />}
-      {view === 'status' && <TransferStatusView />}
-    </main>
+
+      {navOpen && (
+        <div
+          className="nav-backdrop"
+          onClick={() => setNavOpen(false)}
+          role="presentation"
+          aria-hidden="true"
+        />
+      )}
+
+      <main className="app-main">
+        {view === 'investor' && <InvestorView onNavigateToLedger={handleNavigateToLedger} />}
+        {view === 'operator' && <OperatorView />}
+        {view === 'ledger' && <LedgerView accountId={ledgerAccountId} />}
+        {view === 'status' && <TransferStatusView />}
+      </main>
+    </div>
   )
 }
 

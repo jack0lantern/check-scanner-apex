@@ -74,7 +74,7 @@ export function LedgerView({ accountId: initialAccountId = '' }: LedgerViewProps
       {balance !== null && (
         <div className="balance-display">
           <h2>Current Balance</h2>
-          <div className="balance-amount" style={{ fontSize: '3rem', fontWeight: 'bold', opacity: loading ? 0.5 : 1 }}>
+          <div className="balance-amount" style={{ opacity: loading ? 0.5 : 1 }}>
             ${balance.toFixed(2)}
           </div>
         </div>
@@ -83,9 +83,9 @@ export function LedgerView({ accountId: initialAccountId = '' }: LedgerViewProps
       {ledgerPage && ledgerPage.content.length > 0 && (
         <div className="ledger-table-container" style={{ opacity: loading ? 0.5 : 1 }}>
           <h2>Ledger Entries</h2>
-          <table className="ledger-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <table className="ledger-table">
             <thead>
-              <tr style={{ borderBottom: '2px solid #ccc', textAlign: 'left' }}>
+              <tr>
                 <th>Timestamp</th>
                 <th>Type</th>
                 <th>Amount</th>
@@ -95,20 +95,23 @@ export function LedgerView({ accountId: initialAccountId = '' }: LedgerViewProps
             </thead>
             <tbody>
               {ledgerPage.content.map((entry) => (
-                <tr key={entry.entryId} style={{ borderBottom: '1px solid #eee' }}>
-                  <td>{new Date(entry.timestamp).toLocaleString()}</td>
-                  <td>{entry.type}</td>
-                  <td style={{ color: entry.amount >= 0 ? 'green' : 'red' }}>
+                <tr key={entry.entryId}>
+                  <td data-label="Timestamp">{new Date(entry.timestamp).toLocaleString()}</td>
+                  <td data-label="Type">{entry.type}</td>
+                  <td
+                    data-label="Amount"
+                    className={entry.amount >= 0 ? 'amount-positive' : 'amount-negative'}
+                  >
                     {entry.amount >= 0 ? '+' : ''}{entry.amount.toFixed(2)}
                   </td>
-                  <td>{entry.counterpartyAccountId || 'N/A'}</td>
-                  <td>{entry.transactionId}</td>
+                  <td data-label="Counterparty">{entry.counterpartyAccountId ?? 'N/A'}</td>
+                  <td data-label="Transaction ID">{entry.transactionId}</td>
                 </tr>
               ))}
             </tbody>
           </table>
 
-          <div className="pagination-controls" style={{ marginTop: '1rem', display: 'flex', gap: '1rem' }}>
+          <div className="pagination-controls">
             <button
               onClick={() => handlePageChange(pageNumber - 1)}
               disabled={pageNumber === 0}

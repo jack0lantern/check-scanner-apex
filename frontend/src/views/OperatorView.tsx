@@ -284,12 +284,12 @@ export function OperatorView() {
             min="0"
             placeholder="Min"
             value={filters.minAmount ?? ''}
-            onChange={(e) =>
-              handleFilterChange(
-                'minAmount',
-                e.target.value ? parseFloat(e.target.value) : undefined
-              )
-            }
+            onChange={(e) => {
+              const val = e.target.value
+              if (!val) return handleFilterChange('minAmount', undefined)
+              const n = parseFloat(val)
+              handleFilterChange('minAmount', Number.isFinite(n) ? n : undefined)
+            }}
           />
         </div>
         <div className="operator-filters__field">
@@ -301,12 +301,12 @@ export function OperatorView() {
             min="0"
             placeholder="Max"
             value={filters.maxAmount ?? ''}
-            onChange={(e) =>
-              handleFilterChange(
-                'maxAmount',
-                e.target.value ? parseFloat(e.target.value) : undefined
-              )
-            }
+            onChange={(e) => {
+              const val = e.target.value
+              if (!val) return handleFilterChange('maxAmount', undefined)
+              const n = parseFloat(val)
+              handleFilterChange('maxAmount', Number.isFinite(n) ? n : undefined)
+            }}
           />
         </div>
       </div>

@@ -29,14 +29,35 @@ public class OperatorController {
 
   @GetMapping("/queue")
   public ResponseEntity<?> getQueue(
-      @RequestParam(required = false) TransferState status,
+      @RequestParam(required = false) String status,
       @RequestParam(required = false) String dateFrom,
       @RequestParam(required = false) String dateTo,
       @RequestParam(required = false) String accountId,
-      @RequestParam(required = false) BigDecimal minAmount,
-      @RequestParam(required = false) BigDecimal maxAmount) {
+      @RequestParam(required = false) String minAmount,
+      @RequestParam(required = false) String maxAmount) {
+    TransferState statusEnum = parseTransferState(status);
+    BigDecimal min = parseBigDecimal(minAmount);
+    BigDecimal max = parseBigDecimal(maxAmount);
     return ResponseEntity.ok(
-        operatorService.getQueue(status, dateFrom, dateTo, accountId, minAmount, maxAmount));
+        operatorService.getQueue(statusEnum, dateFrom, dateTo, accountId, min, max));
+  }
+
+  private static TransferState parseTransferState(String s) {
+    if (s == null || s.isBlank()) return null;
+    try {
+      return TransferState.valueOf(s.trim().toUpperCase());
+    } catch (IllegalArgumentException e) {
+      return null;
+    }
+  }
+
+  private static BigDecimal parseBigDecimal(String s) {
+    if (s == null || s.isBlank()) return null;
+    try {
+      return new BigDecimal(s.trim());
+    } catch (NumberFormatException e) {
+      return null;
+    }
   }
 
   @PostMapping("/queue/{transferId}/approve")
