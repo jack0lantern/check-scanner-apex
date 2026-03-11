@@ -23,6 +23,11 @@ make test
 
 # Run a single test method
 ./mvnw test -Dtest=DepositSubmissionTest#testHappyPath
+
+# Final end-to-end validation (Phase 11.7)
+make validate
+# or: ./scripts/validate_e2e.sh
+# Use --skip-demos when backend is not running
 ```
 
 ### Frontend (React / Vite / Vitest)
