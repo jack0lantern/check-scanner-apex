@@ -203,8 +203,10 @@ curl -X POST http://localhost:8080/operator/queue/{transferId}/reject \
 
 ### Return / Reversal
 
+Returns are accepted for APPROVED, FUNDS_POSTED, or COMPLETED transfers (e.g. NSF—insufficient funds at sending account). Post-settlement returns (COMPLETED → RETURNED) occur when a check bounces after settlement.
+
 ```bash
-# After a deposit is COMPLETED, simulate a bounced check
+# After a deposit is APPROVED or COMPLETED, simulate a bounced check (NSF)
 curl -X POST http://localhost:8080/internal/returns \
   -H "Content-Type: application/json" \
   -H "X-User-Role: OPERATOR" \

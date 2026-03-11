@@ -32,7 +32,7 @@ Modular monolith with 7 bounded components. Internal method calls (no network be
 | Database | PostgreSQL | Ledger/transfer tables; Docker for local |
 | Auth | Mock headers | MVP; JWT deferred |
 | Vendor | Stub with account-ID trigger | Deterministic; no code changes to switch scenarios |
-| State machine | 8 states | REQUESTED → VALIDATING → ANALYZING → APPROVED → FUNDS_POSTED → COMPLETED; REJECTED, RETURNED |
+| State machine | 8 states | REQUESTED → VALIDATING → ANALYZING → APPROVED → FUNDS_POSTED → COMPLETED; REJECTED, RETURNED. Returns (e.g. NSF) accepted from APPROVED, FUNDS_POSTED, or COMPLETED |
 
 ## Design Patterns
 

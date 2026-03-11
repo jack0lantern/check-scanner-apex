@@ -10,6 +10,7 @@ import com.apexfintech.checkdeposit.repository.AuditLogRepository;
 import com.apexfintech.checkdeposit.repository.LedgerEntryRepository;
 import com.apexfintech.checkdeposit.repository.TransferRepository;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -140,5 +141,36 @@ class ReturnHandlingIntegrationTest {
             .toList();
     assertThat(omnibusCredits).hasSize(1);
     assertThat(omnibusCredits.get(0).getAmount()).isEqualByComparingTo(AMOUNT);
+  }
+
+  /**
+   * Returns can occur after settlement when the sending account has insufficient funds (NSF). A
+   * COMPLETED transfer transitions to RETURNED with reversal entries and fee.
+   */
+  @Test
+  void processReturn_completedTransaction_returnsDueToInsufficientFunds() {
+    // Simulate post-settlement: transfer was APPROVED, then EOD settlement moved it to COMPLETED
+    transfer.setState(TransferState.COMPLETED);
+    transfer.setSettlementDate(LocalDate.now());
+    transferRepository.save(transfer);
+
+    returnService.processReturn(transfer.getId(), RETURN_REASON);
+
+    Transfer updated = transferRepository.findById(transfer.getId()).orElseThrow();
+    assertThat(updated.getState()).isEqualTo(TransferState.RETURNED);
+
+    List<LedgerEntry> investorDebits =
+        ledgerEntryRepository.findAll().stream()
+            .filter(e -> TO_ACCOUNT_ID.equals(e.getAccountId()) && "DEBIT".equals(e.getType()))
+            .toList();
+    assertThat(investorDebits).hasSize(2);
+    var amounts = investorDebits.stream().map(LedgerEntry::getAmount).toList();
+    assertThat(amounts).anyMatch(a -> a.compareTo(AMOUNT) == 0);
+    assertThat(amounts).anyMatch(a -> a.compareTo(new BigDecimal("30")) == 0);
+
+    List<AuditLog> auditLogs =
+        auditLogRepository.findByTransferIdAndAction(transfer.getId(), "INVESTOR_NOTIFIED");
+    assertThat(auditLogs).hasSize(1);
+    assertThat(auditLogs.get(0).getDetail()).contains(RETURN_REASON).contains("30");
   }
 }

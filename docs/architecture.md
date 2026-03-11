@@ -110,6 +110,7 @@ flowchart TB
 ┌─────────────────────────────────────────────────────────────────────────────────┐
 │ 7. RETURN/REVERSAL         │ ReturnService                                        │
 │    - POST /internal/returns → reversal entries, $30 fee, RETURNED state         │
+│    - Accepts APPROVED, FUNDS_POSTED, COMPLETED (e.g. NSF after settlement)       │
 └─────────────────────────────────────────────────────────────────────────────────┘
                                         │
                                         ▼
@@ -133,7 +134,7 @@ Each component owns specific responsibilities and explicitly does **not** own ot
 | **4. Ledger Posting** | Double-entry semantics (debit omnibus, credit investor), `transactionId` pairing, Transfer state → APPROVED | Vendor/Funding validation, operator queue, settlement file generation, return fee logic |
 | **5. Operator Workflow** | Queue filtering (status, date, account, amount), approve/reject actions, contribution type override, audit log entries for operator actions | Deposit submission flow, Vendor/Funding logic, ledger double-entry, settlement file content |
 | **6. Settlement** | EOD cron schedule, next-business-day rollover, X9 ICL JSON file generation, batch metadata, ack tracking, Transfer → COMPLETED | Vendor/Funding, ledger posting, return handling |
-| **7. Return/Reversal** | Reversal ledger entries (debit investor, credit omnibus), $30 fee entry, Transfer → RETURNED, `INVESTOR_NOTIFIED` audit event | Deposit flow, Vendor/Funding, operator queue, settlement file |
+| **7. Return/Reversal** | Reversal ledger entries (debit investor, credit omnibus), $30 fee entry, Transfer → RETURNED, `INVESTOR_NOTIFIED` audit event. Accepts APPROVED, FUNDS_POSTED, or COMPLETED (e.g. NSF after settlement) | Deposit flow, Vendor/Funding, operator queue, settlement file |
 
 ---
 
@@ -169,7 +170,7 @@ Each component owns specific responsibilities and explicitly does **not** own ot
    `POST /internal/settlement/ack` receives `{ batchId, status }`. `SettlementAckService` updates batch record. Timeout monitor logs `SETTLEMENT_ACK_TIMEOUT` if no ack within configured window.
 
 10. **Return (if applicable)**  
-    `POST /internal/returns` with `{ transferId, returnReason }`. `ReturnService` creates reversal entries, $30 fee debit, Transfer → `RETURNED`, `INVESTOR_NOTIFIED` audit log.
+    `POST /internal/returns` with `{ transferId, returnReason }`. `ReturnService` creates reversal entries, $30 fee debit, Transfer → `RETURNED`, `INVESTOR_NOTIFIED` audit log. Accepts transfers in `APPROVED`, `FUNDS_POSTED`, or `COMPLETED` (e.g. NSF bounce after settlement).
 
 ---
 
@@ -208,7 +209,9 @@ stateDiagram-v2
     ANALYZING --> REJECTED : operator reject
     APPROVED --> FUNDS_POSTED : ledger posted
     FUNDS_POSTED --> COMPLETED : EOD settlement
-    APPROVED --> RETURNED : return notification
+    APPROVED --> RETURNED : return notification (e.g. NSF)
+    FUNDS_POSTED --> RETURNED : return notification (e.g. NSF)
+    COMPLETED --> RETURNED : return notification (e.g. NSF)
     REJECTED --> [*]
     RETURNED --> [*]
     COMPLETED --> [*]
@@ -222,7 +225,9 @@ stateDiagram-v2
 - `ANALYZING` → `REJECTED` (operator reject)
 - `APPROVED` → `FUNDS_POSTED` (ledger posting)
 - `FUNDS_POSTED` → `COMPLETED` (settlement file)
-- `APPROVED` → `RETURNED` (return notification)
+- `APPROVED` → `RETURNED` (return notification, e.g. NSF)
+- `FUNDS_POSTED` → `RETURNED` (return notification, e.g. NSF)
+- `COMPLETED` → `RETURNED` (return notification, e.g. NSF — insufficient funds at sending account)
 
 **Terminal states:** `REJECTED`, `RETURNED`, `COMPLETED`
 

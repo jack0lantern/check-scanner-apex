@@ -35,7 +35,7 @@ The transfer lifecycle uses eight states to model distinct decision points and t
 | **REJECTED** | Terminal failure (vendor, funding, or operator reject) |
 | **RETURNED** | Check bounced post-approval; reversal and $30 fee posted |
 
-**Why 8 states:** Six states model the happy path (REQUESTED → VALIDATING → ANALYZING → APPROVED → FUNDS_POSTED → COMPLETED); two terminal failure states (REJECTED, RETURNED) capture distinct outcomes—rejection before funds post vs. return after approval. Splitting APPROVED and FUNDS_POSTED separates "authorized" from "posted," enabling return handling only for posted transfers. Retries are allowed from REQUESTED or VALIDATING via `retryForTransferId`.
+**Why 8 states:** Six states model the happy path (REQUESTED → VALIDATING → ANALYZING → APPROVED → FUNDS_POSTED → COMPLETED); two terminal failure states (REJECTED, RETURNED) capture distinct outcomes—rejection before funds post vs. return after approval. Splitting APPROVED and FUNDS_POSTED separates "authorized" from "posted," enabling return handling for posted transfers. Returns are accepted from APPROVED, FUNDS_POSTED, or COMPLETED (e.g. NSF—insufficient funds at sending account—can occur after settlement). Retries are allowed from REQUESTED or VALIDATING via `retryForTransferId`.
 
 ---
 
@@ -46,4 +46,4 @@ The transfer lifecycle uses eight states to model distinct decision points and t
 - **Stubbed integrations** — Vendor Service and Settlement Bank are stubbed. Real integrations require additional security, retries, and reconciliation.
 - **Mock authentication** — Uses `X-User-Role` and `X-Account-Id` headers. Production requires proper session/JWT management.
 - **Local development** — Designed for local Docker deployment. Cloud deployment needs additional configuration and security hardening.
-- **Return handling scope** — Returns are accepted only for APPROVED transfers; post-settlement returns would require extended logic.
+- **Return handling scope** — Returns are accepted for APPROVED, FUNDS_POSTED, or COMPLETED transfers (e.g. NSF bounce after settlement).

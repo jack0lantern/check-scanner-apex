@@ -30,7 +30,7 @@ curl -H "X-User-Role: INVESTOR" -H "X-Account-Id: TEST001" "http://localhost:808
 
 ### Return Notification (OPERATOR only)
 
-Requires an APPROVED transfer. First create one via deposit submission + `POST /debug/ledger-post?transferId=<uuid>`.
+Requires an APPROVED or COMPLETED transfer (e.g. NSF—insufficient funds at sending account). First create one via deposit submission + `POST /debug/ledger-post?transferId=<uuid>`, or use a transfer that has reached COMPLETED via EOD settlement.
 
 ```bash
 curl -X POST -H "X-User-Role: OPERATOR" -H "X-Account-Id: OP-001" \

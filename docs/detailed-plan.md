@@ -155,15 +155,15 @@ You are building a minimal end-to-end mobile check deposit system for a brokerag
 * *Manual Testing:* Trigger the method via a dummy endpoint. Inspect the database to confirm both ledger entries share the same `transactionId` and all Transfer attribute fields are populated correctly.
 
 
-3. **Return Notification Endpoint:** Implement `POST /internal/returns` (requires `X-User-Role: OPERATOR`) accepting `{ "transferId": "...", "returnReason": "..." }` to simulate an inbound return notification from the Settlement Bank.
-* *Automated Validation:* Write `@WebMvcTest` tests: 403 without OPERATOR header; 200 with valid payload; 404 for unknown transferId.
-* *Manual Testing:* Use curl to POST a return notification for a completed transfer and verify the endpoint responds 200.
+3. **Return Notification Endpoint:** Implement `POST /internal/returns` (requires `X-User-Role: OPERATOR`) accepting `{ "transferId": "...", "returnReason": "..." }` to simulate an inbound return notification from the Settlement Bank. Accepts transfers in APPROVED, FUNDS_POSTED, or COMPLETED state (e.g. NSF—insufficient funds at sending account—can occur after settlement).
+* *Automated Validation:* Write `@WebMvcTest` tests: 403 without OPERATOR header; 200 with valid payload; 404 for unknown transferId. Write integration test for returning a COMPLETED transfer (NSF scenario).
+* *Manual Testing:* Use curl to POST a return notification for an APPROVED or COMPLETED transfer and verify the endpoint responds 200.
 
 
 4. **Return/Reversal Handling with Investor Notification:** On receiving a return notification, implement logic to:
    - Create two reversal ledger entries (mirror of the original posting — debit investor, credit omnibus)
    - Create an additional ledger entry debiting the investor $30 (the return fee)
-   - Transition the Transfer state to `RETURNED`
+   - Transition the Transfer state to `RETURNED`. Accepts APPROVED, FUNDS_POSTED, or COMPLETED (post-settlement NSF returns).
    - Write a structured `INVESTOR_NOTIFIED` event to `audit_logs` containing: `transferId`, `returnReason`, `feeAmount=$30`, `timestamp`
 * *Automated Validation:* Write a unit test verifying the math: investor is debited the original amount + $30 fee (net investor impact = original amount + $30, not original amount - $30 — this is a deduction). Write an integration test asserting 3 new `ledger_entries` (2 reversal + 1 fee), state = `RETURNED`, and `INVESTOR_NOTIFIED` audit log entry present.
 * *Manual Testing:* POST a return notification via curl. Query the database and verify: 3 ledger entries, state = RETURNED, `INVESTOR_NOTIFIED` in `audit_logs` with correct fee.

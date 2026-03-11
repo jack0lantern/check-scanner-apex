@@ -16,6 +16,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -31,6 +32,10 @@ public class ReturnService {
   private static final String DEBIT = "DEBIT";
   private static final String CREDIT = "CREDIT";
   private static final String INVESTOR_NOTIFIED = "INVESTOR_NOTIFIED";
+
+  /** States from which a return can be processed (funds have been posted; e.g. NSF bounce). */
+  private static final Set<TransferState> RETURNABLE_STATES =
+      Set.of(TransferState.APPROVED, TransferState.FUNDS_POSTED, TransferState.COMPLETED);
 
   private final TransferRepository transferRepository;
   private final LedgerEntryRepository ledgerEntryRepository;
@@ -55,14 +60,17 @@ public class ReturnService {
   }
 
   /**
-   * Processes a return notification. Atomically: creates two reversal ledger entries (debit
-   * investor, credit omnibus), one fee entry (debit investor $30), updates transfer state to
-   * RETURNED, and writes INVESTOR_NOTIFIED to audit_logs.
+   * Processes a return notification (e.g. NSF — insufficient funds at sending account). Atomically:
+   * creates two reversal ledger entries (debit investor, credit omnibus), one fee entry (debit
+   * investor $30), updates transfer state to RETURNED, and writes INVESTOR_NOTIFIED to audit_logs.
+   *
+   * <p>Accepts transfers in APPROVED, FUNDS_POSTED, or COMPLETED state. Post-settlement returns
+   * (COMPLETED → RETURNED) occur when a check bounces after settlement.
    *
    * @param transferId the transfer to return
-   * @param returnReason reason for the return
+   * @param returnReason reason for the return (e.g. "NSF")
    * @throws TransferNotFoundException if the transfer does not exist
-   * @throws IllegalStateException if the transfer is not in APPROVED state
+   * @throws TransferNotReturnableException if the transfer is not in a returnable state
    */
   @Transactional
   public void processReturn(UUID transferId, String returnReason) {
@@ -71,8 +79,11 @@ public class ReturnService {
             .findById(transferId)
             .orElseThrow(() -> new TransferNotFoundException(transferId));
 
-    if (transfer.getState() != TransferState.APPROVED) {
-      throw new TransferNotReturnableException(transferId, "transfer is not in APPROVED state");
+    if (!RETURNABLE_STATES.contains(transfer.getState())) {
+      throw new TransferNotReturnableException(
+          transferId,
+          "transfer is not in a returnable state (APPROVED, FUNDS_POSTED, or COMPLETED); current: "
+              + transfer.getState());
     }
 
     Instant now = Instant.now();
