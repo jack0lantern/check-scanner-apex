@@ -151,6 +151,37 @@ class DepositSubmissionTest {
   }
 
   @Test
+  void submitDeposit_withExcessAmount_returns422AndTransferNotInOperatorQueue() throws Exception {
+    // iqa-pass passes vendor, but $5M exceeds funding max ($5000)
+    ResultActions result =
+        mockMvc.perform(
+            post("/deposits")
+                .header("X-User-Role", "INVESTOR")
+                .header("X-Account-Id", "iqa-pass")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    objectMapper.writeValueAsString(
+                        Map.of(
+                            "frontImage",
+                            VALID_BASE64_IMAGE,
+                            "backImage",
+                            VALID_BASE64_IMAGE,
+                            "amount",
+                            5_000_000,
+                            "accountId",
+                            "TEST001"))));
+
+    result
+        .andExpect(status().isUnprocessableEntity())
+        .andExpect(jsonPath("$.transferId").exists())
+        .andExpect(jsonPath("$.actionableMessage", containsString("exceeds maximum")));
+
+    String transferId = objectMapper.readTree(result.andReturn().getResponse().getContentAsString()).get("transferId").asText();
+    var transfer = transferRepository.findById(java.util.UUID.fromString(transferId)).orElseThrow();
+    assertThat(transfer.getState()).isEqualTo(TransferState.REJECTED);
+  }
+
+  @Test
   void submitDeposit_setsSettlementDate() throws Exception {
     // Use distinct amount to avoid duplicate detection from other tests
     String response =

@@ -181,6 +181,8 @@ public class DepositService {
 
     FundingValidationResult fundingResult = fundingService.validate(transfer, resolved);
     if (!fundingResult.passed()) {
+      transfer.setState(TransferState.REJECTED);
+      transferRepository.save(transfer);
       traceEventService.record(
           transfer.getId(),
           TraceStage.BUSINESS_RULE,
@@ -256,6 +258,7 @@ public class DepositService {
 
     FundingValidationResult fundingResult = fundingService.validate(transfer, resolved);
     if (!fundingResult.passed()) {
+      transfer.setState(TransferState.REJECTED);
       transferRepository.save(transfer);
       traceEventService.record(
           transfer.getId(),
