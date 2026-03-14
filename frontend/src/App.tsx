@@ -42,58 +42,64 @@ function App() {
   ]
 
   return (
-    <div className="app">
-      <header className="app-header">
-        <h1 className="app-title">Check Scanner</h1>
-        <button
-          type="button"
-          className={`nav-toggle ${navOpen ? 'nav-toggle--open' : ''}`}
-          onClick={() => setNavOpen((o) => !o)}
-          aria-expanded={navOpen}
-          aria-controls="app-nav"
-          aria-label={navOpen ? 'Close menu' : 'Open menu'}
-        >
-          <span className="nav-toggle__bar" />
-          <span className="nav-toggle__bar" />
-          <span className="nav-toggle__bar" />
-        </button>
-      </header>
-
-      <nav
-        id="app-nav"
-        className={`app-nav ${navOpen ? 'app-nav--open' : ''}`}
-        aria-label="Main navigation"
-      >
-        {navItems.map(({ id, label }) => (
-          <a
-            key={id}
-            href={`#${id}`}
-            className={view === id ? 'active' : undefined}
-            onClick={(e) => {
-              e.preventDefault()
-              goTo(id)
-            }}
+    <div className="app-shell">
+      <div className="app-shell__glow" aria-hidden="true" />
+      <div className="app-shell__shape" aria-hidden="true" />
+      <div className="app">
+        <header className="app-header">
+          <h1 className="app-title">Check Scanner</h1>
+          <button
+            type="button"
+            className={`nav-toggle ${navOpen ? 'nav-toggle--open' : ''}`}
+            onClick={() => setNavOpen((o) => !o)}
+            aria-expanded={navOpen}
+            aria-controls="app-nav"
+            aria-label={navOpen ? 'Close menu' : 'Open menu'}
           >
-            {label}
-          </a>
-        ))}
-      </nav>
+            <span className="nav-toggle__bar" />
+            <span className="nav-toggle__bar" />
+            <span className="nav-toggle__bar" />
+          </button>
+        </header>
 
-      {navOpen && (
-        <div
-          className="nav-backdrop"
-          onClick={() => setNavOpen(false)}
-          role="presentation"
-          aria-hidden="true"
-        />
-      )}
+        <nav
+          id="app-nav"
+          className={`app-nav ${navOpen ? 'app-nav--open' : ''}`}
+          aria-label="Main navigation"
+        >
+          {navItems.map(({ id, label }) => (
+            <a
+              key={id}
+              href={`#${id}`}
+              className={view === id ? 'active' : undefined}
+              onClick={(e) => {
+                e.preventDefault()
+                goTo(id)
+              }}
+            >
+              {label}
+            </a>
+          ))}
+        </nav>
 
-      <main className="app-main">
-        {view === 'investor' && <InvestorView onNavigateToLedger={handleNavigateToLedger} />}
-        {view === 'operator' && <OperatorView />}
-        {view === 'ledger' && <LedgerView accountId={ledgerAccountId} />}
-        {view === 'status' && <TransferStatusView />}
-      </main>
+        {navOpen && (
+          <div
+            className="nav-backdrop"
+            onClick={() => setNavOpen(false)}
+            role="presentation"
+            aria-hidden="true"
+          />
+        )}
+
+        <main className="app-main">
+          <div className="app-main__surface">
+            {view === 'investor' && <InvestorView onNavigateToLedger={handleNavigateToLedger} />}
+            {view === 'operator' && <OperatorView />}
+            {view === 'ledger' && <LedgerView accountId={ledgerAccountId} />}
+            {view === 'status' && <TransferStatusView />}
+          </div>
+        </main>
+      </div>
     </div>
   )
 }

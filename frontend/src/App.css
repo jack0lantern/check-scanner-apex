@@ -901,3 +901,291 @@
   border: 1px solid var(--color-error);
   border-radius: var(--radius-lg);
 }
+
+/* ========== Apex-Inspired Dark Overrides ========== */
+.app-shell {
+  min-height: 100vh;
+  min-height: 100dvh;
+  position: relative;
+  isolation: isolate;
+}
+
+.app-shell__glow,
+.app-shell__shape {
+  position: fixed;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.app-shell__glow {
+  inset: -40vh -30vw auto auto;
+  width: min(80vw, 860px);
+  height: min(80vw, 860px);
+  background: radial-gradient(circle at center, var(--color-accent-glow), transparent 65%);
+  opacity: 0.85;
+}
+
+.app-shell__shape {
+  left: min(4vw, 2.5rem);
+  top: min(8vh, 4rem);
+  width: clamp(90px, 11vw, 140px);
+  height: clamp(90px, 11vw, 140px);
+  border: 2px solid rgba(86, 160, 255, 0.55);
+  transform: rotate(15deg);
+}
+
+.app-shell__shape::before {
+  content: '';
+  position: absolute;
+  width: 56%;
+  height: 56%;
+  background: rgba(244, 90, 194, 0.9);
+  top: 18%;
+  left: 18%;
+}
+
+.app {
+  background: transparent;
+}
+
+.app-header {
+  padding: 1rem 1.5rem;
+  backdrop-filter: blur(8px);
+  background: color-mix(in srgb, var(--color-bg-elevated) 92%, transparent);
+  border-bottom: 1px solid var(--color-border-strong);
+}
+
+.app-title {
+  font-size: clamp(1.1rem, 2.2vw, 1.35rem);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+}
+
+.nav-toggle {
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-bg-card);
+}
+
+.nav-toggle__bar {
+  background: var(--color-text);
+}
+
+.app-nav {
+  background: color-mix(in srgb, var(--color-bg-elevated) 94%, transparent);
+  border-bottom: 1px solid var(--color-border-strong);
+}
+
+.app-nav a {
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  letter-spacing: 0.02em;
+}
+
+.app-nav a:hover {
+  background: var(--color-bg-card);
+  border-color: var(--color-border);
+  color: var(--color-text);
+}
+
+.app-nav a.active {
+  background: linear-gradient(135deg, var(--color-accent), var(--color-accent-secondary));
+  color: #03060a;
+  font-weight: 700;
+}
+
+.nav-backdrop {
+  background: rgba(0, 0, 0, 0.62);
+}
+
+.app-main {
+  padding-top: 1.5rem;
+}
+
+.app-main__surface {
+  background: linear-gradient(
+      to bottom right,
+      rgba(86, 160, 255, 0.07),
+      transparent 32%
+    ),
+    linear-gradient(to top left, rgba(244, 90, 194, 0.05), transparent 36%),
+    var(--color-bg-elevated);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-xl);
+  padding: 1.25rem;
+  box-shadow: var(--shadow-lg);
+}
+
+@media (min-width: 768px) {
+  .app-main__surface {
+    padding: 1.5rem 1.75rem;
+  }
+}
+
+.investor-view,
+.operator-view,
+.ledger-view,
+.transfer-status-view {
+  max-width: 100%;
+}
+
+.investor-view form,
+.transfer-status-form,
+.ledger-search-form {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 1rem;
+}
+
+.investor-view input[type='number'],
+.investor-view input[type='text'],
+.operator-filters__field input,
+.operator-filters__field select,
+.modal__field select,
+.modal__field textarea,
+.transfer-status-form input,
+.ledger-search-form input {
+  background: #0c111d;
+  border-color: var(--color-border);
+}
+
+.investor-view input:focus,
+.operator-filters__field input:focus,
+.operator-filters__field select:focus,
+.modal__field select:focus,
+.modal__field textarea:focus,
+.transfer-status-form input:focus,
+.ledger-search-form input:focus {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
+  border-color: var(--color-border-strong);
+}
+
+.investor-view button[type='submit'],
+.view-ledger-btn,
+.transfer-status-form button,
+.ledger-search-form button {
+  border: 1px solid transparent;
+  background: linear-gradient(130deg, var(--color-accent), var(--color-accent-secondary));
+  color: #06101a;
+  font-weight: 700;
+}
+
+.investor-view button[type='submit']:hover:not(:disabled),
+.view-ledger-btn:hover:not(:disabled),
+.transfer-status-form button:hover:not(:disabled),
+.ledger-search-form button:hover:not(:disabled) {
+  filter: brightness(1.05);
+}
+
+.iqa-error,
+.operator-error,
+.error-message {
+  background: color-mix(in srgb, var(--color-error-bg) 84%, var(--color-bg-card));
+  border: 1px solid var(--color-error);
+  color: #ffd5db;
+}
+
+.success-message {
+  background: color-mix(in srgb, var(--color-success-bg) 78%, var(--color-bg-card));
+  border: 1px solid var(--color-success);
+}
+
+.operator-filters,
+.operator-card,
+.transfer-status-card,
+.balance-display,
+.ledger-table-container,
+.modal {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-md);
+}
+
+.operator-card__header,
+.ledger-table-container h2 {
+  background: color-mix(in srgb, var(--color-bg-elevated) 84%, var(--color-bg-card));
+}
+
+.operator-card__state,
+.trace-stage {
+  color: var(--color-accent-hover);
+}
+
+.operator-card__actions {
+  border-top: 1px solid var(--color-border);
+}
+
+.operator-card__btn {
+  border: 1px solid transparent;
+  font-weight: 700;
+}
+
+.operator-card__btn--approve,
+.modal__actions button:first-child {
+  background: color-mix(in srgb, var(--color-success-bg) 74%, var(--color-bg-card));
+  color: #97f0c9;
+  border-color: rgba(72, 213, 151, 0.42);
+}
+
+.operator-card__btn--approve:hover,
+.modal__actions button:first-child:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--color-success-bg) 88%, var(--color-bg-card));
+}
+
+.operator-card__btn--reject {
+  background: color-mix(in srgb, var(--color-error-bg) 76%, var(--color-bg-card));
+  color: #ffc2ca;
+  border-color: rgba(255, 123, 138, 0.36);
+}
+
+.operator-card__btn--reject:hover {
+  background: color-mix(in srgb, var(--color-error-bg) 88%, var(--color-bg-card));
+}
+
+.vendor-badge--green {
+  background: color-mix(in srgb, var(--color-success-bg) 84%, var(--color-bg-card));
+  color: #97f0c9;
+}
+
+.vendor-badge--yellow,
+.risk-flag--amount,
+.ocr-amount-mismatch {
+  background: color-mix(in srgb, var(--color-warning-bg) 88%, var(--color-bg-card));
+  color: var(--color-warning);
+}
+
+.vendor-badge--red,
+.risk-flag--vendor {
+  background: color-mix(in srgb, var(--color-error-bg) 86%, var(--color-bg-card));
+  color: #ffb9c3;
+}
+
+.vendor-badge--unknown {
+  background: var(--color-bg-elevated);
+  color: var(--color-text-muted);
+}
+
+.transfer-status-history,
+.pagination-controls {
+  border-top: 1px solid var(--color-border);
+}
+
+.trace-history-item,
+.ledger-table th,
+.ledger-table td,
+.ledger-table-container h2,
+.ledger-table tr {
+  border-color: var(--color-border);
+}
+
+.balance-amount {
+  color: var(--color-text);
+}
+
+.modal-overlay {
+  background: rgba(0, 0, 0, 0.7);
+}
