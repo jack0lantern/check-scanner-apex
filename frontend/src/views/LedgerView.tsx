@@ -1,12 +1,10 @@
 import { useState, useEffect } from 'react'
 import { fetchBalance, fetchLedger, type LedgerEntry, type Page } from '../api/ledgerApi'
 
-interface LedgerViewProps {
-  accountId?: string
-}
+const DEFAULT_ACCOUNT_ID = 'TEST001'
 
-export function LedgerView({ accountId: initialAccountId = '' }: LedgerViewProps) {
-  const [accountId, setAccountId] = useState(initialAccountId)
+export function LedgerView() {
+  const [accountId, setAccountId] = useState(DEFAULT_ACCOUNT_ID)
   const [balance, setBalance] = useState<number | null>(null)
   const [ledgerPage, setLedgerPage] = useState<Page<LedgerEntry> | null>(null)
   const [loading, setLoading] = useState(false)
@@ -36,10 +34,8 @@ export function LedgerView({ accountId: initialAccountId = '' }: LedgerViewProps
   }
 
   useEffect(() => {
-    if (initialAccountId) {
-      loadData(initialAccountId, 0)
-    }
-  }, [initialAccountId])
+    loadData(DEFAULT_ACCOUNT_ID, 0)
+  }, [])
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()

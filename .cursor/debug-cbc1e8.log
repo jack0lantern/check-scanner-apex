@@ -1,0 +1,4 @@
+{"sessionId":"cbc1e8","location":"ledgerApi.ts:fetchBalance:entry","message":"fetchBalance called","data":{"accountId":"TEST001","url":"/api/accounts/TEST001/balance"},"timestamp":1773516664451,"hypothesisId":"H-A"}
+{"sessionId":"cbc1e8","location":"ledgerApi.ts:fetchLedger:entry","message":"fetchLedger called","data":{"accountId":"TEST001","page":0,"size":10,"url":"/api/accounts/TEST001/ledger?page=0&size=10"},"timestamp":1773516664452,"hypothesisId":"H-A"}
+{"sessionId":"cbc1e8","location":"ledgerApi.ts:fetchBalance:response","message":"balance response","data":{"status":200,"ok":true,"statusText":"OK"},"timestamp":1773516664556,"hypothesisId":"H-B"}
+{"sessionId":"cbc1e8","location":"ledgerApi.ts:fetchLedger:response","message":"ledger response","data":{"status":200,"ok":true,"statusText":"OK"},"timestamp":1773516664561,"hypothesisId":"H-C"}

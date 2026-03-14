@@ -3,13 +3,15 @@ import { submitDeposit } from '../api/depositApi'
 import type { DepositRequest } from '../api/depositApi'
 import { fileToBase64 } from '../utils/fileToBase64'
 
+const DEFAULT_ACCOUNT_ID = 'TEST001'
+
 interface InvestorViewProps {
-  onNavigateToLedger?: (accountId: string) => void
+  onNavigateToLedger?: () => void
 }
 
 export function InvestorView({ onNavigateToLedger }: InvestorViewProps) {
   const [amount, setAmount] = useState('')
-  const [accountId, setAccountId] = useState('')
+  const [accountId, setAccountId] = useState(DEFAULT_ACCOUNT_ID)
   const [frontFile, setFrontFile] = useState<File | null>(null)
   const [backFile, setBackFile] = useState<File | null>(null)
   const [loading, setLoading] = useState(false)
@@ -32,10 +34,11 @@ export function InvestorView({ onNavigateToLedger }: InvestorViewProps) {
       const frontImage = await fileToBase64(front)
       const backImage = await fileToBase64(back)
 
+      const parsedAmount = Number.parseFloat(amount)
       const payload: DepositRequest = {
         frontImage,
         backImage,
-        amount: parseFloat(amount) || 0,
+        amount: Number.isFinite(parsedAmount) ? parsedAmount : 0,
         accountId,
         ...(retryForTransferId && { retryForTransferId }),
       }
@@ -130,7 +133,7 @@ export function InvestorView({ onNavigateToLedger }: InvestorViewProps) {
           {onNavigateToLedger && (
             <button
               type="button"
-              onClick={() => onNavigateToLedger(accountId)}
+              onClick={onNavigateToLedger}
               className="view-ledger-btn"
               style={{ marginTop: '0.5rem' }}
             >

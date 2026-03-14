@@ -1,3 +1,5 @@
+import { getAuthHeaders } from './authHeaders'
+
 export interface BalanceResponse {
   balance: number
 }
@@ -23,10 +25,7 @@ export interface Page<T> {
 
 export async function fetchBalance(accountId: string): Promise<BalanceResponse> {
   const response = await fetch(`/api/accounts/${accountId}/balance`, {
-    headers: {
-      'X-User-Role': 'INVESTOR',
-      'X-Account-Id': accountId,
-    },
+    headers: getAuthHeaders('INVESTOR'),
   })
   if (!response.ok) {
     throw new Error('Failed to fetch balance')
@@ -36,10 +35,7 @@ export async function fetchBalance(accountId: string): Promise<BalanceResponse> 
 
 export async function fetchLedger(accountId: string, page: number = 0, size: number = 20): Promise<Page<LedgerEntry>> {
   const response = await fetch(`/api/accounts/${accountId}/ledger?page=${page}&size=${size}`, {
-    headers: {
-      'X-User-Role': 'INVESTOR',
-      'X-Account-Id': accountId,
-    },
+    headers: getAuthHeaders('INVESTOR'),
   })
   if (!response.ok) {
     throw new Error('Failed to fetch ledger')

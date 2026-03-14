@@ -151,6 +151,53 @@
   }
 }
 
+/* ========== Landing View ========== */
+.landing-view {
+  max-width: 480px;
+}
+
+.landing-view__welcome {
+  margin-bottom: 0.5rem;
+}
+
+.landing-view__prompt {
+  margin: 0 0 1.25rem;
+  font-size: 1.1rem;
+  color: var(--color-text-muted);
+}
+
+.landing-view__buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+@media (min-width: 480px) {
+  .landing-view__buttons {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+}
+
+.landing-view__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.5rem;
+  background: var(--color-accent);
+  color: white;
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
+  min-height: var(--touch-target);
+  transition: background-color var(--transition), filter var(--transition);
+}
+
+.landing-view__btn:hover {
+  background: var(--color-accent-hover);
+}
+
 /* ========== Investor View ========== */
 .investor-view {
   max-width: 480px;
@@ -179,7 +226,11 @@
 }
 
 .investor-view input[type='number'],
-.investor-view input[type='text'] {
+.investor-view input[type='text'],
+.investor-view input[type='email'],
+.investor-view input[type='password'],
+.operator-view input[type='email'],
+.operator-view input[type='password'] {
   padding: 0.75rem 1rem;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
@@ -189,7 +240,8 @@
   transition: border-color var(--transition);
 }
 
-.investor-view input:focus {
+.investor-view input:focus,
+.operator-view input:focus {
   outline: none;
   border-color: var(--color-accent);
 }
@@ -261,6 +313,24 @@
 
 .operator-view h1 {
   margin-bottom: 1.5rem;
+}
+
+.operator-view form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.operator-view form > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.operator-view label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
 }
 
 .operator-filters {
@@ -1032,6 +1102,7 @@
 }
 
 .investor-view form,
+.operator-view form,
 .transfer-status-form,
 .ledger-search-form {
   background: var(--color-bg-card);
@@ -1042,6 +1113,10 @@
 
 .investor-view input[type='number'],
 .investor-view input[type='text'],
+.investor-view input[type='email'],
+.investor-view input[type='password'],
+.operator-view input[type='email'],
+.operator-view input[type='password'],
 .operator-filters__field input,
 .operator-filters__field select,
 .modal__field select,
@@ -1053,6 +1128,7 @@
 }
 
 .investor-view input:focus,
+.operator-view input:focus,
 .operator-filters__field input:focus,
 .operator-filters__field select:focus,
 .modal__field select:focus,
@@ -1064,7 +1140,19 @@
   border-color: var(--color-border-strong);
 }
 
+.landing-view__btn {
+  border: 1px solid transparent;
+  background: linear-gradient(130deg, var(--color-accent), var(--color-accent-secondary));
+  color: #06101a;
+  font-weight: 700;
+}
+
+.landing-view__btn:hover {
+  filter: brightness(1.05);
+}
+
 .investor-view button[type='submit'],
+.operator-view button[type='submit'],
 .view-ledger-btn,
 .transfer-status-form button,
 .ledger-search-form button {
@@ -1075,6 +1163,7 @@
 }
 
 .investor-view button[type='submit']:hover:not(:disabled),
+.operator-view button[type='submit']:hover:not(:disabled),
 .view-ledger-btn:hover:not(:disabled),
 .transfer-status-form button:hover:not(:disabled),
 .ledger-search-form button:hover:not(:disabled) {

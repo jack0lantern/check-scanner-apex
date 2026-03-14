@@ -1,3 +1,5 @@
+import { getAuthHeaders } from './authHeaders'
+
 const API_BASE = '/api'
 
 export interface RiskIndicators {
@@ -46,10 +48,7 @@ export async function getOperatorQueue(
   const url = `${API_BASE}/operator/queue${query ? `?${query}` : ''}`
 
   const res = await fetch(url, {
-    headers: {
-      'X-User-Role': 'OPERATOR',
-      'X-Account-Id': 'op1',
-    },
+    headers: getAuthHeaders('OPERATOR'),
   })
 
   if (!res.ok) {
@@ -69,8 +68,7 @@ export async function approveDeposit(
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'X-User-Role': 'OPERATOR',
-      'X-Account-Id': 'op1',
+      ...getAuthHeaders('OPERATOR'),
     },
     body: JSON.stringify(
       contributionTypeOverride
@@ -92,8 +90,7 @@ export async function rejectDeposit(
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'X-User-Role': 'OPERATOR',
-      'X-Account-Id': 'op1',
+      ...getAuthHeaders('OPERATOR'),
     },
     body: JSON.stringify({ reason }),
   })

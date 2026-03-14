@@ -1,3 +1,5 @@
+import { getAuthHeaders } from './authHeaders'
+
 const API_BASE = '/api'
 
 /** Vendor stub scenario triggers (not real accounts). Use TEST001 for account resolution. */
@@ -43,8 +45,7 @@ export async function submitDeposit(
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'X-User-Role': 'INVESTOR',
-      'X-Account-Id': request.accountId,
+      ...getAuthHeaders('INVESTOR'),
     },
     body: JSON.stringify({
       frontImage: request.frontImage,
@@ -97,10 +98,7 @@ export async function getDepositStatus(
   transferId: string
 ): Promise<TransferStatusResponse> {
   const res = await fetch(`${API_BASE}/deposits/${transferId}`, {
-    headers: {
-      'X-User-Role': 'INVESTOR',
-      'X-Account-Id': 'TEST001',
-    },
+    headers: getAuthHeaders('INVESTOR'),
   })
   if (!res.ok) {
     if (res.status === 404) {
@@ -115,10 +113,7 @@ export async function getDepositTrace(
   transferId: string
 ): Promise<TraceEventResponse[]> {
   const res = await fetch(`${API_BASE}/deposits/${transferId}/trace`, {
-    headers: {
-      'X-User-Role': 'INVESTOR',
-      'X-Account-Id': 'TEST001',
-    },
+    headers: getAuthHeaders('INVESTOR'),
   })
   if (!res.ok) {
     if (res.status === 404) {

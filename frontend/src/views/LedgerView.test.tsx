@@ -12,12 +12,24 @@ describe('LedgerView', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
+    mockFetchBalance.mockResolvedValue({ balance: 0 })
+    mockFetchLedger.mockResolvedValue({
+      content: [],
+      totalPages: 0,
+      totalElements: 0,
+      size: 10,
+      number: 0,
+      last: true,
+      first: true,
+    })
   })
 
-  it('renders account ID input and load button', () => {
+  it('renders account ID input and load button', async () => {
     render(<LedgerView />)
     expect(screen.getByLabelText(/account id/i)).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /load ledger/i })).toBeInTheDocument()
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /load ledger/i })).toBeInTheDocument()
+    })
   })
 
   it('fetches and displays balance and ledger entries when account ID is provided', async () => {
@@ -65,7 +77,7 @@ describe('LedgerView', () => {
     expect(screen.getByText('t1')).toBeInTheDocument()
   })
 
-  it('loads data automatically when accountId prop is passed', async () => {
+  it('loads data automatically on mount with default account', async () => {
     mockFetchBalance.mockResolvedValue({ balance: 99.99 })
     mockFetchLedger.mockResolvedValue({
       content: [
@@ -86,10 +98,10 @@ describe('LedgerView', () => {
       first: true,
     })
 
-    render(<LedgerView accountId="AUTO001" />)
+    render(<LedgerView />)
 
     await waitFor(() => {
-      expect(mockFetchBalance).toHaveBeenCalledWith('AUTO001')
+      expect(mockFetchBalance).toHaveBeenCalledWith('TEST001')
     })
 
     expect(screen.getByText('$99.99')).toBeInTheDocument()

@@ -45,7 +45,10 @@ describe('InvestorView', () => {
     render(<InvestorView />)
 
     await user.type(screen.getByLabelText(/amount/i), '100.50')
-    await user.type(screen.getByLabelText(/account id/i), 'TEST001')
+    // accountId defaults to TEST001; clear and retype to avoid appending
+    const accountInput = screen.getByLabelText(/account id/i)
+    await user.clear(accountInput)
+    await user.type(accountInput, 'TEST001')
 
     const frontInput = screen.getByLabelText(/front of check/i)
     const backInput = screen.getByLabelText(/back of check/i)
