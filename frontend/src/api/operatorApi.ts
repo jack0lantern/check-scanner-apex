@@ -82,6 +82,30 @@ export async function approveDeposit(
   }
 }
 
+export interface OperatorAction {
+  id: string
+  operatorId: string
+  action: string
+  transferId: string
+  detail: string | null
+  createdAt: string
+}
+
+export async function getOperatorActions(limit = 100): Promise<OperatorAction[]> {
+  const res = await fetch(
+    `${API_BASE}/operator/actions?limit=${Math.min(Math.max(1, limit), 200)}`,
+    { headers: getAuthHeaders('OPERATOR') }
+  )
+
+  if (!res.ok) {
+    const body = await res.text()
+    const msg = body ? `${res.status}: ${body}` : String(res.status)
+    throw new Error(`Failed to fetch past actions: ${msg}`)
+  }
+
+  return res.json() as Promise<OperatorAction[]>
+}
+
 export async function rejectDeposit(
   transferId: string,
   reason: string

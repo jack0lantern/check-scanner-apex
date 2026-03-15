@@ -1,10 +1,12 @@
 import { useState, useEffect, useCallback } from 'react'
 import {
   getOperatorQueue,
+  getOperatorActions,
   approveDeposit,
   rejectDeposit,
   type OperatorQueueItem,
   type OperatorQueueFilters,
+  type OperatorAction,
 } from '../api/operatorApi'
 
 const CONTRIBUTION_TYPES = ['INDIVIDUAL', 'ROTH', 'TRADITIONAL'] as const
@@ -143,6 +145,78 @@ function QueueCard({
   )
 }
 
+function formatDateTime(iso: string): string {
+  try {
+    const d = new Date(iso)
+    return d.toLocaleString(undefined, {
+      dateStyle: 'short',
+      timeStyle: 'medium',
+    })
+  } catch {
+    return iso
+  }
+}
+
+function ActionDetail({ detail }: { detail: string | null }) {
+  if (!detail || detail === '{}') return null
+  try {
+    const parsed = JSON.parse(detail) as Record<string, string>
+    const entries = Object.entries(parsed).filter(([, v]) => v != null && v !== '')
+    if (entries.length === 0) return null
+    return (
+      <span className="operator-action-detail">
+        {entries.map(([k, v]) => (
+          <span key={k} className="operator-action-detail__item">
+            {k}: {v}
+          </span>
+        ))}
+      </span>
+    )
+  } catch {
+    return <span className="operator-action-detail">{detail}</span>
+  }
+}
+
+function PastActionsList({ actions }: { actions: OperatorAction[] }) {
+  if (actions.length === 0) {
+    return <p className="operator-empty">No past queue actions.</p>
+  }
+  return (
+    <div className="operator-actions-table-wrapper">
+      <table className="operator-actions-table">
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>Action</th>
+            <th>Transfer ID</th>
+            <th>Operator</th>
+            <th>Detail</th>
+          </tr>
+        </thead>
+        <tbody>
+          {actions.map((a) => (
+            <tr key={a.id}>
+              <td>{formatDateTime(a.createdAt)}</td>
+              <td>
+                <span
+                  className={`operator-action-badge operator-action-badge--${a.action.toLowerCase()}`}
+                >
+                  {a.action}
+                </span>
+              </td>
+              <td className="operator-actions-table__mono">{a.transferId}</td>
+              <td>{a.operatorId ?? '—'}</td>
+              <td>
+                <ActionDetail detail={a.detail} />
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
 export function OperatorView() {
   const [queue, setQueue] = useState<OperatorQueueItem[]>([])
   const [loading, setLoading] = useState(true)
@@ -153,6 +227,10 @@ export function OperatorView() {
   const [rejectReason, setRejectReason] = useState('')
   const [contributionOverride, setContributionOverride] = useState<string>('')
   const [actionLoading, setActionLoading] = useState(false)
+  const [activeTab, setActiveTab] = useState<'queue' | 'actions'>('queue')
+  const [pastActions, setPastActions] = useState<OperatorAction[]>([])
+  const [actionsLoading, setActionsLoading] = useState(false)
+  const [actionsError, setActionsError] = useState<string | null>(null)
 
   const fetchQueue = useCallback(async () => {
     setLoading(true)
@@ -170,6 +248,26 @@ export function OperatorView() {
   useEffect(() => {
     fetchQueue()
   }, [fetchQueue])
+
+  const fetchPastActions = useCallback(async () => {
+    setActionsLoading(true)
+    setActionsError(null)
+    try {
+      const items = await getOperatorActions()
+      setPastActions(items)
+    } catch (e) {
+      setPastActions([])
+      setActionsError(e instanceof Error ? e.message : 'Failed to load past actions')
+    } finally {
+      setActionsLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (activeTab === 'actions') {
+      fetchPastActions()
+    }
+  }, [activeTab, fetchPastActions])
 
   function handleFilterChange(key: keyof OperatorQueueFilters, value: string | number | undefined) {
     setFilters((prev) => {
@@ -199,6 +297,7 @@ export function OperatorView() {
       )
       setQueue((prev) => prev.filter((i) => i.transferId !== item.transferId))
       setApproveModal(null)
+      fetchPastActions()
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Approve failed')
     } finally {
@@ -220,6 +319,7 @@ export function OperatorView() {
       setQueue((prev) => prev.filter((i) => i.transferId !== item.transferId))
       setRejectModal(null)
       setRejectReason('')
+      fetchPastActions()
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Reject failed')
     } finally {
@@ -229,8 +329,32 @@ export function OperatorView() {
 
   return (
     <div className="operator-view">
-      <h1>Operator Queue</h1>
+      <div className="operator-view__header">
+        <h1>Operator Queue</h1>
+        <div className="operator-tabs" role="tablist">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={activeTab === 'queue'}
+            className={`operator-tabs__tab ${activeTab === 'queue' ? 'operator-tabs__tab--active' : ''}`}
+            onClick={() => setActiveTab('queue')}
+          >
+            Queue
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={activeTab === 'actions'}
+            className={`operator-tabs__tab ${activeTab === 'actions' ? 'operator-tabs__tab--active' : ''}`}
+            onClick={() => setActiveTab('actions')}
+          >
+            Past Actions
+          </button>
+        </div>
+      </div>
 
+      {activeTab === 'queue' && (
+        <>
       <div className="operator-filters">
         <div className="operator-filters__field">
           <label htmlFor="filter-status">Status</label>
@@ -331,7 +455,35 @@ export function OperatorView() {
                 onApprove={handleApprove}
                 onReject={handleReject}
               />
-            ))
+          ))
+        )}
+        </div>
+      )}
+        </>
+      )}
+
+      {activeTab === 'actions' && (
+        <div className="operator-actions-section">
+          <div className="operator-actions-section__header">
+            <h2 className="operator-actions-section__title">Past Queue Actions</h2>
+            <button
+              type="button"
+              className="operator-actions-section__refresh"
+              onClick={() => fetchPastActions()}
+              disabled={actionsLoading}
+            >
+              {actionsLoading ? 'Loading…' : 'Refresh'}
+            </button>
+          </div>
+          {actionsError && (
+            <div className="operator-error" role="alert">
+              {actionsError}
+            </div>
+          )}
+          {actionsLoading && pastActions.length === 0 ? (
+            <p>Loading past actions…</p>
+          ) : (
+            <PastActionsList actions={pastActions} />
           )}
         </div>
       )}

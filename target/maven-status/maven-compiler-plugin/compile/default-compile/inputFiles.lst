@@ -28,6 +28,7 @@
 /Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/main/java/com/apexfintech/checkdeposit/dto/DepositResponse.java
 /Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/main/java/com/apexfintech/checkdeposit/dto/IqaFailureResponse.java
 /Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/main/java/com/apexfintech/checkdeposit/dto/LedgerEntryResponse.java
+/Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/main/java/com/apexfintech/checkdeposit/dto/OperatorActionDto.java
 /Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/main/java/com/apexfintech/checkdeposit/dto/OperatorQueueItem.java
 /Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/main/java/com/apexfintech/checkdeposit/dto/RejectRequest.java
 /Users/jackjiang/GitHub/partner-projects/check-scanner-apex/src/main/java/com/apexfintech/checkdeposit/dto/ResolvedAccount.java

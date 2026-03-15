@@ -38,6 +38,7 @@ com/apexfintech/checkdeposit/controller/DepositController.class
 com/apexfintech/checkdeposit/domain/SettlementBatch.class
 com/apexfintech/checkdeposit/config/WebMvcConfig.class
 com/apexfintech/checkdeposit/dto/RejectRequest.class
+com/apexfintech/checkdeposit/dto/OperatorActionDto.class
 com/apexfintech/checkdeposit/repository/LedgerEntryRepository.class
 com/apexfintech/checkdeposit/domain/TraceEvent.class
 com/apexfintech/checkdeposit/vendor/VendorService.class

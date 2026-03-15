@@ -48,6 +48,7 @@ Deterministic responses triggered by `X-Account-Id` or `accountId` in request:
 
 - **GET /operator/queue** — Flagged deposits with full detail: transferId, state, investorAccountId, enteredAmount, ocrAmount, micrData, micrConfidence, vendorScore, risk flags, frontImage, backImage, submittedAt
 - **Filters:** `?status=`, `?dateFrom=`, `?dateTo=`, `?accountId=`, `?minAmount=`, `?maxAmount=`
+- **GET /operator/actions** — Past queue actions (approve, reject, contribution type override) from audit_logs; supports `?limit=` (default 100, max 200)
 - **POST /operator/queue/{transferId}/approve** — Optional body: `{ "contributionTypeOverride": "ROTH" }`
 - **POST /operator/queue/{transferId}/reject** — Required body: `{ "reason": "..." }`
 - All operator actions require `X-User-Role: OPERATOR`
@@ -88,6 +89,7 @@ Deterministic responses triggered by `X-Account-Id` or `accountId` in request:
 | GET | `/deposits/{transferId}` | `X-User-Role`, `X-Account-Id` | — |
 | GET | `/deposits/{transferId}/trace` | `X-User-Role`, `X-Account-Id` | — |
 | GET | `/operator/queue` | `X-User-Role: OPERATOR` | Query: status, dateFrom, dateTo, accountId, minAmount, maxAmount |
+| GET | `/operator/actions` | `X-User-Role: OPERATOR` | Query: limit (optional, default 100) |
 | POST | `/operator/queue/{transferId}/approve` | `X-User-Role: OPERATOR` | `{ contributionTypeOverride?: "ROTH" }` |
 | POST | `/operator/queue/{transferId}/reject` | `X-User-Role: OPERATOR` | `{ "reason": "..." }` |
 | POST | `/internal/returns` | `X-User-Role: OPERATOR` | `{ transferId, returnReason }` |
@@ -180,10 +182,12 @@ curl -X POST http://localhost:8080/deposits \
   -d '{"frontImage":"bmV3aW1n","backImage":"bmV3aW1n","amount":50.00,"accountId":"TEST001","retryForTransferId":"<transferId>"}'
 ```
 
-### Operator Reject (MICR Failure)
+### Operator Queue & Past Actions
+
+**To see deposits in the operator queue and have them appear in Past Actions**, submit with `micr-fail` or `amount-mismatch` (these go to ANALYZING for operator review). Deposits from `clean-pass` auto-approve and never hit the queue.
 
 ```bash
-# 1. Submit with micr-fail → deposit flagged for operator
+# 1. Submit with micr-fail → deposit flagged for operator (state: ANALYZING)
 curl -X POST http://localhost:8080/deposits \
   -H "Content-Type: application/json" \
   -H "X-User-Role: INVESTOR" \
@@ -193,12 +197,22 @@ curl -X POST http://localhost:8080/deposits \
 # 2. Fetch queue
 curl http://localhost:8080/operator/queue -H "X-User-Role: OPERATOR" -H "X-Account-Id: op1"
 
-# 3. Reject
+# 3. Approve or reject (actions are saved to audit_logs and appear in Past Actions)
+curl -X POST http://localhost:8080/operator/queue/{transferId}/approve \
+  -H "Content-Type: application/json" \
+  -H "X-User-Role: OPERATOR" \
+  -H "X-Account-Id: op1" \
+  -d '{}'
+
+# Or reject:
 curl -X POST http://localhost:8080/operator/queue/{transferId}/reject \
   -H "Content-Type: application/json" \
   -H "X-User-Role: OPERATOR" \
   -H "X-Account-Id: op1" \
   -d '{"reason":"MICR unreadable; customer to deposit at branch"}'
+
+# 4. View past actions (operator UI or API)
+curl http://localhost:8080/operator/actions -H "X-User-Role: OPERATOR" -H "X-Account-Id: op1"
 ```
 
 ### Return / Reversal

@@ -11,11 +11,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.apexfintech.checkdeposit.config.WebMvcConfig;
+import com.apexfintech.checkdeposit.domain.AuditLog;
 import com.apexfintech.checkdeposit.domain.TransferState;
 import com.apexfintech.checkdeposit.dto.OperatorQueueItem;
 import com.apexfintech.checkdeposit.dto.OperatorQueueItem.RiskIndicators;
 import com.apexfintech.checkdeposit.exception.GlobalExceptionHandler;
 import com.apexfintech.checkdeposit.operator.OperatorService;
+import com.apexfintech.checkdeposit.repository.AuditLogRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -42,6 +44,7 @@ class OperatorControllerWebMvcTest {
   @Autowired private ObjectMapper objectMapper;
 
   @MockBean private OperatorService operatorService;
+  @MockBean private AuditLogRepository auditLogRepository;
 
   @Test
   void getQueue_returns403_withoutOperatorRole() throws Exception {
@@ -174,5 +177,39 @@ class OperatorControllerWebMvcTest {
         .andExpect(status().isOk());
 
     verify(operatorService).reject(eq(transferId), any(), eq("OP001"));
+  }
+
+  @Test
+  void getPastActions_returns403_withoutOperatorRole() throws Exception {
+    mockMvc
+        .perform(
+            get("/operator/actions")
+                .header("X-User-Role", "INVESTOR")
+                .header("X-Account-Id", "TEST001"))
+        .andExpect(status().isForbidden());
+  }
+
+  @Test
+  void getPastActions_returns200_withActions() throws Exception {
+    UUID transferId = UUID.randomUUID();
+    UUID logId = UUID.randomUUID();
+    Instant createdAt = Instant.parse("2025-03-08T12:00:00Z");
+    AuditLog log =
+        new AuditLog(logId, "OP001", "APPROVE", transferId, "{}", createdAt);
+
+    when(auditLogRepository.findOperatorActionsOrderByCreatedAtDesc(any()))
+        .thenReturn(List.of(log));
+
+    mockMvc
+        .perform(
+            get("/operator/actions")
+                .header("X-User-Role", "OPERATOR")
+                .header("X-Account-Id", "OP001"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$[0].id").value(logId.toString()))
+        .andExpect(jsonPath("$[0].operatorId").value("OP001"))
+        .andExpect(jsonPath("$[0].action").value("APPROVE"))
+        .andExpect(jsonPath("$[0].transferId").value(transferId.toString()))
+        .andExpect(jsonPath("$[0].createdAt").exists());
   }
 }

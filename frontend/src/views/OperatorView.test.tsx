@@ -7,6 +7,7 @@ import * as operatorApi from '../api/operatorApi'
 vi.mock('../api/operatorApi')
 
 const mockGetQueue = vi.mocked(operatorApi.getOperatorQueue)
+const mockGetActions = vi.mocked(operatorApi.getOperatorActions)
 const mockApprove = vi.mocked(operatorApi.approveDeposit)
 const mockReject = vi.mocked(operatorApi.rejectDeposit)
 
@@ -44,6 +45,7 @@ describe('OperatorView', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockGetQueue.mockResolvedValue([queueItem1, queueItem2])
+    mockGetActions.mockResolvedValue([])
   })
 
   it('renders both deposits from a mocked two-item queue', async () => {
@@ -132,6 +134,46 @@ describe('OperatorView', () => {
         'ROTH'
       )
     })
+  })
+
+  it('Past Actions tab shows past queue actions', async () => {
+    const user = userEvent.setup()
+    mockGetActions.mockResolvedValue([
+      {
+        id: 'log-1',
+        operatorId: 'OP001',
+        action: 'APPROVE',
+        transferId: '11111111-1111-1111-1111-111111111111',
+        detail: '{}',
+        createdAt: '2025-03-08T14:00:00Z',
+      },
+      {
+        id: 'log-2',
+        operatorId: 'OP001',
+        action: 'REJECT',
+        transferId: '22222222-2222-2222-2222-222222222222',
+        detail: '{"reason":"Suspicious activity"}',
+        createdAt: '2025-03-08T13:00:00Z',
+      },
+    ])
+
+    render(<OperatorView />)
+
+    await waitFor(() => {
+      expect(mockGetQueue).toHaveBeenCalled()
+    })
+
+    const pastActionsTab = screen.getByRole('tab', { name: /past actions/i })
+    await user.click(pastActionsTab)
+
+    await waitFor(() => {
+      expect(mockGetActions).toHaveBeenCalled()
+    })
+
+    expect(screen.getByText('Past Queue Actions')).toBeInTheDocument()
+    expect(screen.getByText('APPROVE')).toBeInTheDocument()
+    expect(screen.getByText('REJECT')).toBeInTheDocument()
+    expect(screen.getByText('reason: Suspicious activity')).toBeInTheDocument()
   })
 
   it('reject button fires POST with required reason', async () => {
