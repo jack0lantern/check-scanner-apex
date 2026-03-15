@@ -5,6 +5,7 @@ import com.apexfintech.checkdeposit.domain.TransferState;
 import com.apexfintech.checkdeposit.dto.ResolvedAccount;
 import com.apexfintech.checkdeposit.repository.TransferRepository;
 import java.math.BigDecimal;
+import java.util.Optional;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -37,6 +38,18 @@ public class FundingService {
         duplicateWindowHours > 0 ? duplicateWindowHours : DUPLICATE_WINDOW_HOURS_DEFAULT;
     this.retirementContributionCap =
         retirementContributionCap != null ? retirementContributionCap : RETIREMENT_CAP_DEFAULT;
+  }
+
+  /**
+   * Validates amount against the per-deposit limit. Use this before vendor assessment so amount
+   * &gt; max always fails regardless of account ID or vendor scenario.
+   */
+  public Optional<String> validateAmountOnly(BigDecimal amount) {
+    if (amount != null && amount.compareTo(maxDepositAmount) > 0) {
+      return Optional.of(
+          "Deposit amount exceeds maximum of $" + maxDepositAmount + " per deposit");
+    }
+    return Optional.empty();
   }
 
   /**

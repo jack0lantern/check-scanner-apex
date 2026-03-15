@@ -11,13 +11,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.apexfintech.checkdeposit.config.WebMvcConfig;
-import com.apexfintech.checkdeposit.domain.AuditLog;
 import com.apexfintech.checkdeposit.domain.TransferState;
 import com.apexfintech.checkdeposit.dto.OperatorQueueItem;
 import com.apexfintech.checkdeposit.dto.OperatorQueueItem.RiskIndicators;
 import com.apexfintech.checkdeposit.exception.GlobalExceptionHandler;
 import com.apexfintech.checkdeposit.operator.OperatorService;
-import com.apexfintech.checkdeposit.repository.AuditLogRepository;
+import com.apexfintech.checkdeposit.dto.OperatorActionDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -44,7 +43,6 @@ class OperatorControllerWebMvcTest {
   @Autowired private ObjectMapper objectMapper;
 
   @MockBean private OperatorService operatorService;
-  @MockBean private AuditLogRepository auditLogRepository;
 
   @Test
   void getQueue_returns403_withoutOperatorRole() throws Exception {
@@ -93,26 +91,6 @@ class OperatorControllerWebMvcTest {
         .andExpect(jsonPath("$[0].ocrAmount").value(100.50));
 
     verify(operatorService).getQueue(isNull(), isNull(), isNull(), isNull(), isNull(), isNull());
-  }
-
-  @Test
-  void getQueue_filterByStatus_returnsOnlyMatchingRecords() throws Exception {
-    when(operatorService.getQueue(
-            eq(TransferState.REJECTED), isNull(), isNull(), isNull(), isNull(), isNull()))
-        .thenReturn(List.of());
-
-    mockMvc
-        .perform(
-            get("/operator/queue")
-                .param("status", "REJECTED")
-                .header("X-User-Role", "OPERATOR")
-                .header("X-Account-Id", "OP001"))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$").isArray())
-        .andExpect(jsonPath("$.length()").value(0));
-
-    verify(operatorService)
-        .getQueue(eq(TransferState.REJECTED), isNull(), isNull(), isNull(), isNull(), isNull());
   }
 
   @Test
@@ -194,11 +172,19 @@ class OperatorControllerWebMvcTest {
     UUID transferId = UUID.randomUUID();
     UUID logId = UUID.randomUUID();
     Instant createdAt = Instant.parse("2025-03-08T12:00:00Z");
-    AuditLog log =
-        new AuditLog(logId, "OP001", "APPROVE", transferId, "{}", createdAt);
+    OperatorActionDto dto =
+        new OperatorActionDto(
+            logId,
+            "OP001",
+            "APPROVE",
+            transferId,
+            "{}",
+            createdAt,
+            "investor-123",
+            new BigDecimal("150.00"));
 
-    when(auditLogRepository.findOperatorActionsOrderByCreatedAtDesc(any()))
-        .thenReturn(List.of(log));
+    when(operatorService.getPastActions(any(Integer.class), any(), any(), any(), any(), any(), any()))
+        .thenReturn(List.of(dto));
 
     mockMvc
         .perform(
@@ -210,6 +196,8 @@ class OperatorControllerWebMvcTest {
         .andExpect(jsonPath("$[0].operatorId").value("OP001"))
         .andExpect(jsonPath("$[0].action").value("APPROVE"))
         .andExpect(jsonPath("$[0].transferId").value(transferId.toString()))
+        .andExpect(jsonPath("$[0].accountId").value("investor-123"))
+        .andExpect(jsonPath("$[0].amount").value(150.00))
         .andExpect(jsonPath("$[0].createdAt").exists());
   }
 }

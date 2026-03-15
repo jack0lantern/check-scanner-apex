@@ -23,7 +23,6 @@ export interface OperatorQueueItem {
 }
 
 export interface OperatorQueueFilters {
-  status?: string
   dateFrom?: string
   dateTo?: string
   accountId?: string
@@ -31,11 +30,13 @@ export interface OperatorQueueFilters {
   maxAmount?: number
 }
 
+/** Same shape as queue filters; for past actions, status maps to action (APPROVE/REJECT/etc). */
+export type OperatorActionFilters = OperatorQueueFilters
+
 export async function getOperatorQueue(
   filters: OperatorQueueFilters = {}
 ): Promise<OperatorQueueItem[]> {
   const params = new URLSearchParams()
-  if (filters.status && filters.status.trim()) params.set('status', filters.status.trim())
   if (filters.dateFrom) params.set('dateFrom', filters.dateFrom)
   if (filters.dateTo) params.set('dateTo', filters.dateTo)
   if (filters.accountId) params.set('accountId', filters.accountId)
@@ -89,13 +90,29 @@ export interface OperatorAction {
   transferId: string
   detail: string | null
   createdAt: string
+  accountId: string | null
+  amount: number | null
 }
 
-export async function getOperatorActions(limit = 100): Promise<OperatorAction[]> {
-  const res = await fetch(
-    `${API_BASE}/operator/actions?limit=${Math.min(Math.max(1, limit), 200)}`,
-    { headers: getAuthHeaders('OPERATOR') }
-  )
+export async function getOperatorActions(
+  limit = 100,
+  filters: OperatorActionFilters = {}
+): Promise<OperatorAction[]> {
+  const params = new URLSearchParams()
+  params.set('limit', String(Math.min(Math.max(1, limit), 200)))
+  if (filters.status && filters.status.trim()) params.set('action', filters.status.trim())
+  if (filters.dateFrom) params.set('dateFrom', filters.dateFrom)
+  if (filters.dateTo) params.set('dateTo', filters.dateTo)
+  if (filters.accountId) params.set('accountId', filters.accountId)
+  const min = filters.minAmount
+  if (min != null && Number.isFinite(min)) params.set('minAmount', String(min))
+  const max = filters.maxAmount
+  if (max != null && Number.isFinite(max)) params.set('maxAmount', String(max))
+
+  const query = params.toString()
+  const res = await fetch(`${API_BASE}/operator/actions?${query}`, {
+    headers: getAuthHeaders('OPERATOR'),
+  })
 
   if (!res.ok) {
     const body = await res.text()

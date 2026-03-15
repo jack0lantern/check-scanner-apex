@@ -120,6 +120,37 @@ public class DepositService {
     String toAccountId = resolved.internalNumber();
     String fromAccountId = resolved.omnibusAccountId();
 
+    // Amount limit applies regardless of account ID or vendor scenario — fail early
+    var amountRejection = fundingService.validateAmountOnly(amount);
+    if (amountRejection.isPresent()) {
+      VendorAssessmentResult placeholder =
+          new VendorAssessmentResult(
+              VendorScenario.CLEAN_PASS, 0.0, "", 0.0, amount, null, 0.0);
+      Transfer transfer =
+          createTransfer(
+              frontBytes,
+              backBytes,
+              amount,
+              toAccountId,
+              resolved.externalId(),
+              fromAccountId,
+              TransferState.REJECTED,
+              placeholder,
+              settlementDateService.computeSettlementDateNow());
+      transferRepository.save(transfer);
+      traceEventService.record(
+          transfer.getId(),
+          TraceStage.SUBMISSION,
+          "CREATED",
+          java.util.Map.of("state", "REJECTED"));
+      traceEventService.record(
+          transfer.getId(),
+          TraceStage.BUSINESS_RULE,
+          "FAIL",
+          java.util.Map.of("reason", amountRejection.get()));
+      return new IqaFailureResponse(transfer.getId(), amountRejection.get());
+    }
+
     VendorAssessmentResult vendorResult =
         vendorService.assessCheck(frontBytes, backBytes, amount, scenarioAccountId);
 
@@ -240,6 +271,19 @@ public class DepositService {
     ResolvedAccount resolved = accountResolutionService.resolve(accountId);
     if (!transfer.getToAccountId().equals(resolved.internalNumber())) {
       throw new TransferNotFoundException(transferId);
+    }
+
+    // Amount limit applies regardless of account ID or vendor scenario
+    var amountRejection = fundingService.validateAmountOnly(amount);
+    if (amountRejection.isPresent()) {
+      transfer.setState(TransferState.REJECTED);
+      transferRepository.save(transfer);
+      traceEventService.record(
+          transfer.getId(),
+          TraceStage.BUSINESS_RULE,
+          "FAIL",
+          java.util.Map.of("reason", amountRejection.get()));
+      return new IqaFailureResponse(transfer.getId(), amountRejection.get());
     }
 
     VendorAssessmentResult vendorResult =

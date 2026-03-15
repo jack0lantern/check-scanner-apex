@@ -1,5 +1,6 @@
 package com.apexfintech.checkdeposit.dto;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
 
@@ -10,4 +11,6 @@ public record OperatorActionDto(
     String action,
     UUID transferId,
     String detail,
-    Instant createdAt) {}
+    Instant createdAt,
+    String accountId,
+    BigDecimal amount) {}

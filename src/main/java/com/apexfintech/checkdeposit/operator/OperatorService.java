@@ -7,6 +7,7 @@ import com.apexfintech.checkdeposit.domain.TraceStage;
 import com.apexfintech.checkdeposit.domain.Transfer;
 import com.apexfintech.checkdeposit.domain.TransferState;
 import com.apexfintech.checkdeposit.dto.ApproveRequest;
+import com.apexfintech.checkdeposit.dto.OperatorActionDto;
 import com.apexfintech.checkdeposit.dto.OperatorQueueItem;
 import com.apexfintech.checkdeposit.dto.OperatorQueueItem.RiskIndicators;
 import com.apexfintech.checkdeposit.dto.RejectRequest;
@@ -19,7 +20,9 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Base64;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -74,6 +77,79 @@ public class OperatorService {
         transferRepository.findAll(spec, Sort.by(Sort.Direction.DESC, "createdAt"));
 
     return transfers.stream().map(this::toQueueItem).toList();
+  }
+
+  /**
+   * Returns past operator actions (approve/reject/override) with optional filters.
+   */
+  public List<OperatorActionDto> getPastActions(
+      int limit,
+      String action,
+      String dateFrom,
+      String dateTo,
+      String accountId,
+      BigDecimal minAmount,
+      BigDecimal maxAmount) {
+    int size = Math.min(Math.max(1, limit), 200);
+    org.springframework.data.domain.PageRequest page =
+        org.springframework.data.domain.PageRequest.of(0, size);
+
+    List<AuditLog> logs;
+    if (action != null && !action.isBlank()) {
+      String actionTrimmed = action.trim().toUpperCase();
+      if ("APPROVE".equals(actionTrimmed)
+          || "REJECT".equals(actionTrimmed)
+          || "CONTRIBUTION_TYPE_OVERRIDE".equals(actionTrimmed)) {
+        logs = auditLogRepository.findOperatorActionsByActionOrderByCreatedAtDesc(actionTrimmed, page);
+      } else {
+        logs = auditLogRepository.findOperatorActionsOrderByCreatedAtDesc(page);
+      }
+    } else {
+      logs = auditLogRepository.findOperatorActionsOrderByCreatedAtDesc(page);
+    }
+
+    Instant from = TransferSpecs.parseDateStartOfDay(dateFrom);
+    Instant to = TransferSpecs.parseDateEndOfDay(dateTo);
+    String accountFilter = resolveAccountIdForFilter(accountId);
+
+    List<UUID> transferIds =
+        logs.stream().map(AuditLog::getTransferId).filter(id -> id != null).distinct().toList();
+    Map<UUID, Transfer> transfersById =
+        transferRepository.findAllById(transferIds).stream()
+            .collect(Collectors.toMap(Transfer::getId, t -> t));
+
+    return logs.stream()
+        .map(
+            a -> {
+              Transfer t =
+                  a.getTransferId() != null ? transfersById.get(a.getTransferId()) : null;
+              if (t == null) return null;
+              if (from != null && a.getCreatedAt().isBefore(from)) return null;
+              if (to != null && a.getCreatedAt().isAfter(to)) return null;
+              if (accountFilter != null) {
+                boolean match =
+                    accountFilter.equals(t.getToAccountId())
+                        || accountFilter.equalsIgnoreCase(t.getInvestorAccountId());
+                if (!match) return null;
+              }
+              if (minAmount != null && t.getAmount() != null && t.getAmount().compareTo(minAmount) < 0)
+                return null;
+              if (maxAmount != null && t.getAmount() != null && t.getAmount().compareTo(maxAmount) > 0)
+                return null;
+              String acctId = t.getInvestorAccountId();
+              BigDecimal amt = t.getAmount();
+              return new OperatorActionDto(
+                  a.getId(),
+                  a.getOperatorId(),
+                  a.getAction(),
+                  a.getTransferId(),
+                  a.getDetail(),
+                  a.getCreatedAt(),
+                  acctId,
+                  amt);
+            })
+        .filter(dto -> dto != null)
+        .toList();
   }
 
   @Transactional

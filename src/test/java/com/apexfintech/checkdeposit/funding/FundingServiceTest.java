@@ -37,6 +37,21 @@ class FundingServiceTest {
   @Autowired private FundingService fundingService;
 
   @Test
+  void validateAmountOnly_amountOver5000_returnsRejection() {
+    assertThat(fundingService.validateAmountOnly(new BigDecimal("5001")).orElse(null))
+        .contains("5000");
+    assertThat(fundingService.validateAmountOnly(new BigDecimal("10000")).orElse(null))
+        .contains("exceeds maximum");
+  }
+
+  @Test
+  void validateAmountOnly_amount5000OrLess_passes() {
+    assertThat(fundingService.validateAmountOnly(new BigDecimal("5000"))).isEmpty();
+    assertThat(fundingService.validateAmountOnly(new BigDecimal("100"))).isEmpty();
+    assertThat(fundingService.validateAmountOnly(BigDecimal.ZERO)).isEmpty();
+  }
+
+  @Test
   void validate_amount5000_passes() {
     Transfer transfer = createTransfer(new BigDecimal("5000"));
     ResolvedAccount resolved =

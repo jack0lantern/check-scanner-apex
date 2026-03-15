@@ -7,6 +7,7 @@ import {
   type OperatorQueueItem,
   type OperatorQueueFilters,
   type OperatorAction,
+  type OperatorActionFilters,
 } from '../api/operatorApi'
 
 const CONTRIBUTION_TYPES = ['INDIVIDUAL', 'ROTH', 'TRADITIONAL'] as const
@@ -49,7 +50,6 @@ function QueueCard({
     <article className="operator-card" data-transfer-id={item.transferId}>
       <header className="operator-card__header">
         <span className="operator-card__transfer-id">{item.transferId}</span>
-        <span className="operator-card__state">{item.state}</span>
       </header>
 
       <div className="operator-card__body">
@@ -189,6 +189,8 @@ function PastActionsList({ actions }: { actions: OperatorAction[] }) {
             <th>Time</th>
             <th>Action</th>
             <th>Transfer ID</th>
+            <th>Account ID</th>
+            <th>Amount</th>
             <th>Operator</th>
             <th>Detail</th>
           </tr>
@@ -205,6 +207,8 @@ function PastActionsList({ actions }: { actions: OperatorAction[] }) {
                 </span>
               </td>
               <td className="operator-actions-table__mono">{a.transferId}</td>
+              <td className="operator-actions-table__mono">{a.accountId ?? '—'}</td>
+              <td>{a.amount != null ? `$${a.amount.toFixed(2)}` : '—'}</td>
               <td>{a.operatorId ?? '—'}</td>
               <td>
                 <ActionDetail detail={a.detail} />
@@ -228,32 +232,35 @@ export function OperatorView() {
   const [contributionOverride, setContributionOverride] = useState<string>('')
   const [actionLoading, setActionLoading] = useState(false)
   const [activeTab, setActiveTab] = useState<'queue' | 'actions'>('queue')
+  const [actionFilters, setActionFilters] = useState<OperatorActionFilters>({})
   const [pastActions, setPastActions] = useState<OperatorAction[]>([])
   const [actionsLoading, setActionsLoading] = useState(false)
   const [actionsError, setActionsError] = useState<string | null>(null)
 
-  const fetchQueue = useCallback(async () => {
+  useEffect(() => {
+    let cancelled = false
     setLoading(true)
     setError(null)
-    try {
-      const items = await getOperatorQueue(filters)
-      setQueue(items)
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to load queue')
-    } finally {
-      setLoading(false)
+    getOperatorQueue(filters)
+      .then((items) => {
+        if (!cancelled) setQueue(items)
+      })
+      .catch((e) => {
+        if (!cancelled) setError(e instanceof Error ? e.message : 'Failed to load queue')
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false)
+      })
+    return () => {
+      cancelled = true
     }
   }, [filters])
-
-  useEffect(() => {
-    fetchQueue()
-  }, [fetchQueue])
 
   const fetchPastActions = useCallback(async () => {
     setActionsLoading(true)
     setActionsError(null)
     try {
-      const items = await getOperatorActions()
+      const items = await getOperatorActions(100, actionFilters)
       setPastActions(items)
     } catch (e) {
       setPastActions([])
@@ -261,7 +268,7 @@ export function OperatorView() {
     } finally {
       setActionsLoading(false)
     }
-  }, [])
+  }, [actionFilters])
 
   useEffect(() => {
     if (activeTab === 'actions') {
@@ -271,6 +278,21 @@ export function OperatorView() {
 
   function handleFilterChange(key: keyof OperatorQueueFilters, value: string | number | undefined) {
     setFilters((prev) => {
+      const next = { ...prev }
+      if (value === '' || value === undefined) {
+        delete next[key]
+      } else {
+        ;(next as Record<string, unknown>)[key] = value
+      }
+      return next
+    })
+  }
+
+  function handleActionFilterChange(
+    key: keyof OperatorActionFilters,
+    value: string | number | undefined
+  ) {
+    setActionFilters((prev) => {
       const next = { ...prev }
       if (value === '' || value === undefined) {
         delete next[key]
@@ -356,21 +378,6 @@ export function OperatorView() {
       {activeTab === 'queue' && (
         <>
       <div className="operator-filters">
-        <div className="operator-filters__field">
-          <label htmlFor="filter-status">Status</label>
-          <select
-            id="filter-status"
-            value={filters.status ?? ''}
-            onChange={(e) => handleFilterChange('status', e.target.value || undefined)}
-          >
-            <option value="">All</option>
-            <option value="ANALYZING">ANALYZING</option>
-            <option value="REQUESTED">REQUESTED</option>
-            <option value="VALIDATING">VALIDATING</option>
-            <option value="APPROVED">APPROVED</option>
-            <option value="REJECTED">REJECTED</option>
-          </select>
-        </div>
         <div className="operator-filters__field">
           <label htmlFor="filter-dateFrom">Date From</label>
           <input
@@ -474,6 +481,91 @@ export function OperatorView() {
             >
               {actionsLoading ? 'Loading…' : 'Refresh'}
             </button>
+          </div>
+          <div className="operator-filters">
+            <div className="operator-filters__field">
+              <label htmlFor="action-filter-status">Action</label>
+              <select
+                id="action-filter-status"
+                value={actionFilters.status ?? ''}
+                onChange={(e) =>
+                  handleActionFilterChange('status', e.target.value || undefined)
+                }
+              >
+                <option value="">All</option>
+                <option value="APPROVE">APPROVE</option>
+                <option value="REJECT">REJECT</option>
+                <option value="CONTRIBUTION_TYPE_OVERRIDE">CONTRIBUTION_TYPE_OVERRIDE</option>
+              </select>
+            </div>
+            <div className="operator-filters__field">
+              <label htmlFor="action-filter-dateFrom">Date From</label>
+              <input
+                id="action-filter-dateFrom"
+                type="date"
+                value={actionFilters.dateFrom ?? ''}
+                onChange={(e) =>
+                  handleActionFilterChange('dateFrom', e.target.value || undefined)
+                }
+              />
+            </div>
+            <div className="operator-filters__field">
+              <label htmlFor="action-filter-dateTo">Date To</label>
+              <input
+                id="action-filter-dateTo"
+                type="date"
+                value={actionFilters.dateTo ?? ''}
+                onChange={(e) =>
+                  handleActionFilterChange('dateTo', e.target.value || undefined)
+                }
+              />
+            </div>
+            <div className="operator-filters__field">
+              <label htmlFor="action-filter-accountId">Account ID</label>
+              <input
+                id="action-filter-accountId"
+                type="text"
+                placeholder="Account ID"
+                value={actionFilters.accountId ?? ''}
+                onChange={(e) =>
+                  handleActionFilterChange('accountId', e.target.value || undefined)
+                }
+              />
+            </div>
+            <div className="operator-filters__field">
+              <label htmlFor="action-filter-minAmount">Min Amount</label>
+              <input
+                id="action-filter-minAmount"
+                type="number"
+                step="0.01"
+                min="0"
+                placeholder="Min"
+                value={actionFilters.minAmount ?? ''}
+                onChange={(e) => {
+                  const val = e.target.value
+                  if (!val) return handleActionFilterChange('minAmount', undefined)
+                  const n = parseFloat(val)
+                  handleActionFilterChange('minAmount', Number.isFinite(n) ? n : undefined)
+                }}
+              />
+            </div>
+            <div className="operator-filters__field">
+              <label htmlFor="action-filter-maxAmount">Max Amount</label>
+              <input
+                id="action-filter-maxAmount"
+                type="number"
+                step="0.01"
+                min="0"
+                placeholder="Max"
+                value={actionFilters.maxAmount ?? ''}
+                onChange={(e) => {
+                  const val = e.target.value
+                  if (!val) return handleActionFilterChange('maxAmount', undefined)
+                  const n = parseFloat(val)
+                  handleActionFilterChange('maxAmount', Number.isFinite(n) ? n : undefined)
+                }}
+              />
+            </div>
           </div>
           {actionsError && (
             <div className="operator-error" role="alert">

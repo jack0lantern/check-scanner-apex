@@ -187,6 +187,58 @@ class DepositSubmissionTest {
   }
 
   @Test
+  void submitDeposit_withExcessAmountAndMicrFail_failsWithAmountMessage() throws Exception {
+    // micr-fail would normally go to operator queue, but amount > 5000 must fail first
+    ResultActions result =
+        mockMvc.perform(
+            post("/deposits")
+                .header("X-User-Role", "INVESTOR")
+                .header("X-Account-Id", "micr-fail")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    objectMapper.writeValueAsString(
+                        Map.of(
+                            "frontImage",
+                            VALID_BASE64_IMAGE,
+                            "backImage",
+                            VALID_BASE64_IMAGE,
+                            "amount",
+                            10_000,
+                            "accountId",
+                            "TEST001"))));
+
+    result
+        .andExpect(status().isUnprocessableEntity())
+        .andExpect(jsonPath("$.actionableMessage", containsString("exceeds maximum")));
+  }
+
+  @Test
+  void submitDeposit_withExcessAmountAndRoutingMismatch_failsWithAmountMessage() throws Exception {
+    // routing-mismatch would normally go to operator queue, but amount > 5000 must fail first
+    ResultActions result =
+        mockMvc.perform(
+            post("/deposits")
+                .header("X-User-Role", "INVESTOR")
+                .header("X-Account-Id", "routing-mismatch")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    objectMapper.writeValueAsString(
+                        Map.of(
+                            "frontImage",
+                            VALID_BASE64_IMAGE,
+                            "backImage",
+                            VALID_BASE64_IMAGE,
+                            "amount",
+                            6_000,
+                            "accountId",
+                            "TEST001"))));
+
+    result
+        .andExpect(status().isUnprocessableEntity())
+        .andExpect(jsonPath("$.actionableMessage", containsString("exceeds maximum")));
+  }
+
+  @Test
   void submitDeposit_setsSettlementDate() throws Exception {
     // Use distinct amount to avoid duplicate detection from other tests
     String response =

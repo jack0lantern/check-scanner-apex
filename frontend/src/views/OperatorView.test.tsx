@@ -78,32 +78,6 @@ describe('OperatorView', () => {
     expect(item2Ocr).toHaveClass('ocr-amount-mismatch')
   })
 
-  it('filtering by status narrows to one item', async () => {
-    const user = userEvent.setup()
-    mockGetQueue
-      .mockResolvedValueOnce([queueItem1, queueItem2])
-      .mockResolvedValueOnce([queueItem2])
-
-    render(<OperatorView />)
-
-    await waitFor(() => {
-      expect(mockGetQueue).toHaveBeenCalledWith({})
-    })
-
-    const statusSelect = screen.getByLabelText(/status/i)
-    await user.selectOptions(statusSelect, 'REJECTED')
-
-    await waitFor(() => {
-      expect(mockGetQueue).toHaveBeenLastCalledWith(
-        expect.objectContaining({ status: 'REJECTED' })
-      )
-    })
-
-    expect(mockGetQueue).toHaveBeenCalledTimes(2)
-    expect(screen.getByText(queueItem2.transferId)).toBeInTheDocument()
-    expect(screen.queryByText(queueItem1.transferId)).not.toBeInTheDocument()
-  })
-
   it('approve button fires POST with correct payload including optional override', async () => {
     const user = userEvent.setup()
     mockApprove.mockResolvedValue(undefined)
@@ -146,6 +120,8 @@ describe('OperatorView', () => {
         transferId: '11111111-1111-1111-1111-111111111111',
         detail: '{}',
         createdAt: '2025-03-08T14:00:00Z',
+        accountId: 'TEST001',
+        amount: 100,
       },
       {
         id: 'log-2',
@@ -154,6 +130,8 @@ describe('OperatorView', () => {
         transferId: '22222222-2222-2222-2222-222222222222',
         detail: '{"reason":"Suspicious activity"}',
         createdAt: '2025-03-08T13:00:00Z',
+        accountId: 'TEST002',
+        amount: 250,
       },
     ])
 
@@ -171,8 +149,9 @@ describe('OperatorView', () => {
     })
 
     expect(screen.getByText('Past Queue Actions')).toBeInTheDocument()
-    expect(screen.getByText('APPROVE')).toBeInTheDocument()
-    expect(screen.getByText('REJECT')).toBeInTheDocument()
+    const table = screen.getByRole('table')
+    expect(within(table).getByText('APPROVE')).toBeInTheDocument()
+    expect(within(table).getByText('REJECT')).toBeInTheDocument()
     expect(screen.getByText('reason: Suspicious activity')).toBeInTheDocument()
   })
 
