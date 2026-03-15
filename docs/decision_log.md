@@ -132,6 +132,36 @@ This document records key stack choices and implementation decisions made during
 
 ---
 
+### 11. npm workspaces over monorepo tools (Turborepo/Nx)
+
+**Decision:** npm workspaces.
+
+**Rationale:** Chosen for simplicity; two consumers don't warrant build graph orchestration overhead. Can be layered in later.
+
+**Alternatives considered:** Turborepo — adds caching and task graph but introduces a dependency and configuration surface that is unnecessary for two packages sharing one library. Nx — similar trade-off with even more configuration.
+
+---
+
+### 12. `expo-image-picker` over `expo-camera`
+
+**Decision:** `expo-image-picker`.
+
+**Rationale:** Delegates to system camera UI (trusted, handles permissions); returns base64 directly. Custom viewfinder would require lifecycle management and adds no value for check capture.
+
+**Alternatives considered:** `expo-camera` — full camera control with custom viewfinder, but requires managing camera lifecycle, permissions prompts, and capture UX. Overkill for capturing a check image.
+
+---
+
+### 13. CommonJS output for `@apex/shared`
+
+**Decision:** CommonJS (`"module": "commonjs"`) in `packages/shared/tsconfig.json`.
+
+**Rationale:** Metro (Expo's bundler in SDK 51) has incomplete ESM support for packages outside the project root. CJS avoids interop issues; Vite handles CJS fine. Revisit when Metro ESM stabilizes.
+
+**Alternatives considered:** ESM output — cleaner for Vite but causes `ERR_REQUIRE_ESM` or unresolved import issues in Metro without additional configuration.
+
+---
+
 ## Summary Table
 
 | Area | PRD | Decision |
@@ -149,3 +179,6 @@ This document records key stack choices and implementation decisions made during
 | Vendor scenarios | 7 required | 8 (added ROUTING_MISMATCH) |
 | Debug endpoint | Not specified | `GET /debug/vendor-stub?accountId=<trigger>` |
 | Setup | One-command (make dev or docker compose up) | Docker Compose + Make |
+| Monorepo tooling | Not specified | npm workspaces (no Turborepo/Nx) |
+| Mobile camera | Not specified | `expo-image-picker` (system camera UI) |
+| Shared package format | Not specified | CommonJS output for Metro compat |

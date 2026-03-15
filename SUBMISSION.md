@@ -32,6 +32,18 @@ export $(grep -v '^#' .env | xargs) && ./mvnw spring-boot:run
 # In another terminal: cd frontend && npm install && npm run dev
 ```
 
+**Mobile app (React Native / Expo):**
+
+```bash
+npm run build:shared
+npm install
+cd mobile && npm start
+```
+
+- Press `i` for iOS Simulator (Xcode required), `a` for Android Emulator (Android Studio required)
+- Physical device: `EXPO_PUBLIC_API_BASE_URL=http://192.168.x.x:8080 npm start` (run from `mobile/`) (use your LAN IP; Android emulator: `http://10.0.2.2:8080`)
+- Backend must be running before submitting deposits from the app
+
 **Run demo scripts (requires backend running):**
 
 ```bash

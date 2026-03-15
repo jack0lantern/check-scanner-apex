@@ -2,6 +2,8 @@
 
 Mobile Check Deposit System — Modular Monolith
 
+As of 2026-03-15, the system has two client applications sharing API logic via `packages/shared`.
+
 This document describes the system architecture, component boundaries, data flow, and schema for the Apex Fintech Mobile Check Deposit System. A third-party evaluator should be able to understand all system boundaries from this document alone.
 
 ---
@@ -13,7 +15,8 @@ The system is a modular monolith with exactly **7 named components**. All compon
 ```mermaid
 flowchart TB
     subgraph Client
-        React[React Frontend]
+        React[React Web Frontend]
+        Mobile[React Native Mobile]
     end
 
     subgraph "1. Deposit Capture"
@@ -53,7 +56,8 @@ flowchart TB
         DB[(PostgreSQL)]
     end
 
-    React -->|POST /deposits| DC
+    React -->|POST /api/deposits| DC
+    Mobile -->|POST /deposits| DC
     DC --> DS
     DS --> VS
     DS --> FS
@@ -73,11 +77,12 @@ flowchart TB
 ### ASCII Alternative
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────────┐
-│                           React Frontend (Vite :5173)                             │
-└─────────────────────────────────────────────────────────────────────────────────┘
-                                        │
-                                        ▼
+┌──────────────────────────────────────┐  ┌──────────────────────────────────────┐
+│   React Web Frontend (Vite :5173)    │  │   React Native Mobile (Expo)          │
+└──────────────────────────────────────┘  └──────────────────────────────────────┘
+                    │                                        │
+                    └────────────────┬───────────────────────┘
+                                     ▼
 ┌─────────────────────────────────────────────────────────────────────────────────┐
 │ 1. DEPOSIT CAPTURE          │ DepositController, DepositService                  │
 │    - Receives POST /deposits, orchestrates flow, handles retries                 │
@@ -118,6 +123,18 @@ flowchart TB
 │                           PostgreSQL                                             │
 │  transfers, ledger_entries, audit_logs, trace_events, accounts, settlement_batch │
 └─────────────────────────────────────────────────────────────────────────────────┘
+```
+
+### Monorepo Structure
+
+```
+apex-monorepo/
+├── packages/shared/     # @apex/shared — types, API factories
+├── frontend/            # React web app (Vite)
+├── mobile/              # React Native app (Expo)
+├── src/                 # Spring Boot backend
+├── docs/
+└── package.json         # npm workspaces root
 ```
 
 ---

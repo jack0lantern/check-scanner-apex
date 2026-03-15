@@ -42,6 +42,38 @@ npm run test         # vitest run (single pass)
 npm run test:watch   # vitest watch mode
 ```
 
+### Mobile (React Native / Expo)
+
+```bash
+# Install dependencies (run from repo root after initial setup)
+npm install
+
+# Start Expo dev server
+cd mobile && expo start
+
+# Open on iOS Simulator (press 'i' in expo terminal, requires Xcode)
+# Open on Android Emulator (press 'a', requires Android Studio)
+
+# Physical device — set your machine's LAN IP:
+EXPO_PUBLIC_API_BASE_URL=http://192.168.x.x:8080 expo start
+# Android emulator uses: http://10.0.2.2:8080
+# Find LAN IP: ipconfig getifaddr en0
+
+# TypeScript check
+cd mobile && npx tsc --noEmit
+```
+
+### Shared Package (@apex/shared)
+
+```bash
+# Build shared types + API factories (required before first npm install)
+npm run build:shared
+# or: cd packages/shared && npx tsc
+
+# Run all workspace tests
+npm run test:web        # frontend vitest
+```
+
 ### Full Stack via Docker
 
 ```bash
@@ -57,6 +89,7 @@ docker compose --profile full up -d   # db + backend + frontend
 
 ```
 React (5173) → POST /api/deposits → [Vite proxy strips /api] → Spring Boot (8080)
+Expo (mobile) → POST /deposits → Spring Boot (8080)
 ```
 
 1. `DepositController` extracts `X-Account-Id` via `MockAuthInterceptor` → `AuthContextHolder`
@@ -77,6 +110,7 @@ React (5173) → POST /api/deposits → [Vite proxy strips /api] → Spring Boot
 | `settlement` | `EodSchedulerService` (cron), `SettlementFileService` (X9 ICL JSON), `SettlementAckService` |
 | `trace` | `TraceEventService` — writes structured audit rows per stage |
 | `auth` | `MockAuthInterceptor` reads `X-User-Role`/`X-Account-Id`; `OperatorRoleInterceptor` guards `/operator/**` |
+| `@apex/shared` | TypeScript types, API fetch factories (shared between web and mobile) |
 
 ### API Endpoints
 

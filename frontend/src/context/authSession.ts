@@ -1,11 +1,7 @@
-export type AuthRole = 'INVESTOR' | 'OPERATOR'
+import { AUTH_SESSION_KEY } from '@apex/shared'
+import type { AuthSession } from '@apex/shared'
 
-export interface AuthSession {
-  role: AuthRole
-  email: string
-}
-
-const AUTH_SESSION_KEY = 'scanify.auth.session'
+export type { AuthRole, AuthSession } from '@apex/shared'
 
 export function readAuthSession(): AuthSession | null {
   if (typeof window === 'undefined') {

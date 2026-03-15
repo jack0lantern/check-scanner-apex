@@ -53,6 +53,32 @@ If `psql` is not installed locally, run it inside the container:
 docker compose exec db psql -U checkuser -d checkdeposit
 ```
 
+### Mobile (React Native / Expo)
+
+Run the mobile app for deposit capture on a simulator or physical device:
+
+```bash
+# Build shared package (required before first run)
+npm run build:shared
+
+# Install dependencies (from repo root)
+npm install
+
+# Start Expo dev server
+cd mobile && npm start
+```
+
+- **iOS Simulator:** Press `i` in the Expo terminal (requires Xcode)
+- **Android Emulator:** Press `a` (requires Android Studio)
+- **Physical device:** From `mobile/`, set your machine's LAN IP so the app can reach the backend:
+  ```bash
+  cd mobile && EXPO_PUBLIC_API_BASE_URL=http://192.168.x.x:8080 npm start
+  ```
+  - Android emulator uses `http://10.0.2.2:8080`
+  - Find LAN IP: `ipconfig getifaddr en0`
+
+Ensure the backend is running (`docker compose up -d db` + `./mvnw spring-boot:run`, or `docker compose --profile full up -d`) before submitting deposits from the mobile app.
+
 ## Configuration
 
 Required environment variables (see `.env.example`):

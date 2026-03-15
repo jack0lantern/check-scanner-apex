@@ -1,0 +1,13 @@
+{
+  "name": "apex-monorepo",
+  "private": true,
+  "workspaces": ["packages/*", "frontend", "mobile"],
+  "overrides": {
+    "react": "19.1.0",
+    "react-native": "0.81.5"
+  },
+  "scripts": {
+    "test:web": "npm run test --workspace=frontend",
+    "build:shared": "npm run build --workspace=packages/shared"
+  }
+}
