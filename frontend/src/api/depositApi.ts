@@ -45,7 +45,7 @@ export async function submitDeposit(
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      ...getAuthHeaders('INVESTOR'),
+      ...getAuthHeaders('INVESTOR', request.accountId),
     },
     body: JSON.stringify({
       frontImage: request.frontImage,
@@ -58,15 +58,29 @@ export async function submitDeposit(
     }),
   })
 
-  const data = (await res.json()) as DepositResponse | IqaFailureResponse
+  const text = await res.text()
+  let data: DepositResponse | IqaFailureResponse
+  try {
+    data = (text ? JSON.parse(text) : {}) as DepositResponse | IqaFailureResponse
+  } catch {
+    data = { transferId: '', actionableMessage: text || 'Request failed' } as IqaFailureResponse
+  }
 
   if (!res.ok) {
+    const parsed = data as Record<string, unknown>
     const err = new Error('Deposit submission failed') as Error & {
       status: number
       data: IqaFailureResponse
     }
     err.status = res.status
-    err.data = data as IqaFailureResponse
+    err.data = {
+      transferId: String(parsed.transferId ?? ''),
+      actionableMessage:
+        String(parsed.actionableMessage ?? '') ||
+        String(parsed.message ?? '') ||
+        String(parsed.error ?? '') ||
+        (res.status === 401 ? 'Session expired. Please log in again.' : 'Request failed'),
+    }
     throw err
   }
 

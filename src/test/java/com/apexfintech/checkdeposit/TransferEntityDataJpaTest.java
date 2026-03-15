@@ -43,6 +43,7 @@ class TransferEntityDataJpaTest {
             backImage,
             amount,
             toAccountId,
+            "INV-001",
             fromAccountId,
             state,
             vendorScore,

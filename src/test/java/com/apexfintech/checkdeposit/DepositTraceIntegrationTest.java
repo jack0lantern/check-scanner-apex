@@ -25,8 +25,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Integration test: walks a deposit through submission → vendor validation → funding service →
- * operator approval → settlement batch inclusion, then queries trace_events and asserts all 5+
- * stages appear in order with correct outcomes and timestamps.
+ * auto-approval (clean-pass) → settlement batch inclusion, then queries trace_events and asserts
+ * all stages appear in order with correct outcomes and timestamps.
  */
 @SpringBootTest(properties = "spring.task.scheduling.enabled=false")
 @AutoConfigureMockMvc
@@ -46,7 +46,7 @@ class DepositTraceIntegrationTest {
   @Test
   void traceEndpoint_returnsAllFiveStagesInOrder_afterFullDepositFlowIncludingSettlement()
       throws Exception {
-    // 1. Submit deposit (clean-pass → vendor + funding pass)
+    // 1. Submit deposit (clean-pass → vendor + funding pass → auto-approved)
     String submitResponse =
         mockMvc
             .perform(
@@ -67,30 +67,20 @@ class DepositTraceIntegrationTest {
                                 "TEST001"))))
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.transferId").exists())
-            .andExpect(jsonPath("$.state").value("ANALYZING"))
+            .andExpect(jsonPath("$.state").value("APPROVED"))
             .andReturn()
             .getResponse()
             .getContentAsString();
 
     String transferId = objectMapper.readTree(submitResponse).get("transferId").asText();
 
-    // 2. Operator approve
-    mockMvc
-        .perform(
-            post("/operator/queue/{transferId}/approve", transferId)
-                .header("X-User-Role", "OPERATOR")
-                .header("X-Account-Id", "op1")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("{}"))
-        .andExpect(status().isOk());
-
-    // 3. Trigger settlement batch (EOD)
+    // 2. Trigger settlement batch (EOD)
     settlementFileService.generateSettlementFile();
 
-    // 4. Query trace_events directly and assert all stages appear with correct outcomes
+    // 3. Query trace_events directly and assert all stages appear with correct outcomes
     UUID transferUuid = UUID.fromString(transferId);
     var traceEvents = traceEventRepository.findByTransferIdOrderByCreatedAtAsc(transferUuid);
-    assertThat(traceEvents).hasSizeGreaterThanOrEqualTo(5);
+    assertThat(traceEvents).hasSizeGreaterThanOrEqualTo(4);
     assertThat(traceEvents.get(0).getStage().name()).isEqualTo("SUBMISSION");
     assertThat(traceEvents.get(0).getOutcome()).isEqualTo("CREATED");
     assertThat(traceEvents.get(0).getCreatedAt()).isNotNull();
@@ -98,12 +88,10 @@ class DepositTraceIntegrationTest {
     assertThat(traceEvents.get(1).getOutcome()).isEqualTo("PASS");
     assertThat(traceEvents.get(2).getStage().name()).isEqualTo("BUSINESS_RULE");
     assertThat(traceEvents.get(2).getOutcome()).isEqualTo("PASS");
-    assertThat(traceEvents.get(3).getStage().name()).isEqualTo("OPERATOR_ACTION");
-    assertThat(traceEvents.get(3).getOutcome()).isEqualTo("APPROVE");
-    assertThat(traceEvents.get(4).getStage().name()).isEqualTo("SETTLEMENT");
-    assertThat(traceEvents.get(4).getOutcome()).isEqualTo("INCLUDED");
+    assertThat(traceEvents.get(3).getStage().name()).isEqualTo("SETTLEMENT");
+    assertThat(traceEvents.get(3).getOutcome()).isEqualTo("INCLUDED");
 
-    // 5. Call trace endpoint and verify same data via API
+    // 4. Call trace endpoint and verify same data via API
     String traceResponse =
         mockMvc
             .perform(
@@ -117,7 +105,7 @@ class DepositTraceIntegrationTest {
 
     JsonNode traceArray = objectMapper.readTree(traceResponse);
     assertThat(traceArray.isArray()).isTrue();
-    assertThat(traceArray.size()).isGreaterThanOrEqualTo(5);
+    assertThat(traceArray.size()).isGreaterThanOrEqualTo(4);
 
     assertThat(traceArray.get(0).get("stage").asText()).isEqualTo("SUBMISSION");
     assertThat(traceArray.get(0).get("outcome").asText()).isEqualTo("CREATED");
@@ -131,18 +119,14 @@ class DepositTraceIntegrationTest {
     assertThat(traceArray.get(2).get("outcome").asText()).isEqualTo("PASS");
     assertThat(traceArray.get(2).get("timestamp")).isNotNull();
 
-    assertThat(traceArray.get(3).get("stage").asText()).isEqualTo("OPERATOR_ACTION");
-    assertThat(traceArray.get(3).get("outcome").asText()).isEqualTo("APPROVE");
+    assertThat(traceArray.get(3).get("stage").asText()).isEqualTo("SETTLEMENT");
+    assertThat(traceArray.get(3).get("outcome").asText()).isEqualTo("INCLUDED");
     assertThat(traceArray.get(3).get("timestamp")).isNotNull();
-
-    assertThat(traceArray.get(4).get("stage").asText()).isEqualTo("SETTLEMENT");
-    assertThat(traceArray.get(4).get("outcome").asText()).isEqualTo("INCLUDED");
-    assertThat(traceArray.get(4).get("timestamp")).isNotNull();
   }
 
   @Test
   void traceEndpoint_returnsReturnStage_afterReturnNotification() throws Exception {
-    // 1. Submit and approve (same as above)
+    // 1. Submit deposit (clean-pass auto-approves to APPROVED)
     String submitResponse =
         mockMvc
             .perform(
@@ -168,16 +152,7 @@ class DepositTraceIntegrationTest {
 
     String transferId = objectMapper.readTree(submitResponse).get("transferId").asText();
 
-    mockMvc
-        .perform(
-            post("/operator/queue/{transferId}/approve", transferId)
-                .header("X-User-Role", "OPERATOR")
-                .header("X-Account-Id", "op1")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("{}"))
-        .andExpect(status().isOk());
-
-    // 2. Post return notification (transfer stays APPROVED until we explicitly return)
+    // 2. Post return notification (transfer is already APPROVED from auto-approval)
     mockMvc
         .perform(
             post("/internal/returns")
@@ -192,7 +167,7 @@ class DepositTraceIntegrationTest {
     // 3. Query trace_events and assert RETURN stage appears
     UUID transferUuid = UUID.fromString(transferId);
     var traceEvents = traceEventRepository.findByTransferIdOrderByCreatedAtAsc(transferUuid);
-    assertThat(traceEvents).hasSizeGreaterThanOrEqualTo(5);
+    assertThat(traceEvents).hasSizeGreaterThanOrEqualTo(4);
     var returnEvent =
         traceEvents.stream()
             .filter(e -> "RETURN".equals(e.getStage().name()))

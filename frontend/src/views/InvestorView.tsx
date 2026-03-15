@@ -51,15 +51,17 @@ export function InvestorView({ onNavigateToLedger }: InvestorViewProps) {
         setSuccess({ transferId: result.transferId, state: result.state })
       }
     } catch (err) {
-      const e = err as { status?: number; data?: { transferId: string; actionableMessage: string } }
-      if (e.status === 422 && e.data) {
-        setIqaError({ transferId: e.data.transferId, actionableMessage: e.data.actionableMessage })
-      } else {
-        setIqaError({
-          transferId: '',
-          actionableMessage: 'An unexpected error occurred. Please try again.',
-        })
+      const e = err as {
+        status?: number
+        data?: { transferId?: string; actionableMessage?: string }
       }
+      const transferId = e.data?.transferId ?? ''
+      const actionableMessage =
+        e.data?.actionableMessage ??
+        (e.status === undefined
+          ? 'Could not connect to server. Please ensure the backend is running at http://localhost:8080.'
+          : 'An unexpected error occurred. Please try again.')
+      setIqaError({ transferId, actionableMessage })
     } finally {
       setLoading(false)
     }
@@ -128,8 +130,15 @@ export function InvestorView({ onNavigateToLedger }: InvestorViewProps) {
       </form>
 
       {success && (
-        <div className="success-message" role="status">
-          <p>Deposit submitted. Transfer ID: {success.transferId}, State: {success.state}</p>
+        <div className={success.state === 'ANALYZING' ? 'pending-review-message' : 'success-message'} role="status">
+          {success.state === 'ANALYZING' ? (
+            <p>
+              Deposit submitted but requires operator review before it can be processed.
+              Transfer ID: {success.transferId}
+            </p>
+          ) : (
+            <p>Deposit submitted. Transfer ID: {success.transferId}, State: {success.state}</p>
+          )}
           {onNavigateToLedger && (
             <button
               type="button"
@@ -146,13 +155,15 @@ export function InvestorView({ onNavigateToLedger }: InvestorViewProps) {
       {iqaError && (
         <div className="iqa-error" role="alert">
           <p className="actionable-message">{iqaError.actionableMessage}</p>
-          <button
-            type="button"
-            onClick={handleRetakeResubmit}
-            disabled={loading}
-          >
-            Retake & Resubmit
-          </button>
+          {iqaError.transferId && (
+            <button
+              type="button"
+              onClick={handleRetakeResubmit}
+              disabled={loading}
+            >
+              Retake & Resubmit
+            </button>
+          )}
         </div>
       )}
     </div>

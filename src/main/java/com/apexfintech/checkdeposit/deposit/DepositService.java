@@ -13,6 +13,7 @@ import com.apexfintech.checkdeposit.funding.AccountResolutionService;
 import com.apexfintech.checkdeposit.funding.FundingService;
 import com.apexfintech.checkdeposit.funding.FundingValidationResult;
 import com.apexfintech.checkdeposit.funding.MicrParser;
+import com.apexfintech.checkdeposit.ledger.LedgerPostingService;
 import com.apexfintech.checkdeposit.repository.AccountRepository;
 import com.apexfintech.checkdeposit.repository.TransferRepository;
 import com.apexfintech.checkdeposit.settlement.SettlementDateService;
@@ -33,6 +34,7 @@ public class DepositService {
   private final VendorService vendorService;
   private final TransferRepository transferRepository;
   private final FundingService fundingService;
+  private final LedgerPostingService ledgerPostingService;
   private final AccountRepository accountRepository;
   private final TraceEventService traceEventService;
   private final SettlementDateService settlementDateService;
@@ -42,6 +44,7 @@ public class DepositService {
       VendorService vendorService,
       TransferRepository transferRepository,
       FundingService fundingService,
+      LedgerPostingService ledgerPostingService,
       AccountRepository accountRepository,
       TraceEventService traceEventService,
       SettlementDateService settlementDateService) {
@@ -49,6 +52,7 @@ public class DepositService {
     this.vendorService = vendorService;
     this.transferRepository = transferRepository;
     this.fundingService = fundingService;
+    this.ledgerPostingService = ledgerPostingService;
     this.accountRepository = accountRepository;
     this.traceEventService = traceEventService;
     this.settlementDateService = settlementDateService;
@@ -62,10 +66,12 @@ public class DepositService {
             .orElseThrow(() -> new TransferNotFoundException(transferId));
 
     String accountId =
-        accountRepository
-            .findByInternalNumber(transfer.getToAccountId())
-            .map(a -> a.getExternalId())
-            .orElse(transfer.getToAccountId());
+        transfer.getInvestorAccountId() != null
+            ? transfer.getInvestorAccountId()
+            : accountRepository
+                .findByInternalNumber(transfer.getToAccountId())
+                .map(a -> a.getExternalId())
+                .orElse(transfer.getToAccountId());
 
     return new TransferStatusResponse(
         transfer.getId(),
@@ -125,17 +131,18 @@ public class DepositService {
             && vendorResult.scenario() != VendorScenario.AMOUNT_MISMATCH;
 
     if (return422) {
-      LocalDate settlementDate = settlementDateService.computeSettlementDateNow();
-      Transfer transfer =
-          createTransfer(
-              frontBytes,
-              backBytes,
-              amount,
-              toAccountId,
-              fromAccountId,
-              TransferState.VALIDATING,
-              vendorResult,
-              settlementDate);
+    LocalDate settlementDate = settlementDateService.computeSettlementDateNow();
+    Transfer transfer =
+        createTransfer(
+            frontBytes,
+            backBytes,
+            amount,
+            toAccountId,
+            resolved.externalId(),
+            fromAccountId,
+            TransferState.VALIDATING,
+            vendorResult,
+            settlementDate);
       transferRepository.save(transfer);
       traceEventService.record(
           transfer.getId(),
@@ -157,6 +164,7 @@ public class DepositService {
             backBytes,
             amount,
             toAccountId,
+            resolved.externalId(),
             fromAccountId,
             TransferState.ANALYZING,
             vendorResult,
@@ -173,9 +181,10 @@ public class DepositService {
             "vendorScore", vendorResult.vendorScore() != null ? vendorResult.vendorScore() : 0,
             "micrData", vendorResult.micrData() != null ? vendorResult.micrData() : ""));
 
-    // MICR_READ_FAILURE: skip funding (no micrData); transfer stays in ANALYZING for operator
-    // review
-    if (vendorResult.scenario() == VendorScenario.MICR_READ_FAILURE) {
+    // MICR_READ_FAILURE: no micrData to validate; ROUTING_MISMATCH: routing confirmed bad by vendor.
+    // Both skip funding and stay in ANALYZING for operator review.
+    if (vendorResult.scenario() == VendorScenario.MICR_READ_FAILURE
+        || vendorResult.scenario() == VendorScenario.ROUTING_MISMATCH) {
       return new DepositResponse(transfer.getId(), transfer.getState());
     }
 
@@ -208,7 +217,8 @@ public class DepositService {
             fundingResult.defaultContributionType() != null
                 ? fundingResult.defaultContributionType()
                 : "INDIVIDUAL"));
-    return new DepositResponse(transfer.getId(), transfer.getState());
+    ledgerPostingService.postApprovedDeposit(transfer.getId());
+    return new DepositResponse(transfer.getId(), TransferState.APPROVED);
   }
 
   private Object handleRetry(
@@ -288,7 +298,8 @@ public class DepositService {
 
     transfer.setState(TransferState.ANALYZING);
     transferRepository.save(transfer);
-    return new DepositResponse(transfer.getId(), transfer.getState());
+    ledgerPostingService.postApprovedDeposit(transfer.getId());
+    return new DepositResponse(transfer.getId(), TransferState.APPROVED);
   }
 
   private static boolean isRetryableState(TransferState state) {
@@ -300,6 +311,7 @@ public class DepositService {
       byte[] backBytes,
       BigDecimal amount,
       String toAccountId,
+      String investorAccountId,
       String fromAccountId,
       TransferState state,
       VendorAssessmentResult vendorResult,
@@ -312,6 +324,7 @@ public class DepositService {
             backBytes,
             amount,
             toAccountId,
+            investorAccountId,
             fromAccountId,
             state,
             vendorResult.vendorScore(),

@@ -4,26 +4,18 @@ import { readAuthSession, type AuthRole } from '../context/authSession'
 const DEFAULT_INVESTOR_ACCOUNT = 'TEST001'
 const DEFAULT_OPERATOR_ACCOUNT = 'op1'
 
-export function getAuthHeaders(expectedRole: AuthRole): Record<string, string> {
-  const session = readAuthSession()
-  if (session && session.role === expectedRole) {
-    const accountId =
-      expectedRole === 'OPERATOR' ? DEFAULT_OPERATOR_ACCOUNT : DEFAULT_INVESTOR_ACCOUNT
-    return {
-      'X-User-Role': session.role,
-      'X-Account-Id': accountId,
-    }
-  }
+export function getAuthHeaders(
+  expectedRole: AuthRole,
+  accountIdOverride?: string
+): Record<string, string> {
+  const role =
+    readAuthSession()?.role === expectedRole ? expectedRole : expectedRole
 
-  if (expectedRole === 'OPERATOR') {
-    return {
-      'X-User-Role': 'OPERATOR',
-      'X-Account-Id': DEFAULT_OPERATOR_ACCOUNT,
-    }
-  }
+  const defaultAccount =
+    expectedRole === 'OPERATOR' ? DEFAULT_OPERATOR_ACCOUNT : DEFAULT_INVESTOR_ACCOUNT
 
   return {
-    'X-User-Role': 'INVESTOR',
-    'X-Account-Id': DEFAULT_INVESTOR_ACCOUNT,
+    'X-User-Role': role,
+    'X-Account-Id': accountIdOverride ?? defaultAccount,
   }
 }

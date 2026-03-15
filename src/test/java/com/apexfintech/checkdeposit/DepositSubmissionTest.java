@@ -66,30 +66,35 @@ class DepositSubmissionTest {
   }
 
   @Test
-  void submitDeposit_withRoutingMismatch_returns422WithActionableMessage() throws Exception {
-    ResultActions result =
-        mockMvc.perform(
-            post("/deposits")
-                .header("X-User-Role", "INVESTOR")
-                .header("X-Account-Id", "routing-mismatch")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(
-                    objectMapper.writeValueAsString(
-                        Map.of(
-                            "frontImage",
-                            VALID_BASE64_IMAGE,
-                            "backImage",
-                            VALID_BASE64_IMAGE,
-                            "amount",
-                            100.50,
-                            "accountId",
-                            "TEST001"))));
+  void submitDeposit_withRoutingMismatch_queuesForOperatorReview() throws Exception {
+    String response =
+        mockMvc
+            .perform(
+                post("/deposits")
+                    .header("X-User-Role", "INVESTOR")
+                    .header("X-Account-Id", "routing-mismatch")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        objectMapper.writeValueAsString(
+                            Map.of(
+                                "frontImage",
+                                VALID_BASE64_IMAGE,
+                                "backImage",
+                                VALID_BASE64_IMAGE,
+                                "amount",
+                                100.50,
+                                "accountId",
+                                "TEST001"))))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.transferId").exists())
+            .andExpect(jsonPath("$.state").value("ANALYZING"))
+            .andReturn()
+            .getResponse()
+            .getContentAsString();
 
-    result
-        .andExpect(status().isUnprocessableEntity())
-        .andExpect(jsonPath("$.transferId").exists())
-        .andExpect(jsonPath("$.actionableMessage").exists())
-        .andExpect(jsonPath("$.actionableMessage", containsString("routing")));
+    String transferId = objectMapper.readTree(response).get("transferId").asText();
+    var transfer = transferRepository.findById(java.util.UUID.fromString(transferId)).orElseThrow();
+    assertThat(transfer.getState()).isEqualTo(TransferState.ANALYZING);
   }
 
   @Test
@@ -141,13 +146,13 @@ class DepositSubmissionTest {
                             "retryForTransferId", transferId))))
         .andExpect(status().isCreated())
         .andExpect(jsonPath("$.transferId").value(transferId))
-        .andExpect(jsonPath("$.state").value("ANALYZING"));
+        .andExpect(jsonPath("$.state").value("APPROVED"));
 
     // 3. Assert no new record created — same transfer updated
     assertThat(transferRepository.count()).isEqualTo(countAfterFirst);
 
     var transfer = transferRepository.findById(java.util.UUID.fromString(transferId)).orElseThrow();
-    assertThat(transfer.getState()).isEqualTo(TransferState.ANALYZING);
+    assertThat(transfer.getState()).isEqualTo(TransferState.APPROVED);
   }
 
   @Test

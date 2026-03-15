@@ -136,6 +136,7 @@ public class DebugController {
               PLACEHOLDER_IMAGE,
               amount,
               resolved.internalNumber(),
+              resolved.externalId(),
               resolved.omnibusAccountId(),
               TransferState.ANALYZING,
               0.95,

@@ -158,10 +158,12 @@ public class OperatorService {
 
   private OperatorQueueItem toQueueItem(Transfer t) {
     String investorAccountId =
-        accountRepository
-            .findByInternalNumber(t.getToAccountId())
-            .map(a -> a.getExternalId())
-            .orElse(t.getToAccountId());
+        t.getInvestorAccountId() != null
+            ? t.getInvestorAccountId()
+            : accountRepository
+                .findByInternalNumber(t.getToAccountId())
+                .map(Account::getExternalId)
+                .orElse(t.getToAccountId());
 
     boolean amountMismatch =
         t.getOcrAmount() != null

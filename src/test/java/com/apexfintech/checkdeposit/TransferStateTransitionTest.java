@@ -106,6 +106,7 @@ class TransferStateTransitionTest {
             new byte[0],
             AMOUNT,
             TO_ACCOUNT,
+            "TEST001",
             FROM_ACCOUNT,
             state,
             0.95,

@@ -82,7 +82,7 @@ class EndToEndHappyPathTest {
                                 "accountId", "TEST001"))))
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.transferId").exists())
-            .andExpect(jsonPath("$.state").value("ANALYZING"))
+            .andExpect(jsonPath("$.state").value("APPROVED"))
             .andReturn()
             .getResponse()
             .getContentAsString();
@@ -90,35 +90,21 @@ class EndToEndHappyPathTest {
     String transferId = objectMapper.readTree(submitResponse).get("transferId").asText();
     UUID transferUuid = UUID.fromString(transferId);
 
-    // Assert initial state: ANALYZING
+    // Assert initial state: APPROVED with ledger entries posted
     var transferAfterSubmit = transferRepository.findById(transferUuid).orElseThrow();
-    assertThat(transferAfterSubmit.getState()).isEqualTo(TransferState.ANALYZING);
+    assertThat(transferAfterSubmit.getState()).isEqualTo(TransferState.APPROVED);
 
-    // 2. Operator approve
-    mockMvc
-        .perform(
-            post("/operator/queue/{transferId}/approve", transferId)
-                .header("X-User-Role", "OPERATOR")
-                .header("X-Account-Id", "op1")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("{}"))
-        .andExpect(status().isOk());
+    long ledgerCountAfterSubmit = ledgerEntryRepository.count();
+    assertThat(ledgerCountAfterSubmit).isGreaterThanOrEqualTo(2);
 
-    // Assert state: APPROVED, both ledger entries created
-    var transferAfterApprove = transferRepository.findById(transferUuid).orElseThrow();
-    assertThat(transferAfterApprove.getState()).isEqualTo(TransferState.APPROVED);
-
-    long ledgerCountAfterApprove = ledgerEntryRepository.count();
-    assertThat(ledgerCountAfterApprove).isGreaterThanOrEqualTo(2);
-
-    // 3. Trigger EOD batch (settlement)
+    // 2. Trigger EOD batch (settlement)
     settlementFileService.generateSettlementFile();
 
     // Assert state: COMPLETED
     var transferAfterSettlement = transferRepository.findById(transferUuid).orElseThrow();
     assertThat(transferAfterSettlement.getState()).isEqualTo(TransferState.COMPLETED);
 
-    // 4. Assert final ledger balance reflects the deposit (balance increased by deposit amount)
+    // 3. Assert final ledger balance reflects the deposit (balance increased by deposit amount)
     String balanceResponse =
         mockMvc
             .perform(
@@ -134,7 +120,7 @@ class EndToEndHappyPathTest {
         new BigDecimal(objectMapper.readTree(balanceResponse).get("balance").asText());
     assertThat(finalBalance.subtract(initialBalance)).isEqualByComparingTo(DEPOSIT_AMOUNT);
 
-    // 5. Verify status endpoint returns COMPLETED
+    // 4. Verify status endpoint returns COMPLETED
     mockMvc
         .perform(
             get("/deposits/{transferId}", transferId)

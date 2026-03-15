@@ -86,6 +86,7 @@ class SettlementRolloverIntegrationTest {
             new byte[0],
             new BigDecimal("100.00"),
             "INT-12345678",
+            "TEST001",
             "OMN-999",
             TransferState.APPROVED,
             0.95,

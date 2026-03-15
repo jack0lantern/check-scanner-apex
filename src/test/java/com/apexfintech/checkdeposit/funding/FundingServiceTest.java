@@ -40,7 +40,7 @@ class FundingServiceTest {
   void validate_amount5000_passes() {
     Transfer transfer = createTransfer(new BigDecimal("5000"));
     ResolvedAccount resolved =
-        new ResolvedAccount(TO_ACCOUNT_ID, "021000021", MICR_ACCOUNT, OMNIBUS_ID, "RETIREMENT");
+        new ResolvedAccount(TO_ACCOUNT_ID, "TEST001", "021000021", MICR_ACCOUNT, OMNIBUS_ID, "RETIREMENT");
 
     when(transferRepository.existsNonRejectedDuplicateByCheckNumber(
             eq(OMNIBUS_ID),
@@ -65,7 +65,7 @@ class FundingServiceTest {
   void validate_amount5001_fails() {
     Transfer transfer = createTransfer(new BigDecimal("5001"));
     ResolvedAccount resolved =
-        new ResolvedAccount(TO_ACCOUNT_ID, "021000021", MICR_ACCOUNT, OMNIBUS_ID, "RETIREMENT");
+        new ResolvedAccount(TO_ACCOUNT_ID, "TEST001", "021000021", MICR_ACCOUNT, OMNIBUS_ID, "RETIREMENT");
 
     FundingValidationResult result = fundingService.validate(transfer, resolved);
 
@@ -79,7 +79,7 @@ class FundingServiceTest {
   void validate_retirementAccount_defaultsContributionTypeToIndividual() {
     Transfer transfer = createTransfer(new BigDecimal("1000"));
     ResolvedAccount resolved =
-        new ResolvedAccount(TO_ACCOUNT_ID, "021000021", MICR_ACCOUNT, OMNIBUS_ID, "RETIREMENT");
+        new ResolvedAccount(TO_ACCOUNT_ID, "TEST001", "021000021", MICR_ACCOUNT, OMNIBUS_ID, "RETIREMENT");
 
     when(transferRepository.existsNonRejectedDuplicateByCheckNumber(
             eq(OMNIBUS_ID),
@@ -103,7 +103,7 @@ class FundingServiceTest {
   void validate_contributionCapViolation_rejected() {
     Transfer transfer = createTransfer(new BigDecimal("3000"));
     ResolvedAccount resolved =
-        new ResolvedAccount(TO_ACCOUNT_ID, "021000021", MICR_ACCOUNT, OMNIBUS_ID, "RETIREMENT");
+        new ResolvedAccount(TO_ACCOUNT_ID, "TEST001", "021000021", MICR_ACCOUNT, OMNIBUS_ID, "RETIREMENT");
 
     when(transferRepository.sumApprovedContributionsForAccountInYear(
             eq(TO_ACCOUNT_ID), any(List.class), any(Instant.class), any(Instant.class)))
@@ -121,7 +121,7 @@ class FundingServiceTest {
   void validate_duplicateTransfer_rejected() {
     Transfer transfer = createTransfer(new BigDecimal("1000"));
     ResolvedAccount resolved =
-        new ResolvedAccount(TO_ACCOUNT_ID, "021000021", MICR_ACCOUNT, OMNIBUS_ID, "RETIREMENT");
+        new ResolvedAccount(TO_ACCOUNT_ID, "TEST001", "021000021", MICR_ACCOUNT, OMNIBUS_ID, "RETIREMENT");
 
     when(transferRepository.sumApprovedContributionsForAccountInYear(
             eq(TO_ACCOUNT_ID), any(List.class), any(Instant.class), any(Instant.class)))
@@ -146,7 +146,7 @@ class FundingServiceTest {
     Transfer transfer = createTransfer(new BigDecimal("1000"));
     transfer.setMicrData("99999999912345678901"); // Wrong routing
     ResolvedAccount resolved =
-        new ResolvedAccount(TO_ACCOUNT_ID, "021000021", MICR_ACCOUNT, OMNIBUS_ID, "BROKERAGE");
+        new ResolvedAccount(TO_ACCOUNT_ID, "TEST001", "021000021", MICR_ACCOUNT, OMNIBUS_ID, "BROKERAGE");
 
     FundingValidationResult result = fundingService.validate(transfer, resolved);
 
@@ -161,7 +161,7 @@ class FundingServiceTest {
     Transfer transfer = createTransfer(new BigDecimal("1000"));
     transfer.setMicrData(null);
     ResolvedAccount resolved =
-        new ResolvedAccount(TO_ACCOUNT_ID, "021000021", MICR_ACCOUNT, OMNIBUS_ID, "BROKERAGE");
+        new ResolvedAccount(TO_ACCOUNT_ID, "TEST001", "021000021", MICR_ACCOUNT, OMNIBUS_ID, "BROKERAGE");
 
     FundingValidationResult result = fundingService.validate(transfer, resolved);
 
@@ -173,7 +173,7 @@ class FundingServiceTest {
   void validate_nonRetirementAccount_noContributionTypeDefault() {
     Transfer transfer = createTransfer(new BigDecimal("1000"));
     ResolvedAccount resolved =
-        new ResolvedAccount(TO_ACCOUNT_ID, "021000021", MICR_ACCOUNT, OMNIBUS_ID, "BROKERAGE");
+        new ResolvedAccount(TO_ACCOUNT_ID, "TEST001", "021000021", MICR_ACCOUNT, OMNIBUS_ID, "BROKERAGE");
 
     when(transferRepository.existsNonRejectedDuplicateByCheckNumber(
             eq(OMNIBUS_ID),
@@ -194,7 +194,7 @@ class FundingServiceTest {
   void validate_accountNumberMismatch_rejected() {
     Transfer transfer = createTransfer(new BigDecimal("1000"));
     ResolvedAccount resolved =
-        new ResolvedAccount(TO_ACCOUNT_ID, "021000021", "99999999", OMNIBUS_ID, "BROKERAGE");
+        new ResolvedAccount(TO_ACCOUNT_ID, "TEST001", "021000021", "99999999", OMNIBUS_ID, "BROKERAGE");
 
     FundingValidationResult result = fundingService.validate(transfer, resolved);
 
@@ -207,7 +207,7 @@ class FundingServiceTest {
     Transfer transfer = createTransfer(new BigDecimal("1000"));
     transfer.setMicrData("02100002112345678"); // Only 17 digits; account/check extraction fails
     ResolvedAccount resolved =
-        new ResolvedAccount(TO_ACCOUNT_ID, "021000021", MICR_ACCOUNT, OMNIBUS_ID, "BROKERAGE");
+        new ResolvedAccount(TO_ACCOUNT_ID, "TEST001", "021000021", MICR_ACCOUNT, OMNIBUS_ID, "BROKERAGE");
 
     FundingValidationResult result = fundingService.validate(transfer, resolved);
 
@@ -222,6 +222,7 @@ class FundingServiceTest {
         new byte[0],
         amount,
         TO_ACCOUNT_ID,
+        "TEST001",
         OMNIBUS_ID,
         TransferState.ANALYZING,
         0.95,

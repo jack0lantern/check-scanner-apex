@@ -53,6 +53,7 @@ class ReturnHandlingIntegrationTest {
                 new byte[0],
                 AMOUNT,
                 TO_ACCOUNT_ID,
+                "TEST001",
                 FROM_ACCOUNT_ID,
                 TransferState.ANALYZING,
                 0.95,

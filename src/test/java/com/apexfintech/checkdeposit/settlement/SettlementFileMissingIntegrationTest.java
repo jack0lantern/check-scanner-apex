@@ -84,6 +84,7 @@ class SettlementFileMissingIntegrationTest {
         backImage,
         amount,
         "INT-12345678",
+        "TEST001",
         "OMN-999",
         TransferState.APPROVED,
         0.95,

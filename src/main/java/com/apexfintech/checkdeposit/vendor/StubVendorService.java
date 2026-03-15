@@ -25,7 +25,8 @@ public class StubVendorService implements VendorService {
   /** MICR base: routing (9) + account (8). Check number (3) appended per-request for uniqueness. */
   private static final String DEFAULT_MICR_BASE = "02100002112345678";
 
-  private static final AtomicInteger checkNumberCounter = new AtomicInteger(100);
+  private static final AtomicInteger checkNumberCounter =
+      new AtomicInteger(new java.util.Random().nextInt(900) + 100);
 
   /** Returns unique MICR per call so repeated test deposits are not flagged as duplicates. */
   private static String nextDefaultMicr() {

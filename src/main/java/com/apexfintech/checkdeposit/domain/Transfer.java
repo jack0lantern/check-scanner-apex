@@ -33,6 +33,9 @@ public class Transfer {
   @Column(name = "to_account_id", nullable = false)
   private String toAccountId;
 
+  @Column(name = "investor_account_id")
+  private String investorAccountId;
+
   @Column(name = "from_account_id", nullable = false)
   private String fromAccountId;
 
@@ -105,6 +108,7 @@ public class Transfer {
       byte[] backImageData,
       BigDecimal amount,
       String toAccountId,
+      String investorAccountId,
       String fromAccountId,
       TransferState state,
       Double vendorScore,
@@ -119,6 +123,7 @@ public class Transfer {
     this.backImageData = backImageData;
     this.amount = amount;
     this.toAccountId = toAccountId;
+    this.investorAccountId = investorAccountId;
     this.fromAccountId = fromAccountId;
     this.state = state;
     this.vendorScore = vendorScore;
@@ -151,6 +156,10 @@ public class Transfer {
 
   public String getToAccountId() {
     return toAccountId;
+  }
+
+  public String getInvestorAccountId() {
+    return investorAccountId;
   }
 
   public String getFromAccountId() {

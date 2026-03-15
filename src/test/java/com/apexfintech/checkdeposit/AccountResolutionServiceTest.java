@@ -41,6 +41,7 @@ class AccountResolutionServiceTest {
     ResolvedAccount resolved = accountResolutionService.resolve("TEST001");
 
     assertThat(resolved.internalNumber()).isEqualTo("INT-12345678");
+    assertThat(resolved.externalId()).isEqualTo("TEST001");
     assertThat(resolved.routingNumber()).isEqualTo("021000021");
     assertThat(resolved.micrAccountNumber()).isEqualTo("12345678");
     assertThat(resolved.omnibusAccountId()).isEqualTo("OMN-999");
