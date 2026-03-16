@@ -212,10 +212,11 @@ public class DepositService {
             "vendorScore", vendorResult.vendorScore() != null ? vendorResult.vendorScore() : 0,
             "micrData", vendorResult.micrData() != null ? vendorResult.micrData() : ""));
 
-    // MICR_READ_FAILURE: no micrData to validate; ROUTING_MISMATCH: routing confirmed bad by vendor.
-    // Both skip funding and stay in ANALYZING for operator review.
+    // MICR_READ_FAILURE: no micrData to validate; ROUTING_MISMATCH: routing confirmed bad by vendor;
+    // AMOUNT_MISMATCH: OCR vs entered amount differs — all skip funding and stay in ANALYZING for operator review.
     if (vendorResult.scenario() == VendorScenario.MICR_READ_FAILURE
-        || vendorResult.scenario() == VendorScenario.ROUTING_MISMATCH) {
+        || vendorResult.scenario() == VendorScenario.ROUTING_MISMATCH
+        || vendorResult.scenario() == VendorScenario.AMOUNT_MISMATCH) {
       return new DepositResponse(transfer.getId(), transfer.getState());
     }
 
