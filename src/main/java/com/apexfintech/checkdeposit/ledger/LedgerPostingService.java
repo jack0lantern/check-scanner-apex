@@ -56,7 +56,7 @@ public class LedgerPostingService {
     }
 
     Instant now = Instant.now();
-    UUID transactionId = UUID.randomUUID();
+    UUID transactionId = transfer.getId();
 
     transfer.setState(TransferState.APPROVED);
     transfer.setType(MOVEMENT);

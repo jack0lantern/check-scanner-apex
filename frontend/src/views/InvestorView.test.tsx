@@ -35,6 +35,22 @@ describe('InvestorView', () => {
     expect(screen.getByLabelText(/back of check/i)).toBeInTheDocument()
   })
 
+  it('highlights missing required fields when submitting with blanks', async () => {
+    const user = userEvent.setup()
+    render(<InvestorView />)
+    await user.clear(screen.getByLabelText(/account id/i))
+
+    await user.click(screen.getByRole('button', { name: /submit/i }))
+
+    await waitFor(() => {
+      expect(mockSubmitDeposit).not.toHaveBeenCalled()
+      expect(screen.getByLabelText(/amount/i)).toHaveAttribute('aria-invalid', 'true')
+      expect(screen.getByLabelText(/account id/i)).toHaveAttribute('aria-invalid', 'true')
+      expect(screen.getByLabelText(/front of check/i)).toHaveAttribute('aria-invalid', 'true')
+      expect(screen.getByLabelText(/back of check/i)).toHaveAttribute('aria-invalid', 'true')
+    })
+  })
+
   it('fires submit with both Base64 image fields', async () => {
     const user = userEvent.setup()
     mockSubmitDeposit.mockResolvedValue({

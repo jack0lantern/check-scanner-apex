@@ -200,6 +200,17 @@
   background: var(--color-accent-hover);
 }
 
+/* Hide number input spinners (arrow selectors) */
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type='number'] {
+  -moz-appearance: textfield;
+}
+
 /* ========== Investor View ========== */
 .investor-view {
   max-width: 480px;
@@ -252,6 +263,21 @@
   padding: 0.5rem 0;
   font-size: 0.9rem;
   min-height: var(--touch-target);
+}
+
+.investor-view .field-error label {
+  color: var(--color-error);
+}
+
+.investor-view .field-error input {
+  border: 2px solid var(--color-error);
+  background: var(--color-error-bg);
+}
+
+.investor-view .field-error input:focus {
+  border-color: var(--color-error);
+  outline: 2px solid var(--color-error);
+  outline-offset: 2px;
 }
 
 .investor-view button[type='submit'] {

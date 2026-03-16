@@ -9,20 +9,52 @@ interface InvestorViewProps {
   onNavigateToLedger?: () => void
 }
 
+type FieldErrors = {
+  amount: boolean
+  accountId: boolean
+  frontImage: boolean
+  backImage: boolean
+}
+
+const INITIAL_FIELD_ERRORS: FieldErrors = {
+  amount: false,
+  accountId: false,
+  frontImage: false,
+  backImage: false,
+}
+
 export function InvestorView({ onNavigateToLedger }: InvestorViewProps) {
   const [amount, setAmount] = useState('')
   const [accountId, setAccountId] = useState(DEFAULT_ACCOUNT_ID)
   const [frontFile, setFrontFile] = useState<File | null>(null)
   const [backFile, setBackFile] = useState<File | null>(null)
   const [loading, setLoading] = useState(false)
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>(INITIAL_FIELD_ERRORS)
   const [success, setSuccess] = useState<{ transferId: string; state: string } | null>(null)
   const [iqaError, setIqaError] = useState<{
     transferId: string
     actionableMessage: string
   } | null>(null)
 
+  function validateFields(): FieldErrors {
+    const parsedAmount = Number.parseFloat(amount)
+    const amountValid = amount.trim() !== '' && Number.isFinite(parsedAmount) && parsedAmount > 0
+    const accountIdValid = accountId.trim() !== ''
+    return {
+      amount: !amountValid,
+      accountId: !accountIdValid,
+      frontImage: !frontFile,
+      backImage: !backFile,
+    }
+  }
+
   async function handleSubmit(retryForTransferId?: string) {
-    if (!frontFile || !backFile) return
+    const errors = validateFields()
+    if (Object.values(errors).some(Boolean)) {
+      setFieldErrors(errors)
+      return
+    }
+    setFieldErrors(INITIAL_FIELD_ERRORS)
     const front = frontFile as File
     const back = backFile as File
 
@@ -81,8 +113,8 @@ export function InvestorView({ onNavigateToLedger }: InvestorViewProps) {
   return (
     <div className="investor-view">
       <h1>Check Deposit</h1>
-      <form onSubmit={handleFormSubmit}>
-        <div>
+      <form onSubmit={handleFormSubmit} noValidate>
+        <div className={fieldErrors.amount ? 'field-error' : undefined}>
           <label htmlFor="amount">Amount</label>
           <input
             id="amount"
@@ -90,38 +122,54 @@ export function InvestorView({ onNavigateToLedger }: InvestorViewProps) {
             step="0.01"
             min="0"
             value={amount}
-            onChange={(e) => setAmount(e.target.value)}
+            onChange={(e) => {
+              setAmount(e.target.value)
+              if (fieldErrors.amount) setFieldErrors((prev) => ({ ...prev, amount: false }))
+            }}
             required
+            aria-invalid={fieldErrors.amount}
           />
         </div>
-        <div>
+        <div className={fieldErrors.accountId ? 'field-error' : undefined}>
           <label htmlFor="accountId">Account ID</label>
           <input
             id="accountId"
             type="text"
             value={accountId}
-            onChange={(e) => setAccountId(e.target.value)}
+            onChange={(e) => {
+              setAccountId(e.target.value)
+              if (fieldErrors.accountId) setFieldErrors((prev) => ({ ...prev, accountId: false }))
+            }}
             required
+            aria-invalid={fieldErrors.accountId}
           />
         </div>
-        <div>
+        <div className={fieldErrors.frontImage ? 'field-error' : undefined}>
           <label htmlFor="frontImage">Front of Check</label>
           <input
             id="frontImage"
             type="file"
             accept="image/*"
-            onChange={(e) => setFrontFile(e.target.files?.[0] ?? null)}
+            onChange={(e) => {
+              setFrontFile(e.target.files?.[0] ?? null)
+              if (fieldErrors.frontImage) setFieldErrors((prev) => ({ ...prev, frontImage: false }))
+            }}
             aria-required="true"
+            aria-invalid={fieldErrors.frontImage}
           />
         </div>
-        <div>
+        <div className={fieldErrors.backImage ? 'field-error' : undefined}>
           <label htmlFor="backImage">Back of Check</label>
           <input
             id="backImage"
             type="file"
             accept="image/*"
-            onChange={(e) => setBackFile(e.target.files?.[0] ?? null)}
+            onChange={(e) => {
+              setBackFile(e.target.files?.[0] ?? null)
+              if (fieldErrors.backImage) setFieldErrors((prev) => ({ ...prev, backImage: false }))
+            }}
             aria-required="true"
+            aria-invalid={fieldErrors.backImage}
           />
         </div>
         <button type="submit" disabled={loading}>
