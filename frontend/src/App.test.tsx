@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import App from './App'
 import { AuthProvider } from './context/AuthContext'
+import { writeAuthSession } from './context/authSession'
 
 describe('App routing shell', () => {
   beforeEach(() => {
@@ -23,6 +24,34 @@ describe('App routing shell', () => {
     expect(screen.getByText(/are you an:/i)).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /investor/i })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /operator/i })).toBeInTheDocument()
+  })
+
+  it('redirects logged-in investor from splash to investor portal', () => {
+    writeAuthSession({ role: 'INVESTOR', email: 'test@example.com' })
+    render(
+      <MemoryRouter initialEntries={['/']}>
+        <AuthProvider>
+          <App />
+        </AuthProvider>
+      </MemoryRouter>
+    )
+
+    expect(screen.getByRole('button', { name: /logout/i })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /deposit/i })).toBeInTheDocument()
+  })
+
+  it('redirects logged-in operator from splash to operator portal', () => {
+    writeAuthSession({ role: 'OPERATOR', email: 'op@example.com' })
+    render(
+      <MemoryRouter initialEntries={['/']}>
+        <AuthProvider>
+          <App />
+        </AuthProvider>
+      </MemoryRouter>
+    )
+
+    expect(screen.getByRole('button', { name: /logout/i })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /operator queue/i })).toBeInTheDocument()
   })
 
   it('redirects unauthenticated investor route to investor login', () => {

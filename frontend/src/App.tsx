@@ -26,6 +26,15 @@ function RequireRole({
   return children
 }
 
+function LandingOrRedirect() {
+  const { session } = useAuth()
+  if (session) {
+    const to = session.role === 'INVESTOR' ? '/investor' : '/operator'
+    return <Navigate to={to} replace />
+  }
+  return <LandingView />
+}
+
 function App() {
   const { session } = useAuth()
   const navigate = useNavigate()
@@ -38,7 +47,7 @@ function App() {
 
   return (
     <Routes>
-      <Route path="/" element={<LandingView />} />
+      <Route path="/" element={<LandingOrRedirect />} />
       <Route path="/investor/login" element={<InvestorLoginView />} />
       <Route path="/operator/login" element={<OperatorLoginView />} />
       <Route

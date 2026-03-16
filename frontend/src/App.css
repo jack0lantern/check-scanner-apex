@@ -6,6 +6,10 @@
   flex-direction: column;
 }
 
+.app-header-wrap {
+  position: relative;
+}
+
 .app-header {
   display: flex;
   align-items: center;
@@ -16,6 +20,12 @@
   position: sticky;
   top: 0;
   z-index: 100;
+}
+
+.app-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .app-title {
@@ -60,7 +70,7 @@
 
 .app-nav {
   position: fixed;
-  top: 57px;
+  top: 68px;
   left: 0;
   right: 0;
   background: var(--color-bg-elevated);
@@ -108,27 +118,19 @@
   z-index: 98;
 }
 
-/* Desktop nav */
+/* Desktop nav - dropdown from header */
 @media (min-width: 768px) {
-  .nav-toggle {
-    display: none;
-  }
-
-  .nav-backdrop {
-    display: none;
-  }
-
   .app-nav {
-    position: static;
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    padding: 0.75rem 1.25rem;
-    border-bottom: 1px solid var(--color-border);
-    transform: none;
-    opacity: 1;
-    visibility: visible;
-    box-shadow: none;
+    position: absolute;
+    top: calc(100% + 12px);
+    right: 1rem;
+    left: auto;
+    width: auto;
+    min-width: 180px;
+    flex-direction: column;
+    padding: 0.5rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border);
   }
 
   .app-nav a {
