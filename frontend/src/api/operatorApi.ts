@@ -1,6 +1,5 @@
 import { getAuthHeaders } from './authHeaders'
-
-const API_BASE = '/api'
+import { API_BASE } from './config'
 
 export interface RiskIndicators {
   amountMismatch: boolean
@@ -31,7 +30,7 @@ export interface OperatorQueueFilters {
 }
 
 /** Same shape as queue filters; for past actions, status maps to action (APPROVE/REJECT/etc). */
-export type OperatorActionFilters = OperatorQueueFilters
+export type OperatorActionFilters = OperatorQueueFilters & { status?: string }
 
 export async function getOperatorQueue(
   filters: OperatorQueueFilters = {}

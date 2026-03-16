@@ -1,4 +1,5 @@
 import { getAuthHeaders } from './authHeaders'
+import { API_BASE } from './config'
 
 export interface BalanceResponse {
   balance: number
@@ -24,7 +25,7 @@ export interface Page<T> {
 }
 
 export async function fetchBalance(accountId: string): Promise<BalanceResponse> {
-  const response = await fetch(`/api/accounts/${accountId}/balance`, {
+  const response = await fetch(`${API_BASE}/accounts/${accountId}/balance`, {
     headers: getAuthHeaders('INVESTOR'),
   })
   if (!response.ok) {
@@ -34,7 +35,7 @@ export async function fetchBalance(accountId: string): Promise<BalanceResponse> 
 }
 
 export async function fetchLedger(accountId: string, page: number = 0, size: number = 20): Promise<Page<LedgerEntry>> {
-  const response = await fetch(`/api/accounts/${accountId}/ledger?page=${page}&size=${size}`, {
+  const response = await fetch(`${API_BASE}/accounts/${accountId}/ledger?page=${page}&size=${size}`, {
     headers: getAuthHeaders('INVESTOR'),
   })
   if (!response.ok) {

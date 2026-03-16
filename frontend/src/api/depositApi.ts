@@ -1,6 +1,5 @@
 import { getAuthHeaders } from './authHeaders'
-
-const API_BASE = '/api'
+import { API_BASE } from './config'
 
 /** Vendor stub scenario triggers (not real accounts). Use TEST001 for account resolution. */
 const VENDOR_SCENARIO_IDS = new Set([
@@ -67,7 +66,7 @@ export async function submitDeposit(
   }
 
   if (!res.ok) {
-    const parsed = data as Record<string, unknown>
+    const parsed = data as unknown as Record<string, unknown>
     const err = new Error('Deposit submission failed') as Error & {
       status: number
       data: IqaFailureResponse
