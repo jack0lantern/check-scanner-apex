@@ -40,7 +40,7 @@ describe('App routing shell', () => {
     expect(screen.getByRole('link', { name: /deposit/i })).toBeInTheDocument()
   })
 
-  it('redirects logged-in operator from splash to operator portal', () => {
+  it('redirects logged-in operator from splash to operator portal', async () => {
     writeAuthSession({ role: 'OPERATOR', email: 'op@example.com' })
     render(
       <MemoryRouter initialEntries={['/']}>
@@ -50,8 +50,8 @@ describe('App routing shell', () => {
       </MemoryRouter>
     )
 
-    expect(screen.getByRole('button', { name: /logout/i })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: /operator queue/i })).toBeInTheDocument()
+    expect(await screen.findByRole('button', { name: /logout/i })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: /operator queue/i })).toBeInTheDocument()
   })
 
   it('redirects unauthenticated investor route to investor login', () => {
