@@ -13,7 +13,8 @@
 set -e
 
 BASE="${BASE_URL:-http://localhost:8080}"
-CLEAN_PASS_ACCOUNT="clean-pass"
+# Use amount-mismatch so deposit goes to ANALYZING (operator queue); clean-pass auto-approves and skips the queue
+SCENARIO_ACCOUNT="amount-mismatch"
 INVESTOR_ACCOUNT="TEST001"
 # Synthetic Base64 check images (minimal valid payload; vendor stub ignores content)
 FRONT_IMG="AQID"
@@ -33,13 +34,13 @@ fail() {
 
 # --- Step 1: Submit deposit ---
 echo ""
-echo "=== Step 1: Submit deposit (Clean Pass account) ==="
+echo "=== Step 1: Submit deposit (amount-mismatch → ANALYZING) ==="
 TRANSFER_ID=""
 for attempt in 1 2 3; do
   RESP=$(curl -s -w "\n%{http_code}" -X POST "$BASE/deposits" \
     -H "Content-Type: application/json" \
     -H "X-User-Role: INVESTOR" \
-    -H "X-Account-Id: $CLEAN_PASS_ACCOUNT" \
+    -H "X-Account-Id: $SCENARIO_ACCOUNT" \
     -d "{\"frontImage\":\"$FRONT_IMG\",\"backImage\":\"$BACK_IMG\",\"amount\":$AMOUNT,\"accountId\":\"$INVESTOR_ACCOUNT\"}")
 
   HTTP_BODY=$(echo "$RESP" | sed '$d')

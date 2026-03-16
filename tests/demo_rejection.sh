@@ -119,9 +119,9 @@ else
   pass "Step 3: 201 Created"
 fi
 
-# --- Step 4: Poll until state = ANALYZING ---
+# --- Step 4: Poll until state = APPROVED (Clean Pass retry auto-approves; no operator queue) ---
 echo ""
-echo "=== Step 4: Poll status until state = ANALYZING ==="
+echo "=== Step 4: Poll status until state = APPROVED ==="
 MAX_POLL=10
 POLL_INTERVAL=1
 STATE=""
@@ -138,35 +138,19 @@ try:
 except Exception:
     print('')
 " 2>/dev/null) || true
-  if [[ "$STATE" == "ANALYZING" ]]; then
-    pass "Step 4: state=ANALYZING (attempt $i)"
+  if [[ "$STATE" == "APPROVED" ]]; then
+    pass "Step 4: state=APPROVED (attempt $i)"
     break
   fi
   if [[ $i -eq $MAX_POLL ]]; then
-    fail "Step 4: did not reach ANALYZING within ${MAX_POLL}s. Last state=$STATE"
+    fail "Step 4: did not reach APPROVED within ${MAX_POLL}s. Last state=$STATE"
   fi
   sleep $POLL_INTERVAL
 done
 
-# --- Step 5: Operator approve ---
+# --- Step 5: Assert state = APPROVED ---
 echo ""
-echo "=== Step 5: Operator approve ==="
-APPROVE_RESP=$(curl -s -w "\n%{http_code}" -X POST "$BASE/operator/queue/$TRANSFER_ID/approve" \
-  -H "Content-Type: application/json" \
-  -H "X-User-Role: OPERATOR" \
-  -H "X-Account-Id: op1" \
-  -d '{}')
-
-APPROVE_CODE=$(echo "$APPROVE_RESP" | tail -1)
-if [[ "$APPROVE_CODE" != "200" ]]; then
-  fail "Step 5: Operator approve expected HTTP 200, got $APPROVE_CODE"
-else
-  pass "Step 5: Operator approve 200 OK"
-fi
-
-# --- Step 6: Assert state = APPROVED ---
-echo ""
-echo "=== Step 6: Assert state = APPROVED ==="
+echo "=== Step 5: Assert state = APPROVED ==="
 STATUS_RESP=$(curl -s "$BASE/deposits/$TRANSFER_ID" \
   -H "X-User-Role: INVESTOR" \
   -H "X-Account-Id: $INVESTOR_ACCOUNT")
@@ -180,9 +164,9 @@ except Exception:
 " 2>/dev/null) || true
 
 if [[ "$FINAL_STATE" == "APPROVED" ]]; then
-  pass "Step 6: state=APPROVED"
+  pass "Step 5: state=APPROVED"
 else
-  fail "Step 6: expected state APPROVED, got $FINAL_STATE"
+  fail "Step 5: expected state APPROVED, got $FINAL_STATE"
 fi
 
 # --- Summary ---
