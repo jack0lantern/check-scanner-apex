@@ -23,7 +23,7 @@ cp .env.example .env
 # Edit .env and set POSTGRES_PASSWORD (required)
 
 # Option A: Full stack (db + backend + frontend)
-docker compose --profile full up -d
+docker compose up -d
 
 # Option B: make dev (db only, foreground)
 make dev
@@ -62,7 +62,7 @@ Required environment variables (see `.env.example`):
 | `POSTGRES_USER` | PostgreSQL username | `checkuser` |
 | `POSTGRES_PASSWORD` | PostgreSQL password | *(required)* |
 | `POSTGRES_DB` | Database name | `checkdeposit` |
-| `POSTGRES_PORT` | PostgreSQL port | `5432` |
+| `POSTGRES_PORT` | PostgreSQL port (host mapping; avoids conflict with local Postgres on 5432) | `5435` |
 
 ## Architecture
 
@@ -104,7 +104,7 @@ The stub supports these deterministic response scenarios (selectable via test ac
 
 ## How to Demo
 
-Automated demo scripts exercise all four flows. Start the backend first (`docker compose up -d db` and `./mvnw spring-boot:run`, or `docker compose --profile full up -d`), then run:
+Automated demo scripts exercise all four flows. Start the stack first (`docker compose up -d`, or `docker compose up -d db` plus `./mvnw spring-boot:run` for local backend), then run:
 
 ```bash
 bash tests/demo_happy_path.sh      # Clean pass → approve → completed
@@ -179,7 +179,7 @@ After installation, `mvn test` runs on every `git commit`. If tests fail, the co
 
 - **Project name:** Mobile Check Deposit System
 - **Summary:** A minimal end-to-end mobile check deposit system for brokerage accounts. Uses a modular Java monolith with a configurable Vendor Service stub, Funding Service for business rules and ledger posting, operator review workflow, and X9 ICL settlement. Key trade-offs: monolith for simplicity and local iteration; stubbed vendor for deterministic scenario testing; mock auth via headers for MVP.
-- **How to run:** `cp .env.example .env` → set `POSTGRES_PASSWORD` → `docker compose up -d db` (or `docker compose --profile full up -d` for full stack)
+- **How to run:** `cp .env.example .env` → set `POSTGRES_PASSWORD` → `docker compose up -d` (full stack) or `docker compose up -d db` (database only for local Java)
 - **Test/eval results:** See `/reports` for test execution and scenario coverage
 - **With one more week, we would:** Add full JWT auth, production-grade error handling, and richer operator search/filter
 - **Risks and limitations:** See below

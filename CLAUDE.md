@@ -46,7 +46,7 @@ npm run test:watch   # vitest watch mode
 
 ```bash
 cp .env.example .env   # set POSTGRES_PASSWORD
-docker compose --profile full up -d   # db + backend + frontend
+docker compose up -d   # db + backend + frontend
 ```
 
 ## Architecture
