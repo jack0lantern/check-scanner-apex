@@ -40,7 +40,7 @@ describe('LedgerView', () => {
       content: [
         {
           entryId: 'e1',
-          type: 'DEPOSIT',
+          type: 'CREDIT',
           amount: 500.0,
           counterpartyAccountId: null,
           transactionId: 't1',
@@ -72,7 +72,7 @@ describe('LedgerView', () => {
     expect(screen.getByText('$1234.56')).toBeInTheDocument()
 
     // Assert at least one ledger entry row appears in the table
-    expect(screen.getByText('DEPOSIT')).toBeInTheDocument()
+    expect(screen.getByText('CREDIT')).toBeInTheDocument()
     expect(screen.getByText('+500.00')).toBeInTheDocument()
     expect(screen.getByText('t1')).toBeInTheDocument()
   })
@@ -83,8 +83,8 @@ describe('LedgerView', () => {
       content: [
         {
           entryId: 'e2',
-          type: 'FEE',
-          amount: -1.0,
+          type: 'DEBIT',
+          amount: 1.0,
           counterpartyAccountId: null,
           transactionId: 't2',
           timestamp: '2023-01-02T12:00:00Z',
@@ -105,7 +105,7 @@ describe('LedgerView', () => {
     })
 
     expect(screen.getByText('$99.99')).toBeInTheDocument()
-    expect(screen.getByText('FEE')).toBeInTheDocument()
+    expect(screen.getByText('DEBIT')).toBeInTheDocument()
     expect(screen.getByText('-1.00')).toBeInTheDocument()
   })
 })

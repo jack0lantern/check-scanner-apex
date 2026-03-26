@@ -3,6 +3,23 @@ import { fetchBalance, fetchLedger, type LedgerEntry, type Page } from '../api/l
 
 const DEFAULT_ACCOUNT_ID = 'TEST001'
 
+/** Backend stores absolute amount; DEBIT/CREDIT indicates effect on the account balance. */
+function formatLedgerAmount(entry: LedgerEntry): { className: string; text: string } {
+  const t = entry.type.toUpperCase()
+  const abs = Math.abs(entry.amount)
+  if (t === 'DEBIT') {
+    return { className: 'amount-negative', text: `-${abs.toFixed(2)}` }
+  }
+  if (t === 'CREDIT') {
+    return { className: 'amount-positive', text: `+${abs.toFixed(2)}` }
+  }
+  const signed = entry.amount
+  return {
+    className: signed >= 0 ? 'amount-positive' : 'amount-negative',
+    text: `${signed >= 0 ? '+' : ''}${signed.toFixed(2)}`,
+  }
+}
+
 export function LedgerView() {
   const [accountId, setAccountId] = useState(DEFAULT_ACCOUNT_ID)
   const [balance, setBalance] = useState<number | null>(null)
@@ -90,20 +107,23 @@ export function LedgerView() {
               </tr>
             </thead>
             <tbody>
-              {ledgerPage.content.map((entry) => (
+              {ledgerPage.content.map((entry) => {
+                const { className: amountClass, text: amountText } = formatLedgerAmount(entry)
+                return (
                 <tr key={entry.entryId}>
                   <td data-label="Timestamp">{new Date(entry.timestamp).toLocaleString()}</td>
                   <td data-label="Type">{entry.type}</td>
                   <td
                     data-label="Amount"
-                    className={entry.amount >= 0 ? 'amount-positive' : 'amount-negative'}
+                    className={amountClass}
                   >
-                    {entry.amount >= 0 ? '+' : ''}{entry.amount.toFixed(2)}
+                    {amountText}
                   </td>
                   <td data-label="Counterparty">{entry.counterpartyAccountId ?? 'N/A'}</td>
                   <td data-label="Transaction ID">{entry.transactionId}</td>
                 </tr>
-              ))}
+                )
+              })}
             </tbody>
           </table>
 
